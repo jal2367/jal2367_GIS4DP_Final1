@@ -6,8 +6,9 @@ type: map
 id: full-page
 config:
   mapStyle: "/data/Basemap.GIS4DP.json"
-  center: [-70.65, -33.45]
+  center: [-70.78, -33.47]   # middle of the pre-2014 hexagons
   zoom: 10
+  minZoom: 9.5   # farthest zoom-out: just fits the pre-2014 hexagons
   pitch: 55      # camera tilt in degrees (0 = flat, max 85)
   bearing: -20   # rotation in degrees (0 = north up)
 
@@ -43,9 +44,11 @@ layers:
     filter: ["<", ["get", "Year_Mean"], 1840]
     paint:
       fill-extrusion-color: "#00204d"
-      fill-extrusion-opacity: 0.8
-      # Height_m: random height for display (see the note above layers:)
-      fill-extrusion-height: ["get", "Height_m"]
+      # Fade from 80% to 35% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Height_m (see the note above layers:), shrinking to flat between zoom
+      # 12.5 and 14.5 so the 3D buildings show at street level
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1680–1806, color: "#00204d", shape: square }
     interactive: &hexa-popup
       hover:
@@ -76,9 +79,11 @@ layers:
     filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
     paint:
       fill-extrusion-color: "#314e55"
-      fill-extrusion-opacity: 0.8
-      # Height_m: random height for display (see the note above layers:)
-      fill-extrusion-height: ["get", "Height_m"]
+      # Fade from 80% to 35% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Height_m (see the note above layers:), shrinking to flat between zoom
+      # 12.5 and 14.5 so the 3D buildings show at street level
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1840–1941, color: "#314e55", shape: square }
     interactive: *hexa-popup
 
@@ -91,9 +96,11 @@ layers:
     filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
     paint:
       fill-extrusion-color: "#617d5c"
-      fill-extrusion-opacity: 0.8
-      # Height_m: random height for display (see the note above layers:)
-      fill-extrusion-height: ["get", "Height_m"]
+      # Fade from 80% to 35% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Height_m (see the note above layers:), shrinking to flat between zoom
+      # 12.5 and 14.5 so the 3D buildings show at street level
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1943–1985, color: "#617d5c", shape: square }
     interactive: *hexa-popup
 
@@ -106,9 +113,11 @@ layers:
     filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
     paint:
       fill-extrusion-color: "#92ab64"
-      fill-extrusion-opacity: 0.8
-      # Height_m: random height for display (see the note above layers:)
-      fill-extrusion-height: ["get", "Height_m"]
+      # Fade from 80% to 35% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Height_m (see the note above layers:), shrinking to flat between zoom
+      # 12.5 and 14.5 so the 3D buildings show at street level
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1986–2013, color: "#92ab64", shape: square }
     interactive: *hexa-popup
 
@@ -121,8 +130,25 @@ layers:
     filter: [">=", ["get", "Year_Mean"], 2014.4]
     paint:
       fill-extrusion-color: "#c2d96b"
-      fill-extrusion-opacity: 0.8
-      # Height_m: random height for display (see the note above layers:)
-      fill-extrusion-height: ["get", "Height_m"]
+      # Fade from 80% to 35% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Height_m (see the note above layers:), shrinking to flat between zoom
+      # 12.5 and 14.5 so the 3D buildings show at street level
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 2014–2024, color: "#c2d96b", shape: square }
     interactive: *hexa-popup
+
+  # Thin outline of every hexagon, drawn on the ground. MapLibre cannot outline
+  # 3D shapes, and the layer panel cannot group layers, so this is one layer
+  # for all periods with its own checkbox.
+  - id: hexa-outline
+    type: line
+    label: Hexagon outlines
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    paint:
+      line-color: "#333333"
+      line-width: ["interpolate", ["linear"], ["zoom"], 9, 0.3, 14, 1]
+      line-opacity: 0.5
+    legend: false
