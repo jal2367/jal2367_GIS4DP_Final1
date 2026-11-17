@@ -3,10 +3,10 @@ import { SITE } from "@consts";
 import { Scrollytelling, loadScrollytellingConfig } from "@maplibre-yaml/astro";
 
 {/*
-  The story is src/stories/nyc.yaml: the map, its layers and every chapter.
+  The story is src/stories/santiago.yaml: the map, its layers and every chapter.
   It is checked when the site builds.
 */}
-export const story = await loadScrollytellingConfig("./src/stories/nyc.yaml");
+export const story = await loadScrollytellingConfig("./src/stories/santiago.yaml");
 
 <PageLayout title="Scrollytelling" description={SITE.DESCRIPTION} bleed>
   <Scrollytelling config={story} />

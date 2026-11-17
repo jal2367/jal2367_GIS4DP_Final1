@@ -1,0 +1,197 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/scrollytelling.schema.json
+#
+# The story on src/pages/scrollytelling.mdx. The map stays on screen while the
+# chapters scroll over it; each chapter moves the camera and shows layers.
+# Chapter text (`description`) is HTML, not Markdown.
+#
+# TEXT TO WRITE: every chapter's description has a [bracketed] note saying
+# what to write there. Replace those notes with your own text.
+type: scrollytelling
+id: santiago-story
+theme: light           # chapter cards: light or dark
+showMarkers: true      # a dot per chapter at the right edge; click one to jump
+markerColor: "#00204d"
+
+# The map when the page opens: the whole Santiago basin, tilted, with terrain
+# (the terrain and hillshade come from the basemap file).
+config:
+  mapStyle: "/data/Basemap.GIS4DP.json"
+  center: [-70.75, -33.50]
+  zoom: 9
+  pitch: 45
+  bearing: -20
+  interactive: false   # scrolling moves the story, not the map
+
+# The five periods, the same colours, filters and heights as the full page map.
+# They all start hidden; each chapter reveals one more, so they build up.
+layers:
+  - id: story-1680-1806
+    type: fill-extrusion
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["<", ["get", "Year_Mean"], 1840]
+    layout:
+      visibility: none
+    paint:
+      fill-extrusion-color: "#00204d"
+      fill-extrusion-opacity: 0.8
+      fill-extrusion-height: ["get", "Height_m"]
+
+  - id: story-1840-1941
+    type: fill-extrusion
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    layout:
+      visibility: none
+    paint:
+      fill-extrusion-color: "#314e55"
+      fill-extrusion-opacity: 0.8
+      fill-extrusion-height: ["get", "Height_m"]
+
+  - id: story-1943-1985
+    type: fill-extrusion
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    layout:
+      visibility: none
+    paint:
+      fill-extrusion-color: "#617d5c"
+      fill-extrusion-opacity: 0.8
+      fill-extrusion-height: ["get", "Height_m"]
+
+  - id: story-1986-2013
+    type: fill-extrusion
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    layout:
+      visibility: none
+    paint:
+      fill-extrusion-color: "#92ab64"
+      fill-extrusion-opacity: 0.8
+      fill-extrusion-height: ["get", "Height_m"]
+
+  - id: story-2014-2024
+    type: fill-extrusion
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    layout:
+      visibility: none
+    paint:
+      fill-extrusion-color: "#c2d96b"
+      fill-extrusion-opacity: 0.8
+      fill-extrusion-height: ["get", "Height_m"]
+
+chapters:
+  - id: intro
+    title: Santiago, 1680–2024
+    description: >-
+      <p>[Introduce your project: what the hexagons measure, where the data
+      comes from, and the question you are asking about Santiago.]</p>
+      <p>Each hexagon is coloured by its mean year and raised by its number of
+      years. Scroll to watch the city build up, period by period.</p>
+    center: [-70.75, -33.50]
+    zoom: 9
+    pitch: 45
+    bearing: -20
+    alignment: center
+
+  - id: valley
+    title: A city between mountains
+    description: >-
+      <p>[Describe the setting: the Santiago basin, the Andes to the east and
+      the coastal range to the west, and how the terrain shapes where the city
+      can grow.]</p>
+    center: [-70.55, -33.45]
+    zoom: 9.6
+    pitch: 70
+    bearing: 80
+    alignment: left
+
+  - id: period-1
+    title: 1680–1806
+    description: >-
+      <p>[Write about the oldest period: 6 hexagons, all in the historic
+      centre.]</p>
+    center: [-70.648, -33.440]
+    zoom: 13.5
+    pitch: 60
+    bearing: -20
+    alignment: left
+    layers:
+      show: [story-1680-1806]
+
+  - id: period-2
+    title: 1840–1941
+    description: >-
+      <p>[Write about this period: 69 hexagons spreading around the
+      centre.]</p>
+    center: [-70.653, -33.460]
+    zoom: 12
+    pitch: 60
+    bearing: -10
+    alignment: right
+    layers:
+      show: [story-1840-1941]
+
+  - id: period-3
+    title: 1943–1985
+    description: >-
+      <p>[Write about this period: 370 hexagons, the city growing outward in
+      every direction.]</p>
+    center: [-70.643, -33.481]
+    zoom: 11
+    pitch: 55
+    bearing: 0
+    alignment: left
+    layers:
+      show: [story-1943-1985]
+
+  - id: period-4
+    title: 1986–2013
+    description: >-
+      <p>[Write about this period: 713 hexagons reaching far beyond the
+      urban edge.]</p>
+    center: [-70.70, -33.50]
+    zoom: 9.8
+    pitch: 50
+    bearing: 15
+    alignment: right
+    layers:
+      show: [story-1986-2013]
+
+  - id: period-5
+    title: 2014–2024
+    description: >-
+      <p>[Write about the newest period: 2,710 hexagons, mostly to the west of
+      the city.]</p>
+    center: [-70.80, -33.48]
+    zoom: 9.4
+    pitch: 50
+    bearing: -15
+    alignment: left
+    layers:
+      show: [story-2014-2024]
+
+  - id: outro
+    title: Santiago today
+    description: >-
+      <p>[Sum up what the map shows and what you learned.] Open the full page
+      map to explore each hexagon and switch periods on and off.</p>
+    center: [-70.75, -33.50]
+    zoom: 9.3
+    pitch: 55
+    rotateAnimation: true
+    alignment: full
+
+footer: >-
+  <p>Data: [your data source]. Basemap and terrain: © MapTiler,
+  © OpenStreetMap contributors.</p>

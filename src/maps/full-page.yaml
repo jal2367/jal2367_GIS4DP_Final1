@@ -8,11 +8,13 @@ config:
   mapStyle: "/data/Basemap.GIS4DP.json"
   center: [-70.65, -33.45]
   zoom: 10
+  pitch: 55      # camera tilt in degrees (0 = flat, max 85)
+  bearing: -20   # rotation in degrees (0 = north up)
 
 # Where the legend sits: top-left (default), top-right, bottom-left, bottom-right.
 legend:
   position: bottom-left
-  title: Mean year
+  title: "Colour: mean year · Height: number of years (varied within each period)"
 
 # Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
 # #00204d (oldest) to #c2d96b (newest). Each period is its own layer so it
@@ -22,21 +24,28 @@ legend:
 # Hexa_wgs84.geojson is Hexa.geojson converted from UTM zone 19S to
 # longitude/latitude, which web maps need.
 #
-# To change the look of every period at once, edit fill-opacity /
-# fill-outline-color in each layer's paint. To change a period's colour,
-# change both its fill-color and its legend color.
+# Hexagons are extruded (raised in 3D) by Height_m, a property in the GeoJSON:
+# 10 metres per year, where the years are a random whole number within the
+# period's range of #Years (1-10 for hexagons with #Years = 0). The real #Years
+# is unchanged and shows in the popup. Heights were made by a script with a
+# fixed seed, so they are the same every time.
+#
+# To change the look of every period at once, edit fill-extrusion-opacity in
+# each layer's paint. To change a period's colour,
+# change both its fill-extrusion-color and its legend color.
 layers:
   - id: hexa-1680-1806
-    type: fill
+    type: fill-extrusion
     label: 1680–1806
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
     filter: ["<", ["get", "Year_Mean"], 1840]
     paint:
-      fill-color: "#00204d"
-      fill-opacity: 0.75
-      fill-outline-color: "#ffffff"
+      fill-extrusion-color: "#00204d"
+      fill-extrusion-opacity: 0.8
+      # Height_m: random height for display (see the note above layers:)
+      fill-extrusion-height: ["get", "Height_m"]
     legend: { label: 1680–1806, color: "#00204d", shape: square }
     interactive: &hexa-popup
       hover:
@@ -54,59 +63,66 @@ layers:
           - p:
               - str: "Mean year: "
               - property: Year_Mean
+          - p:
+              - str: "Number of years: "
+              - property: "#Years"
 
   - id: hexa-1840-1941
-    type: fill
+    type: fill-extrusion
     label: 1840–1941
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
     paint:
-      fill-color: "#314e55"
-      fill-opacity: 0.75
-      fill-outline-color: "#ffffff"
+      fill-extrusion-color: "#314e55"
+      fill-extrusion-opacity: 0.8
+      # Height_m: random height for display (see the note above layers:)
+      fill-extrusion-height: ["get", "Height_m"]
     legend: { label: 1840–1941, color: "#314e55", shape: square }
     interactive: *hexa-popup
 
   - id: hexa-1943-1985
-    type: fill
+    type: fill-extrusion
     label: 1943–1985
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
     paint:
-      fill-color: "#617d5c"
-      fill-opacity: 0.75
-      fill-outline-color: "#ffffff"
+      fill-extrusion-color: "#617d5c"
+      fill-extrusion-opacity: 0.8
+      # Height_m: random height for display (see the note above layers:)
+      fill-extrusion-height: ["get", "Height_m"]
     legend: { label: 1943–1985, color: "#617d5c", shape: square }
     interactive: *hexa-popup
 
   - id: hexa-1986-2013
-    type: fill
+    type: fill-extrusion
     label: 1986–2013
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
     paint:
-      fill-color: "#92ab64"
-      fill-opacity: 0.75
-      fill-outline-color: "#ffffff"
+      fill-extrusion-color: "#92ab64"
+      fill-extrusion-opacity: 0.8
+      # Height_m: random height for display (see the note above layers:)
+      fill-extrusion-height: ["get", "Height_m"]
     legend: { label: 1986–2013, color: "#92ab64", shape: square }
     interactive: *hexa-popup
 
   - id: hexa-2014-2024
-    type: fill
+    type: fill-extrusion
     label: 2014–2024
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
     filter: [">=", ["get", "Year_Mean"], 2014.4]
     paint:
-      fill-color: "#c2d96b"
-      fill-opacity: 0.75
-      fill-outline-color: "#ffffff"
+      fill-extrusion-color: "#c2d96b"
+      fill-extrusion-opacity: 0.8
+      # Height_m: random height for display (see the note above layers:)
+      fill-extrusion-height: ["get", "Height_m"]
     legend: { label: 2014–2024, color: "#c2d96b", shape: square }
     interactive: *hexa-popup
