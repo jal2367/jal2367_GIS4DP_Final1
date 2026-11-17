@@ -23,11 +23,11 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key=https://cloud.maptiler.com/account/keys/1b074590-b5c6-4fe5-b42c-f06f7e612b25/settings"
+      "url": "https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key=y0fw7pkq30UtQjr7mmo8"
     }
   },
   "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
-  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=y0fw7pkq30UtQjr7mmo8",
   "layers": [
     {
       "id": "background",
