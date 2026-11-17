@@ -6,9 +6,9 @@ type: map
 id: full-page
 config:
   mapStyle: "/data/Basemap.GIS4DP.json"
-  center: [-70.78, -33.47]   # middle of the pre-2014 hexagons
-  zoom: 10
-  minZoom: 9.5   # farthest zoom-out: just fits the pre-2014 hexagons
+  center: [-70.70, -33.47]   # middle of the hexagons in the 32 comunas
+  zoom: 10.5
+  minZoom: 10     # farthest zoom-out: just fits the 32 comunas
   pitch: 55      # camera tilt in degrees (0 = flat, max 85)
   bearing: -20   # rotation in degrees (0 = north up)
 
@@ -16,6 +16,51 @@ config:
 legend:
   position: bottom-left
   title: "Colour: mean year · Height: number of years (varied within each period)"
+
+# Comuna filter: a dropdown in the layer panel. Every hexagon layer's `filter`
+# reads the choice with ["global-state", "comuna"] and shows either all
+# hexagons or only that comuna's. The comuna outlines highlight the choice.
+state:
+  comuna:
+    default: "All comunas"
+parameters:
+  comuna:
+    label: Comuna
+    type: enum
+    values:
+      - All comunas
+      - Cerrillos
+      - Cerro Navia
+      - Conchalí
+      - El Bosque
+      - Estación Central
+      - Huechuraba
+      - Independencia
+      - La Cisterna
+      - La Florida
+      - La Granja
+      - La Pintana
+      - La Reina
+      - Las Condes
+      - Lo Barnechea
+      - Lo Espejo
+      - Lo Prado
+      - Macul
+      - Maipú
+      - Ñuñoa
+      - Pedro Aguirre Cerda
+      - Peñalolén
+      - Providencia
+      - Pudahuel
+      - Quilicura
+      - Quinta Normal
+      - Recoleta
+      - Renca
+      - San Joaquín
+      - San Miguel
+      - San Ramón
+      - Santiago
+      - Vitacura
 
 # Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
 # #00204d (oldest) to #c2d96b (newest). Each period is its own layer so it
@@ -41,7 +86,7 @@ layers:
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
-    filter: ["<", ["get", "Year_Mean"], 1840]
+    filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       fill-extrusion-color: "#00204d"
       # Fade from 80% to 35% as you zoom in to street level
@@ -76,7 +121,7 @@ layers:
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
-    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       fill-extrusion-color: "#314e55"
       # Fade from 80% to 35% as you zoom in to street level
@@ -93,7 +138,7 @@ layers:
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
-    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       fill-extrusion-color: "#617d5c"
       # Fade from 80% to 35% as you zoom in to street level
@@ -110,7 +155,7 @@ layers:
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
-    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       fill-extrusion-color: "#92ab64"
       # Fade from 80% to 35% as you zoom in to street level
@@ -127,7 +172,7 @@ layers:
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
-    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       fill-extrusion-color: "#c2d96b"
       # Fade from 80% to 35% as you zoom in to street level
@@ -147,8 +192,43 @@ layers:
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
+    filter: ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]
     paint:
       line-color: "#333333"
       line-width: ["interpolate", ["linear"], ["zoom"], 9, 0.3, 14, 1]
       line-opacity: 0.5
+    legend: false
+
+  # Comuna boundaries for the 32 comunas, from caracena/chile-geojson on
+  # GitHub (Región Metropolitana file). The comuna picked in the dropdown is
+  # drawn thicker and darker.
+  - id: comunas-outline
+    type: line
+    label: Comuna boundaries
+    source:
+      type: geojson
+      url: "/data/comunas.geojson"
+    paint:
+      line-color: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], "#1f2a33", "#5b6770"]
+      line-width: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], 3, 1.2]
+      line-opacity: 0.85
+    legend: false
+
+  # Comuna names, one point per comuna (comunas_labels.geojson, made from the
+  # boundaries). Fonts come from the basemap's MapTiler font server.
+  - id: comunas-labels
+    type: symbol
+    label: Comuna names
+    source:
+      type: geojson
+      url: "/data/comunas_labels.geojson"
+    layout:
+      text-field: ["get", "COMUNA"]
+      text-font: ["Metropolis Medium", "Noto Sans Regular"]
+      text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
+      text-max-width: 7
+    paint:
+      text-color: "#2f3a42"
+      text-halo-color: "#ffffff"
+      text-halo-width: 1.5
     legend: false

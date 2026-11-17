@@ -12,12 +12,12 @@ theme: light           # chapter cards: light or dark
 showMarkers: true      # a dot per chapter at the right edge; click one to jump
 markerColor: "#00204d"
 
-# The map when the page opens: the whole Santiago basin, tilted, with terrain
+# The map when the page opens: the 32 comunas of Santiago, tilted, with terrain
 # (the terrain and hillshade come from the basemap file).
 config:
   mapStyle: "/data/Basemap.GIS4DP.json"
-  center: [-70.75, -33.50]
-  zoom: 9
+  center: [-70.70, -33.47]
+  zoom: 10.2
   pitch: 45
   bearing: -20
   interactive: false   # scrolling moves the story, not the map
@@ -98,8 +98,8 @@ chapters:
       comes from, and the question you are asking about Santiago.]</p>
       <p>Each hexagon is coloured by its mean year and raised by its number of
       years. Scroll to watch the city build up, period by period.</p>
-    center: [-70.75, -33.50]
-    zoom: 9
+    center: [-70.70, -33.47]
+    zoom: 10.2
     pitch: 45
     bearing: -20
     alignment: center
@@ -145,7 +145,7 @@ chapters:
   - id: period-3
     title: 1943–1985
     description: >-
-      <p>[Write about this period: 370 hexagons, the city growing outward in
+      <p>[Write about this period: 347 hexagons, the city growing outward in
       every direction.]</p>
     center: [-70.643, -33.481]
     zoom: 11
@@ -158,10 +158,10 @@ chapters:
   - id: period-4
     title: 1986–2013
     description: >-
-      <p>[Write about this period: 713 hexagons reaching far beyond the
-      urban edge.]</p>
-    center: [-70.70, -33.50]
-    zoom: 9.8
+      <p>[Write about this period: 377 hexagons filling in the outer
+      comunas.]</p>
+    center: [-70.70, -33.47]
+    zoom: 10.6
     pitch: 50
     bearing: 15
     alignment: right
@@ -171,10 +171,10 @@ chapters:
   - id: period-5
     title: 2014–2024
     description: >-
-      <p>[Write about the newest period: 2,710 hexagons, mostly to the west of
-      the city.]</p>
-    center: [-70.80, -33.48]
-    zoom: 9.4
+      <p>[Write about the newest period: 250 hexagons, the most recent
+      additions.]</p>
+    center: [-70.70, -33.47]
+    zoom: 10.4
     pitch: 50
     bearing: -15
     alignment: left
@@ -186,12 +186,13 @@ chapters:
     description: >-
       <p>[Sum up what the map shows and what you learned.] Open the full page
       map to explore each hexagon and switch periods on and off.</p>
-    center: [-70.75, -33.50]
-    zoom: 9.3
+    center: [-70.70, -33.47]
+    zoom: 10.3
     pitch: 55
     rotateAnimation: true
     alignment: full
 
 footer: >-
-  <p>Data: [your data source]. Basemap and terrain: © MapTiler,
+  <p>Data: [your data source]. Comuna boundaries: caracena/chile-geojson.
+  Basemap and terrain: © MapTiler,
   © OpenStreetMap contributors.</p>
