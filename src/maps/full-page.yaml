@@ -23,6 +23,10 @@ legend:
 state:
   comuna:
     default: "All comunas"
+  # The comuna last clicked on the map (set by src/scripts/comuna-zoom.js);
+  # its boundary is highlighted like the dropdown choice. No control.
+  highlight:
+    default: ""
 parameters:
   comuna:
     label: Comuna
@@ -70,6 +74,8 @@ parameters:
 # Hexa_wgs84.geojson is Hexa.geojson converted from UTM zone 19S to
 # longitude/latitude, which web maps need.
 #
+# Hexagons have no popup; click a comuna instead for its summary.
+#
 # Hexagons are extruded (raised in 3D) by Height_m, a property in the GeoJSON:
 # 10 metres per year, where the years are a random whole number within the
 # period's range of #Years (1-10 for hexagons with #Years = 0). The real #Years
@@ -95,30 +101,6 @@ layers:
       # 12.5 and 14.5 so the 3D buildings show at street level
       fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1680–1806, color: "#00204d", shape: square }
-    interactive: &hexa-popup
-      hover:
-        cursor: pointer
-      click:
-        popup:
-          - h3:
-              - property: COMUNA
-                else: "Hexagon"
-          - p:
-              - str: "Comuna: "
-              - property: Comuna_hexes
-              - str: " hexagons, average mean year "
-              - property: Comuna_mean_year
-          - p:
-              - str: "Years: "
-              - property: Year_Min
-              - str: " to "
-              - property: Year_Max
-          - p:
-              - str: "Mean year: "
-              - property: Year_Mean
-          - p:
-              - str: "Number of years: "
-              - property: "#Years"
 
   - id: hexa-1840-1941
     type: fill-extrusion
@@ -135,7 +117,6 @@ layers:
       # 12.5 and 14.5 so the 3D buildings show at street level
       fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1840–1941, color: "#314e55", shape: square }
-    interactive: *hexa-popup
 
   - id: hexa-1943-1985
     type: fill-extrusion
@@ -152,7 +133,6 @@ layers:
       # 12.5 and 14.5 so the 3D buildings show at street level
       fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1943–1985, color: "#617d5c", shape: square }
-    interactive: *hexa-popup
 
   - id: hexa-1986-2013
     type: fill-extrusion
@@ -169,7 +149,6 @@ layers:
       # 12.5 and 14.5 so the 3D buildings show at street level
       fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 1986–2013, color: "#92ab64", shape: square }
-    interactive: *hexa-popup
 
   - id: hexa-2014-2024
     type: fill-extrusion
@@ -186,27 +165,45 @@ layers:
       # 12.5 and 14.5 so the 3D buildings show at street level
       fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
     legend: { label: 2014–2024, color: "#c2d96b", shape: square }
-    interactive: *hexa-popup
 
-  # Thin outline of every hexagon, drawn on the ground. MapLibre cannot outline
-  # 3D shapes, and the layer panel cannot group layers, so this is one layer
-  # for all periods with its own checkbox.
-  - id: hexa-outline
-    type: line
-    label: Hexagon outlines
+  # Invisible comuna areas that make each comuna clickable: a click opens a
+  # summary popup and flies the map to the comuna (src/scripts/comuna-zoom.js).
+  # Mean_year, Period, Hexagons, First_year and Last_year were calculated from
+  # the hexagons and saved in comunas.geojson.
+  - id: comunas-fill
+    type: fill
     source:
       type: geojson
-      url: "/data/Hexa_wgs84.geojson"
-    filter: ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]
+      url: "/data/comunas.geojson"
     paint:
-      line-color: "#bfc4c9"
-      line-width: ["interpolate", ["linear"], ["zoom"], 9, 0.3, 14, 1]
-      line-opacity: 0.4
+      fill-color: "#ffffff"
+      fill-opacity: 0
     legend: false
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: COMUNA
+          - p:
+              - str: "Mean year: "
+              - property: Mean_year
+          - p:
+              - str: "Period: "
+              - property: Period
+          - p:
+              - str: "Years covered: "
+              - property: First_year
+              - str: "–"
+              - property: Last_year
+              - str: " ("
+              - property: Hexagons
+              - str: " hexagons)"
 
   # Comuna boundaries for the 32 comunas, from caracena/chile-geojson on
   # GitHub (Región Metropolitana file). The comuna picked in the dropdown is
-  # drawn thicker and in white; picking it also flies the map there (see
+  # (or clicked on the map) is drawn thicker and in white; picking it also flies the map there (see
   # src/scripts/comuna-zoom.js).
   - id: comunas-outline
     type: line
@@ -215,8 +212,8 @@ layers:
       type: geojson
       url: "/data/comunas.geojson"
     paint:
-      line-color: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], "#ffffff", "#9aa4ac"]
-      line-width: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], 3, 1.2]
+      line-color: ["case", ["any", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], ["==", ["get", "COMUNA"], ["global-state", "highlight"]]], "#ffffff", "#9aa4ac"]
+      line-width: ["case", ["any", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], ["==", ["get", "COMUNA"], ["global-state", "highlight"]]], 3, 1.2]
       line-opacity: 0.85
     legend: false
 

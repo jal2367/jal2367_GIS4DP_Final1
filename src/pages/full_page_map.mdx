@@ -1,6 +1,7 @@
 import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
 import { FullPageMap, loadMapConfig } from "@maplibre-yaml/astro";
+import ComunaZoom from "@components/ComunaZoom.astro";
 
 {/* The map is src/maps/full-page.yaml. It is checked when the site builds. */}
 export const map = await loadMapConfig("./src/maps/full-page.yaml");
@@ -15,12 +16,10 @@ export const map = await loadMapConfig("./src/maps/full-page.yaml");
       <strong>Santiago, 1680–2024</strong><br />
       Hexagons across 32 comunas, coloured by mean year and raised by number
       of years. Use the layer panel to switch periods on and off, or pick a
-      comuna to fly to it. Click a hexagon for details.
+      comuna to fly to it. Click a comuna for its summary.
     </div>
   </FullPageMap>
 </PageLayout>
 
-{/* Flies the map to the comuna picked in the layer panel's dropdown. */}
-<script>
-  import "../scripts/comuna-zoom.js";
-</script>
+{/* Flies the map to a comuna picked in the dropdown or clicked on the map. */}
+<ComunaZoom />
