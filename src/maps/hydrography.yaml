@@ -1,0 +1,164 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+#
+# The map on src/pages/hydrography.mdx ("Hydrography" in the menu): same
+# basemap and view as Growth Periods, without the hexagons.
+type: map
+id: hydrography
+config:
+  mapStyle: "/data/Basemap.GIS4DP.json"
+  center: [-70.70, -33.47]
+  zoom: 10.5
+  minZoom: 10
+  pitch: 55
+  bearing: -20
+
+legend:
+  position: bottom-left
+  title: Hydrography
+
+layers:
+  # Hydrography (rivers, streams, ravines, canals, reservoirs).
+  # hidrografia.geojson is Hydrografia2.geojson cut down for the web: only
+  # lines touching the 32 comunas, simplified to about 3 m, with the CAD layer
+  # names grouped into TIPO (the original name is kept in CAPA). Dropped as not
+  # water: CAD audit leftovers, "ca" and mining tailings dams (TRANQUE DE
+  # RELAVE). Each TIPO is its own layer so it gets its own checkbox.
+  - id: hydro-ravines
+    type: line
+    label: Ravines (quebradas)
+    source:
+      type: geojson
+      url: "/data/hidrografia.geojson"
+    filter: ["==", ["get", "TIPO"], "Ravines"]
+    paint:
+      line-color: "#5f8fa8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.5]
+      line-opacity: 0.7
+      line-dasharray: [3, 2]
+    legend: { label: Ravines (quebradas), color: "#5f8fa8", shape: line }
+    interactive: &hydro-popup
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: TIPO
+          - p:
+              - str: "Type in source: "
+              - property: CAPA
+
+  - id: hydro-reservoirs
+    type: line
+    label: Reservoirs and ponds
+    source:
+      type: geojson
+      url: "/data/hidrografia.geojson"
+    filter: ["==", ["get", "TIPO"], "Reservoirs and ponds"]
+    paint:
+      line-color: "#9ad0f5"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2]
+    legend: { label: Reservoirs and ponds, color: "#9ad0f5", shape: line }
+    interactive: *hydro-popup
+
+  - id: hydro-canals
+    type: line
+    label: Canals
+    source:
+      type: geojson
+      url: "/data/hidrografia.geojson"
+    filter: ["==", ["get", "TIPO"], "Canals"]
+    paint:
+      line-color: "#7fdcc4"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.8, 14, 2]
+    legend: { label: Canals, color: "#7fdcc4", shape: line }
+    interactive: *hydro-popup
+
+  - id: hydro-streams
+    type: line
+    label: Streams (esteros)
+    source:
+      type: geojson
+      url: "/data/hidrografia.geojson"
+    filter: ["==", ["get", "TIPO"], "Streams"]
+    paint:
+      line-color: "#6fc3ea"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2.5]
+    legend: { label: Streams (esteros), color: "#6fc3ea", shape: line }
+    interactive: *hydro-popup
+
+  - id: hydro-rivers
+    type: line
+    label: Rivers
+    source:
+      type: geojson
+      url: "/data/hidrografia.geojson"
+    filter: ["==", ["get", "TIPO"], "Rivers"]
+    paint:
+      line-color: "#3fa9f5"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 6]
+    legend: { label: Rivers, color: "#3fa9f5", shape: line }
+    interactive: *hydro-popup
+
+  # Collector network (Sistema Colector) from the Dirección de Obras
+  # Hidráulicas, in orange to set it apart from the natural water.
+  # sistema_colector.geojson is "Sistema Colector.geojson" cut
+  # down to the Región Metropolitana (1,265 of 2,937 lines) with only the
+  # fields used here, so the page loads faster.
+  - id: sistema-colector
+    type: line
+    label: Collector network
+    source:
+      type: geojson
+      url: "/data/sistema_colector.geojson"
+    paint:
+      line-color: "#f2a541"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.2, 14, 3]
+      line-opacity: 0.9
+    legend: { label: Collector network, color: "#f2a541", shape: line }
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: NOMBRE
+                else: "Collector"
+          - p:
+              - str: "Length: "
+              - property: LONG_M
+              - str: " m"
+          - p:
+              - str: "Updated: "
+              - property: ACTUALIZADO
+          - p:
+              - str: "Source: Dirección de Obras Hidráulicas"
+
+  # Comuna boundaries and names, the same files as on Growth Periods.
+  - id: comunas-outline
+    type: line
+    label: Comuna boundaries
+    source:
+      type: geojson
+      url: "/data/comunas.geojson"
+    paint:
+      line-color: "#9aa4ac"
+      line-width: 1.2
+      line-opacity: 0.85
+    legend: false
+
+  - id: comunas-labels
+    type: symbol
+    label: Comuna names
+    source:
+      type: geojson
+      url: "/data/comunas_labels.geojson"
+    layout:
+      text-field: ["get", "COMUNA"]
+      text-font: ["Metropolis Medium", "Noto Sans Regular"]
+      text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
+      text-max-width: 7
+    paint:
+      text-color: "#e6e9ec"
+      text-halo-color: "#2b2d30"
+      text-halo-width: 1.5
+    legend: false

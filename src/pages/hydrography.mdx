@@ -1,0 +1,22 @@
+import PageLayout from "@layouts/PageLayout.astro";
+import { SITE } from "@consts";
+import { FullPageMap, loadMapConfig } from "@maplibre-yaml/astro";
+
+{/* The map is src/maps/hydrography.yaml. It is checked when the site builds. */}
+export const map = await loadMapConfig("./src/maps/hydrography.yaml");
+
+<PageLayout title="Hydrography" description={SITE.DESCRIPTION} bleed>
+  {/* FullPageMap covers the whole window; `style` starts it below the site header. */}
+  <FullPageMap
+    config={map}
+    style="top: var(--header-h); height: calc(100vh - var(--header-h));"
+  >
+    <div slot="top-left" class="hidden sm:block rounded bg-white/90 px-3 py-2 text-sm text-stone-700 shadow max-w-64">
+      <strong>Hydrography</strong><br />
+      Rivers, streams, ravines, canals and reservoirs across the 32 comunas,
+      with the collector network (Dirección de Obras Hidráulicas) in orange.
+      Use the layer panel to switch layers on and off. Click a line for
+      details.
+    </div>
+  </FullPageMap>
+</PageLayout>

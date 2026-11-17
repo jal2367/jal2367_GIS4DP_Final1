@@ -6,7 +6,7 @@ import ComunaZoom from "@components/ComunaZoom.astro";
 {/* The map is src/maps/full-page.yaml. It is checked when the site builds. */}
 export const map = await loadMapConfig("./src/maps/full-page.yaml");
 
-<PageLayout title="Full page map" description={SITE.DESCRIPTION} bleed>
+<PageLayout title="Growth Periods" description={SITE.DESCRIPTION} bleed>
   {/* FullPageMap covers the whole window; `style` starts it below the site header. */}
   <FullPageMap
     config={map}
