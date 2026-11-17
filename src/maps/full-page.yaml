@@ -12,23 +12,33 @@ config:
 # Where the legend sits: top-left (default), top-right, bottom-left, bottom-right.
 legend:
   position: bottom-left
+  title: Mean year
 
-# Add your own layers here (see src/maps/layers.yaml for examples).
+# Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
+# #00204d (oldest) to #c2d96b (newest). Each period is its own layer so it
+# gets its own checkbox in the layer panel; `filter` picks the hexagons whose
+# Year_Mean falls in that period.
+#
+# Hexa_wgs84.geojson is Hexa.geojson converted from UTM zone 19S to
+# longitude/latitude, which web maps need.
+#
+# To change the look of every period at once, edit fill-opacity /
+# fill-outline-color in each layer's paint. To change a period's colour,
+# change both its fill-color and its legend color.
 layers:
-  # Hexagon grid. Hexa_wgs84.geojson is Hexa.geojson converted from
-  # UTM zone 19S to longitude/latitude, which web maps need.
-  - id: hexa
+  - id: hexa-1680-1806
     type: fill
-    label: Hexagons
+    label: 1680–1806
     source:
       type: geojson
       url: "/data/Hexa_wgs84.geojson"
+    filter: ["<", ["get", "Year_Mean"], 1840]
     paint:
-      fill-color: "#d73027"
-      fill-opacity: 0.35
+      fill-color: "#00204d"
+      fill-opacity: 0.75
       fill-outline-color: "#ffffff"
-    legend: { label: Hexagons, color: "#d73027", shape: square }
-    interactive:
+    legend: { label: 1680–1806, color: "#00204d", shape: square }
+    interactive: &hexa-popup
       hover:
         cursor: pointer
       click:
@@ -44,3 +54,59 @@ layers:
           - p:
               - str: "Mean year: "
               - property: Year_Mean
+
+  - id: hexa-1840-1941
+    type: fill
+    label: 1840–1941
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    paint:
+      fill-color: "#314e55"
+      fill-opacity: 0.75
+      fill-outline-color: "#ffffff"
+    legend: { label: 1840–1941, color: "#314e55", shape: square }
+    interactive: *hexa-popup
+
+  - id: hexa-1943-1985
+    type: fill
+    label: 1943–1985
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    paint:
+      fill-color: "#617d5c"
+      fill-opacity: 0.75
+      fill-outline-color: "#ffffff"
+    legend: { label: 1943–1985, color: "#617d5c", shape: square }
+    interactive: *hexa-popup
+
+  - id: hexa-1986-2013
+    type: fill
+    label: 1986–2013
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    paint:
+      fill-color: "#92ab64"
+      fill-opacity: 0.75
+      fill-outline-color: "#ffffff"
+    legend: { label: 1986–2013, color: "#92ab64", shape: square }
+    interactive: *hexa-popup
+
+  - id: hexa-2014-2024
+    type: fill
+    label: 2014–2024
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    paint:
+      fill-color: "#c2d96b"
+      fill-opacity: 0.75
+      fill-outline-color: "#ffffff"
+    legend: { label: 2014–2024, color: "#c2d96b", shape: square }
+    interactive: *hexa-popup
