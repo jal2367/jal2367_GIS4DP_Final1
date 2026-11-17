@@ -8,7 +8,7 @@
 # what to write there. Replace those notes with your own text.
 type: scrollytelling
 id: santiago-story
-theme: light           # chapter cards: light or dark
+theme: dark            # chapter cards: light or dark
 showMarkers: true      # a dot per chapter at the right edge; click one to jump
 markerColor: "#00204d"
 
@@ -90,6 +90,46 @@ layers:
       fill-extrusion-opacity: 0.8
       fill-extrusion-height: ["get", "Height_m"]
 
+  # Comuna boundaries and names, on for the whole story.
+  - id: story-comunas
+    type: line
+    source:
+      type: geojson
+      url: "/data/comunas.geojson"
+    paint:
+      line-color: "#9aa4ac"
+      line-width: 1.2
+      line-opacity: 0.85
+
+  - id: story-comuna-names
+    type: symbol
+    source:
+      type: geojson
+      url: "/data/comunas_labels.geojson"
+    layout:
+      text-field: ["get", "COMUNA"]
+      text-font: ["Metropolis Medium", "Noto Sans Regular"]
+      text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
+      text-max-width: 7
+    paint:
+      text-color: "#e6e9ec"
+      text-halo-color: "#2b2d30"
+      text-halo-width: 1.5
+
+  # Santiago and Providencia, where the oldest hexagons are: a thick white
+  # outline shown only in the 1680–1806 chapter.
+  - id: story-highlight
+    type: line
+    source:
+      type: geojson
+      url: "/data/comunas.geojson"
+    filter: ["in", ["get", "COMUNA"], ["literal", ["Santiago", "Providencia"]]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ffffff"
+      line-width: 3.5
+
 chapters:
   - id: intro
     title: Santiago, 1680–2024
@@ -119,15 +159,15 @@ chapters:
   - id: period-1
     title: 1680–1806
     description: >-
-      <p>[Write about the oldest period: 6 hexagons, all in the historic
-      centre.]</p>
-    center: [-70.648, -33.440]
-    zoom: 13.5
+      <p>[Write about the oldest period: 6 hexagons in the historic centre,
+      in the comunas of Santiago and Providencia (outlined in white).]</p>
+    center: [-70.640, -33.440]
+    zoom: 12.8
     pitch: 60
     bearing: -20
     alignment: left
     layers:
-      show: [story-1680-1806]
+      show: [story-1680-1806, story-highlight]
 
   - id: period-2
     title: 1840–1941
@@ -141,6 +181,7 @@ chapters:
     alignment: right
     layers:
       show: [story-1840-1941]
+      hide: [story-highlight]
 
   - id: period-3
     title: 1943–1985

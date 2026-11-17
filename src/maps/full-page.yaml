@@ -104,6 +104,11 @@ layers:
               - property: COMUNA
                 else: "Hexagon"
           - p:
+              - str: "Comuna: "
+              - property: Comuna_hexes
+              - str: " hexagons, average mean year "
+              - property: Comuna_mean_year
+          - p:
               - str: "Years: "
               - property: Year_Min
               - str: " to "
@@ -194,14 +199,15 @@ layers:
       url: "/data/Hexa_wgs84.geojson"
     filter: ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]
     paint:
-      line-color: "#333333"
+      line-color: "#bfc4c9"
       line-width: ["interpolate", ["linear"], ["zoom"], 9, 0.3, 14, 1]
-      line-opacity: 0.5
+      line-opacity: 0.4
     legend: false
 
   # Comuna boundaries for the 32 comunas, from caracena/chile-geojson on
   # GitHub (Región Metropolitana file). The comuna picked in the dropdown is
-  # drawn thicker and darker.
+  # drawn thicker and in white; picking it also flies the map there (see
+  # src/scripts/comuna-zoom.js).
   - id: comunas-outline
     type: line
     label: Comuna boundaries
@@ -209,7 +215,7 @@ layers:
       type: geojson
       url: "/data/comunas.geojson"
     paint:
-      line-color: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], "#1f2a33", "#5b6770"]
+      line-color: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], "#ffffff", "#9aa4ac"]
       line-width: ["case", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], 3, 1.2]
       line-opacity: 0.85
     legend: false
@@ -228,7 +234,7 @@ layers:
       text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
       text-max-width: 7
     paint:
-      text-color: "#2f3a42"
-      text-halo-color: "#ffffff"
+      text-color: "#e6e9ec"
+      text-halo-color: "#2b2d30"
       text-halo-width: 1.5
     legend: false
