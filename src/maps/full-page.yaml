@@ -14,4 +14,33 @@ legend:
   position: bottom-left
 
 # Add your own layers here (see src/maps/layers.yaml for examples).
-layers: []
+layers:
+  # Hexagon grid. Hexa_wgs84.geojson is Hexa.geojson converted from
+  # UTM zone 19S to longitude/latitude, which web maps need.
+  - id: hexa
+    type: fill
+    label: Hexagons
+    source:
+      type: geojson
+      url: "/data/Hexa_wgs84.geojson"
+    paint:
+      fill-color: "#d73027"
+      fill-opacity: 0.35
+      fill-outline-color: "#ffffff"
+    legend: { label: Hexagons, color: "#d73027", shape: square }
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: COMUNA
+                else: "Hexagon"
+          - p:
+              - str: "Years: "
+              - property: Year_Min
+              - str: " to "
+              - property: Year_Max
+          - p:
+              - str: "Mean year: "
+              - property: Year_Mean
