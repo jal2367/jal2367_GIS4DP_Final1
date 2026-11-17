@@ -16,19 +16,25 @@ legend:
   position: bottom-left
   title: Hydrography
 
+# hidrografia.geojson is Hydrografia2.geojson made lighter for the web: the
+# whole region (not clipped), lines simplified to about 3 m, the CAD layer
+# names grouped into TIPO (the original name is kept in CAPA). Dropped as not
+# water: CAD audit leftovers, "ca" and mining tailings dams (TRANQUE DE
+# RELAVE). Declared once here so the five layers share one copy (9 MB, about
+# 1.5 MB to download).
+sources:
+  hidrografia:
+    type: geojson
+    url: "/data/hidrografia.geojson"
+
 layers:
-  # Hydrography (rivers, streams, ravines, canals, reservoirs).
-  # hidrografia.geojson is Hydrografia2.geojson cut down for the web: only
-  # lines touching the 32 comunas, simplified to about 3 m, with the CAD layer
-  # names grouped into TIPO (the original name is kept in CAPA). Dropped as not
-  # water: CAD audit leftovers, "ca" and mining tailings dams (TRANQUE DE
-  # RELAVE). Each TIPO is its own layer so it gets its own checkbox.
+  # Hydrography (rivers, streams, ravines, canals, reservoirs), all from the
+  # shared "hidrografia" source above. Each TIPO is its own layer so it gets
+  # its own checkbox.
   - id: hydro-ravines
     type: line
     label: Ravines (quebradas)
-    source:
-      type: geojson
-      url: "/data/hidrografia.geojson"
+    source: hidrografia
     filter: ["==", ["get", "TIPO"], "Ravines"]
     paint:
       line-color: "#5f8fa8"
@@ -50,9 +56,7 @@ layers:
   - id: hydro-reservoirs
     type: line
     label: Reservoirs and ponds
-    source:
-      type: geojson
-      url: "/data/hidrografia.geojson"
+    source: hidrografia
     filter: ["==", ["get", "TIPO"], "Reservoirs and ponds"]
     paint:
       line-color: "#9ad0f5"
@@ -63,9 +67,7 @@ layers:
   - id: hydro-canals
     type: line
     label: Canals
-    source:
-      type: geojson
-      url: "/data/hidrografia.geojson"
+    source: hidrografia
     filter: ["==", ["get", "TIPO"], "Canals"]
     paint:
       line-color: "#7fdcc4"
@@ -76,9 +78,7 @@ layers:
   - id: hydro-streams
     type: line
     label: Streams (esteros)
-    source:
-      type: geojson
-      url: "/data/hidrografia.geojson"
+    source: hidrografia
     filter: ["==", ["get", "TIPO"], "Streams"]
     paint:
       line-color: "#6fc3ea"
@@ -89,9 +89,7 @@ layers:
   - id: hydro-rivers
     type: line
     label: Rivers
-    source:
-      type: geojson
-      url: "/data/hidrografia.geojson"
+    source: hidrografia
     filter: ["==", ["get", "TIPO"], "Rivers"]
     paint:
       line-color: "#3fa9f5"
