@@ -17,6 +17,16 @@ legend:
   position: bottom-left
   title: "Colour: mean year · Height: number of years (varied within each period)"
 
+# Stipple patterns for the hexagons, one per period: 16 px tiles of lighter
+# dots on the period colour, written inline as PNG data so no image files are
+# needed. (A pattern replaces fill-extrusion-color, so the colour is baked in.)
+images:
+  stipple-1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAQ0lEQVR4nGNgUPD9TxEmRlFxy1wwxmsAPkUUG0CxFwafASjeJTnQqGHAwIQBTlcR62SKDSDZC0QbSq4BcHlyQx9mAABVTZDwDtuxvQAAAABJRU5ErkJggg=="
+  stipple-2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4nGMw9Av9TwlmIEZR37xFYIzXAHyKKDaAYi8MPgOQvYvVAELhQbEBAxMGuFzFQKyTKTaAZC8QayjZBsDkyY4FmAEA/CbyULN1WosAAAAASUVORK5CYII="
+  stipple-3: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4nGNIrI35TwlmIEbRih1LwRivAfgUUWwAxV4YfAYgexerAYTCg2IDBiYMcLmKgVgnU2wAyV4g1lCyDYDJkx0LMAMAKTBSf5D0SXwAAAAASUVORK5CYII="
+  stipple-4: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGOYtDrlPyWYgRhFhy+uAmO8BuBTRLEBFHth8BmA7F2sBhAKD4oNGJgwwOUqBmKdTLEBJHuBWEPJNgAmT3YswAwAAJdZs7+pTxRDAAAAAElFTkSuQmCC"
+  stipple-5: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGM4dDP7PyWYgRhFd1+tA2O8BuBTRLEBFHth8BmA7F2sBhAKD4oNGJgwwOUqBmKdTLEBJHuBWEPJNgAmT3YswAwAAPRGEw4Q9p6FAAAAAElFTkSuQmCC"
+
 # Comuna filter: a dropdown in the layer panel. Every hexagon layer's `filter`
 # reads the choice with ["global-state", "comuna"] and shows either all
 # hexagons or only that comuna's. The comuna outlines highlight the choice.
@@ -27,6 +37,9 @@ state:
   # its boundary is highlighted like the dropdown choice. No control.
   highlight:
     default: ""
+  # Hexagon heights on/off: a checkbox in the layer panel. Off = flat hexagons.
+  heights:
+    default: true
 parameters:
   comuna:
     label: Comuna
@@ -65,6 +78,9 @@ parameters:
       - San Ramón
       - Santiago
       - Vitacura
+  heights:
+    label: Hexagon heights
+    type: toggle
 
 # Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
 # #00204d (oldest) to #c2d96b (newest). Each period is its own layer so it
@@ -94,12 +110,14 @@ layers:
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
-      fill-extrusion-color: "#00204d"
-      # Fade from 80% to 35% as you zoom in to street level
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Stipple: lighter dots on the period colour (#00204d); see images: above
+      fill-extrusion-pattern: stipple-1
+      # Fade from 70% to 30% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
-      # 12.5 and 14.5 so the 3D buildings show at street level
-      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
+      # 12.5 and 14.5 so the 3D buildings show at street level; 0 when the
+      # "Hexagon heights" checkbox is off
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["global-state", "heights"], ["get", "Height_m"], 0], 14.5, 0]
     legend: { label: 1680–1806, color: "#00204d", shape: square }
 
   - id: hexa-1840-1941
@@ -110,12 +128,14 @@ layers:
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
-      fill-extrusion-color: "#314e55"
-      # Fade from 80% to 35% as you zoom in to street level
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Stipple: lighter dots on the period colour (#314e55); see images: above
+      fill-extrusion-pattern: stipple-2
+      # Fade from 70% to 30% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
-      # 12.5 and 14.5 so the 3D buildings show at street level
-      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
+      # 12.5 and 14.5 so the 3D buildings show at street level; 0 when the
+      # "Hexagon heights" checkbox is off
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["global-state", "heights"], ["get", "Height_m"], 0], 14.5, 0]
     legend: { label: 1840–1941, color: "#314e55", shape: square }
 
   - id: hexa-1943-1985
@@ -126,12 +146,14 @@ layers:
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
-      fill-extrusion-color: "#617d5c"
-      # Fade from 80% to 35% as you zoom in to street level
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Stipple: lighter dots on the period colour (#617d5c); see images: above
+      fill-extrusion-pattern: stipple-3
+      # Fade from 70% to 30% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
-      # 12.5 and 14.5 so the 3D buildings show at street level
-      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
+      # 12.5 and 14.5 so the 3D buildings show at street level; 0 when the
+      # "Hexagon heights" checkbox is off
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["global-state", "heights"], ["get", "Height_m"], 0], 14.5, 0]
     legend: { label: 1943–1985, color: "#617d5c", shape: square }
 
   - id: hexa-1986-2013
@@ -142,12 +164,14 @@ layers:
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
-      fill-extrusion-color: "#92ab64"
-      # Fade from 80% to 35% as you zoom in to street level
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Stipple: lighter dots on the period colour (#92ab64); see images: above
+      fill-extrusion-pattern: stipple-4
+      # Fade from 70% to 30% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
-      # 12.5 and 14.5 so the 3D buildings show at street level
-      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
+      # 12.5 and 14.5 so the 3D buildings show at street level; 0 when the
+      # "Hexagon heights" checkbox is off
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["global-state", "heights"], ["get", "Height_m"], 0], 14.5, 0]
     legend: { label: 1986–2013, color: "#92ab64", shape: square }
 
   - id: hexa-2014-2024
@@ -158,12 +182,14 @@ layers:
       url: "/data/Hexa_wgs84.geojson"
     filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
-      fill-extrusion-color: "#c2d96b"
-      # Fade from 80% to 35% as you zoom in to street level
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.35]
+      # Stipple: lighter dots on the period colour (#c2d96b); see images: above
+      fill-extrusion-pattern: stipple-5
+      # Fade from 70% to 30% as you zoom in to street level
+      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
-      # 12.5 and 14.5 so the 3D buildings show at street level
-      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["get", "Height_m"], 14.5, 0]
+      # 12.5 and 14.5 so the 3D buildings show at street level; 0 when the
+      # "Hexagon heights" checkbox is off
+      fill-extrusion-height: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["global-state", "heights"], ["get", "Height_m"], 0], 14.5, 0]
     legend: { label: 2014–2024, color: "#c2d96b", shape: square }
 
   # Invisible comuna areas that make each comuna clickable: a click opens a
