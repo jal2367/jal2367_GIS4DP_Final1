@@ -23,13 +23,13 @@ config:
   interactive: false   # scrolling moves the story, not the map
 
 # Stipple patterns, the same as on the Growth Periods map (src/maps/full-page.yaml):
-# 16 px tiles of lighter dots on each period colour, written inline as PNG data.
+# 16 px tiles of lighter dots on each period colour, PNG files in public/img/.
 images:
-  stipple-1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAQ0lEQVR4nGNgUPD9TxEmRlFxy1wwxmsAPkUUG0CxFwafASjeJTnQqGHAwIQBTlcR62SKDSDZC0QbSq4BcHlyQx9mAABVTZDwDtuxvQAAAABJRU5ErkJggg=="
-  stipple-2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4nGMw9Av9TwlmIEZR37xFYIzXAHyKKDaAYi8MPgOQvYvVAELhQbEBAxMGuFzFQKyTKTaAZC8QayjZBsDkyY4FmAEA/CbyULN1WosAAAAASUVORK5CYII="
-  stipple-3: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4nGNIrI35TwlmIEbRih1LwRivAfgUUWwAxV4YfAYgexerAYTCg2IDBiYMcLmKgVgnU2wAyV4g1lCyDYDJkx0LMAMAKTBSf5D0SXwAAAAASUVORK5CYII="
-  stipple-4: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGOYtDrlPyWYgRhFhy+uAmO8BuBTRLEBFHth8BmA7F2sBhAKD4oNGJgwwOUqBmKdTLEBJHuBWEPJNgAmT3YswAwAAJdZs7+pTxRDAAAAAElFTkSuQmCC"
-  stipple-5: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGM4dDP7PyWYgRhFd1+tA2O8BuBTRLEBFHth8BmA7F2sBhAKD4oNGJgwwOUqBmKdTLEBJHuBWEPJNgAmT3YswAwAAPRGEw4Q9p6FAAAAAElFTkSuQmCC"
+  stipple-1: "/img/stipple-1.png"
+  stipple-2: "/img/stipple-2.png"
+  stipple-3: "/img/stipple-3.png"
+  stipple-4: "/img/stipple-4.png"
+  stipple-5: "/img/stipple-5.png"
 
 # The five periods, the same stippled colours, filters and heights as the
 # Growth Periods map.

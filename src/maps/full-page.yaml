@@ -18,14 +18,14 @@ legend:
   title: "Colour: mean year · Height: number of years (varied within each period)"
 
 # Stipple patterns for the hexagons, one per period: 16 px tiles of lighter
-# dots on the period colour, written inline as PNG data so no image files are
-# needed. (A pattern replaces fill-extrusion-color, so the colour is baked in.)
+# dots on the period colour, saved as PNG files in public/img/.
+# (A pattern replaces fill-extrusion-color, so the colour is baked in.)
 images:
-  stipple-1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAQ0lEQVR4nGNgUPD9TxEmRlFxy1wwxmsAPkUUG0CxFwafASjeJTnQqGHAwIQBTlcR62SKDSDZC0QbSq4BcHlyQx9mAABVTZDwDtuxvQAAAABJRU5ErkJggg=="
-  stipple-2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4nGMw9Av9TwlmIEZR37xFYIzXAHyKKDaAYi8MPgOQvYvVAELhQbEBAxMGuFzFQKyTKTaAZC8QayjZBsDkyY4FmAEA/CbyULN1WosAAAAASUVORK5CYII="
-  stipple-3: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4nGNIrI35TwlmIEbRih1LwRivAfgUUWwAxV4YfAYgexerAYTCg2IDBiYMcLmKgVgnU2wAyV4g1lCyDYDJkx0LMAMAKTBSf5D0SXwAAAAASUVORK5CYII="
-  stipple-4: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGOYtDrlPyWYgRhFhy+uAmO8BuBTRLEBFHth8BmA7F2sBhAKD4oNGJgwwOUqBmKdTLEBJHuBWEPJNgAmT3YswAwAAJdZs7+pTxRDAAAAAElFTkSuQmCC"
-  stipple-5: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASElEQVR4nGM4dDP7PyWYgRhFd1+tA2O8BuBTRLEBFHth8BmA7F2sBhAKD4oNGJgwwOUqBmKdTLEBJHuBWEPJNgAmT3YswAwAAPRGEw4Q9p6FAAAAAElFTkSuQmCC"
+  stipple-1: "/img/stipple-1.png"
+  stipple-2: "/img/stipple-2.png"
+  stipple-3: "/img/stipple-3.png"
+  stipple-4: "/img/stipple-4.png"
+  stipple-5: "/img/stipple-5.png"
 
 # Comuna filter: a dropdown in the layer panel. Every hexagon layer's `filter`
 # reads the choice with ["global-state", "comuna"] and shows either all
