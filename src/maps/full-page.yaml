@@ -26,6 +26,12 @@ images:
   stipple-3: "/img/stipple-3.png"
   stipple-4: "/img/stipple-4.png"
   stipple-5: "/img/stipple-5.png"
+  # Denser versions (twice the dots), used when zoomed out below zoom 12
+  stipple-1-dense: "/img/stipple-1-dense.png"
+  stipple-2-dense: "/img/stipple-2-dense.png"
+  stipple-3-dense: "/img/stipple-3-dense.png"
+  stipple-4-dense: "/img/stipple-4-dense.png"
+  stipple-5-dense: "/img/stipple-5-dense.png"
 
 # Comuna filter: a dropdown in the layer panel. Every hexagon layer's `filter`
 # reads the choice with ["global-state", "comuna"] and shows either all
@@ -111,7 +117,7 @@ layers:
     filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       # Stipple: lighter dots on the period colour (#00204d); see images: above
-      fill-extrusion-pattern: stipple-1
+      fill-extrusion-pattern: ["step", ["zoom"], "stipple-1-dense", 12, "stipple-1"]
       # Fade from 70% to 30% as you zoom in to street level
       fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
@@ -129,7 +135,7 @@ layers:
     filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       # Stipple: lighter dots on the period colour (#314e55); see images: above
-      fill-extrusion-pattern: stipple-2
+      fill-extrusion-pattern: ["step", ["zoom"], "stipple-2-dense", 12, "stipple-2"]
       # Fade from 70% to 30% as you zoom in to street level
       fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
@@ -147,7 +153,7 @@ layers:
     filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       # Stipple: lighter dots on the period colour (#617d5c); see images: above
-      fill-extrusion-pattern: stipple-3
+      fill-extrusion-pattern: ["step", ["zoom"], "stipple-3-dense", 12, "stipple-3"]
       # Fade from 70% to 30% as you zoom in to street level
       fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
@@ -165,7 +171,7 @@ layers:
     filter: ["all", ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       # Stipple: lighter dots on the period colour (#92ab64); see images: above
-      fill-extrusion-pattern: stipple-4
+      fill-extrusion-pattern: ["step", ["zoom"], "stipple-4-dense", 12, "stipple-4"]
       # Fade from 70% to 30% as you zoom in to street level
       fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
@@ -183,7 +189,7 @@ layers:
     filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]]]
     paint:
       # Stipple: lighter dots on the period colour (#c2d96b); see images: above
-      fill-extrusion-pattern: stipple-5
+      fill-extrusion-pattern: ["step", ["zoom"], "stipple-5-dense", 12, "stipple-5"]
       # Fade from 70% to 30% as you zoom in to street level
       fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
       # Height_m (see the note above layers:), shrinking to flat between zoom
