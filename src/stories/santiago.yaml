@@ -23,19 +23,13 @@ config:
   interactive: false   # scrolling moves the story, not the map
 
 # Stipple patterns, the same as on the Growth Periods map (src/maps/full-page.yaml):
-# 16 px tiles of lighter dots on each period colour, PNG files in public/img/.
+# a fine mesh of slightly lighter dots on each period colour (public/img/).
 images:
-  stipple-1: "/img/stipple-1.png"
-  stipple-2: "/img/stipple-2.png"
-  stipple-3: "/img/stipple-3.png"
-  stipple-4: "/img/stipple-4.png"
-  stipple-5: "/img/stipple-5.png"
-  # Denser versions (twice the dots), used when zoomed out below zoom 12
-  stipple-1-dense: "/img/stipple-1-dense.png"
-  stipple-2-dense: "/img/stipple-2-dense.png"
-  stipple-3-dense: "/img/stipple-3-dense.png"
-  stipple-4-dense: "/img/stipple-4-dense.png"
-  stipple-5-dense: "/img/stipple-5-dense.png"
+  stipple-1: { url: "/img/stipple-1.png", pixelRatio: 2 }
+  stipple-2: { url: "/img/stipple-2.png", pixelRatio: 2 }
+  stipple-3: { url: "/img/stipple-3.png", pixelRatio: 2 }
+  stipple-4: { url: "/img/stipple-4.png", pixelRatio: 2 }
+  stipple-5: { url: "/img/stipple-5.png", pixelRatio: 2 }
 
 # The five periods, the same stippled colours, filters and heights as the
 # Growth Periods map.
@@ -50,7 +44,7 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: ["step", ["zoom"], "stipple-1-dense", 12, "stipple-1"]   # lighter dots on #00204d
+      fill-extrusion-pattern: stipple-1   # lighter dots on #00204d
       fill-extrusion-opacity: 0.7
       fill-extrusion-height: ["get", "Height_m"]
 
@@ -63,7 +57,7 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: ["step", ["zoom"], "stipple-2-dense", 12, "stipple-2"]   # lighter dots on #314e55
+      fill-extrusion-pattern: stipple-2   # lighter dots on #314e55
       fill-extrusion-opacity: 0.7
       fill-extrusion-height: ["get", "Height_m"]
 
@@ -76,7 +70,7 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: ["step", ["zoom"], "stipple-3-dense", 12, "stipple-3"]   # lighter dots on #617d5c
+      fill-extrusion-pattern: stipple-3   # lighter dots on #617d5c
       fill-extrusion-opacity: 0.7
       fill-extrusion-height: ["get", "Height_m"]
 
@@ -89,7 +83,7 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: ["step", ["zoom"], "stipple-4-dense", 12, "stipple-4"]   # lighter dots on #92ab64
+      fill-extrusion-pattern: stipple-4   # lighter dots on #92ab64
       fill-extrusion-opacity: 0.7
       fill-extrusion-height: ["get", "Height_m"]
 
@@ -102,7 +96,7 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: ["step", ["zoom"], "stipple-5-dense", 12, "stipple-5"]   # lighter dots on #c2d96b
+      fill-extrusion-pattern: stipple-5   # lighter dots on #c2d96b
       fill-extrusion-opacity: 0.7
       fill-extrusion-height: ["get", "Height_m"]
 
