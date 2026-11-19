@@ -46,7 +46,7 @@ layers:
     paint:
       fill-extrusion-pattern: stipple-1   # lighter dots on #00204d
       fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["get", "Height_m"]
+      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
 
   - id: story-1840-1941
     type: fill-extrusion
@@ -59,7 +59,7 @@ layers:
     paint:
       fill-extrusion-pattern: stipple-2   # lighter dots on #314e55
       fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["get", "Height_m"]
+      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
 
   - id: story-1943-1985
     type: fill-extrusion
@@ -72,7 +72,7 @@ layers:
     paint:
       fill-extrusion-pattern: stipple-3   # lighter dots on #617d5c
       fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["get", "Height_m"]
+      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
 
   - id: story-1986-2013
     type: fill-extrusion
@@ -85,7 +85,7 @@ layers:
     paint:
       fill-extrusion-pattern: stipple-4   # lighter dots on #92ab64
       fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["get", "Height_m"]
+      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
 
   - id: story-2014-2024
     type: fill-extrusion
@@ -98,7 +98,7 @@ layers:
     paint:
       fill-extrusion-pattern: stipple-5   # lighter dots on #c2d96b
       fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["get", "Height_m"]
+      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
 
   # Comuna boundaries and names, on for the whole story.
   - id: story-comunas
