@@ -2,6 +2,7 @@ import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
 import { FullPageMap, loadMapConfig } from "@maplibre-yaml/astro";
 import ComunaZoom from "@components/ComunaZoom.astro";
+import SizeLegend from "@components/SizeLegend.astro";
 
 {/* The map is src/maps/full-page.yaml. It is checked when the site builds. */}
 export const map = await loadMapConfig("./src/maps/full-page.yaml");
@@ -14,12 +15,21 @@ export const map = await loadMapConfig("./src/maps/full-page.yaml");
   >
     <div slot="top-left" class="hidden sm:block rounded bg-white/90 px-3 py-2 text-sm text-stone-700 shadow max-w-64">
       <strong>Santiago, 1680–2024</strong><br />
-      Hexagons across 32 comunas, coloured by mean year and raised by number
+      Hexagons across 32 comunas, coloured by mean year and sized by number
       of years. Use the layer panel to switch periods on and off, or pick a
       comuna to fly to it. Click a comuna for its summary.
+    </div>
+    {/* Graduated size legend, drawn by src/scripts/size-legend.js */}
+    <div slot="bottom-left" id="size-legend" class="rounded bg-white/90 px-3 py-2 text-xs text-stone-700 shadow">
+      <strong>Size: number of years</strong>
+      <svg class="block mt-1" role="img" aria-label="Hexagon sizes from 0 years (20%) to 54 or more years (100%)"></svg>
+      <div data-scale-note class="text-[10px] text-stone-500"></div>
     </div>
   </FullPageMap>
 </PageLayout>
 
 {/* Flies the map to a comuna picked in the dropdown or clicked on the map. */}
 <ComunaZoom />
+
+{/* Draws the size legend at true scale as you zoom. */}
+<SizeLegend />

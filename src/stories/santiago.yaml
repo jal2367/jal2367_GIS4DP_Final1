@@ -31,74 +31,66 @@ images:
   stipple-4: { url: "/img/stipple-4.png", pixelRatio: 2 }
   stipple-5: { url: "/img/stipple-5.png", pixelRatio: 2 }
 
-# The five periods, the same stippled colours, filters and heights as the
-# Growth Periods map.
+# The five periods, the same mesh colours, filters and sizes as the Growth
+# Periods map, draped over the terrain.
 # They all start hidden; each chapter reveals one more, so they build up.
+# The hexagons shrunk by number of years, the same file as the Growth Periods
+# map: 0 years = 20% of full width, 54+ years = 100% (see src/maps/full-page.yaml).
+sources:
+  hexa_sized:
+    type: geojson
+    url: "/data/Hexa_sized.geojson"
+
 layers:
   - id: story-1680-1806
-    type: fill-extrusion
-    source:
-      type: geojson
-      url: "/data/Hexa_wgs84.geojson"
+    type: fill
+    source: hexa_sized
     filter: ["<", ["get", "Year_Mean"], 1840]
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: stipple-1   # lighter dots on #00204d
-      fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
+      fill-pattern: stipple-1   # lighter dots on #00204d
+      fill-opacity: 0.7
 
   - id: story-1840-1941
-    type: fill-extrusion
-    source:
-      type: geojson
-      url: "/data/Hexa_wgs84.geojson"
+    type: fill
+    source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: stipple-2   # lighter dots on #314e55
-      fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
+      fill-pattern: stipple-2   # lighter dots on #314e55
+      fill-opacity: 0.7
 
   - id: story-1943-1985
-    type: fill-extrusion
-    source:
-      type: geojson
-      url: "/data/Hexa_wgs84.geojson"
+    type: fill
+    source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: stipple-3   # lighter dots on #617d5c
-      fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
+      fill-pattern: stipple-3   # lighter dots on #617d5c
+      fill-opacity: 0.7
 
   - id: story-1986-2013
-    type: fill-extrusion
-    source:
-      type: geojson
-      url: "/data/Hexa_wgs84.geojson"
+    type: fill
+    source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: stipple-4   # lighter dots on #92ab64
-      fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
+      fill-pattern: stipple-4   # lighter dots on #92ab64
+      fill-opacity: 0.7
 
   - id: story-2014-2024
-    type: fill-extrusion
-    source:
-      type: geojson
-      url: "/data/Hexa_wgs84.geojson"
+    type: fill
+    source: hexa_sized
     filter: [">=", ["get", "Year_Mean"], 2014.4]
     layout:
       visibility: none
     paint:
-      fill-extrusion-pattern: stipple-5   # lighter dots on #c2d96b
-      fill-extrusion-opacity: 0.7
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]   # at least 80 m so the terrain does not cut through
+      fill-pattern: stipple-5   # lighter dots on #c2d96b
+      fill-opacity: 0.7
 
   # Comuna boundaries and names, on for the whole story.
   - id: story-comunas
@@ -146,7 +138,7 @@ chapters:
     description: >-
       <p>[Introduce your project: what the hexagons measure, where the data
       comes from, and the question you are asking about Santiago.]</p>
-      <p>Each hexagon is coloured by its mean year and raised by its number of
+      <p>Each hexagon is coloured by its mean year and sized by its number of
       years. Scroll to watch the city build up, period by period.</p>
     center: [-70.70, -33.47]
     zoom: 10.2

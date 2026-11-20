@@ -15,13 +15,13 @@ config:
 # Where the legend sits: top-left (default), top-right, bottom-left, bottom-right.
 legend:
   position: bottom-left
-  title: "Colour: mean year · Height: number of years (varied within each period)"
+  title: "Colour: mean year · Size: number of years"
 
 # Mesh patterns for the hexagons, one per period: a fine staggered grid of
 # slightly lighter dots on the period colour (8 px PNG tiles in public/img/,
 # drawn at pixelRatio 2: dots 1 px wide and 2 px apart on screen, crisp on
 # high-resolution screens), so it reads as a texture rather than single dots.
-# (A pattern replaces fill-extrusion-color, so the colour is baked in.)
+# (A pattern replaces the fill colour, so the colour is baked into each image.)
 images:
   stipple-1: { url: "/img/stipple-1.png", pixelRatio: 2 }
   stipple-2: { url: "/img/stipple-2.png", pixelRatio: 2 }
@@ -39,8 +39,9 @@ state:
   # its boundary is highlighted like the dropdown choice. No control.
   highlight:
     default: ""
-  # Hexagon heights on/off: a checkbox in the layer panel. Off = flat hexagons.
-  heights:
+  # Hexagon size on/off: a checkbox in the layer panel. On = each hexagon
+  # scaled by its number of years; off = all hexagons full size.
+  sizes:
     default: true
   # Period switches (checkboxes in the layer panel); each one controls both
   # the 3D and the draped layer of its period.
@@ -107,158 +108,132 @@ parameters:
   p5:
     label: 2014–2024
     type: toggle
-  heights:
-    label: Hexagon heights
+  sizes:
+    label: Hexagon size
     type: toggle
 
 # Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
-# #00204d (oldest) to #c2d96b (newest). Each period has two layers: a draped
-# flat one that follows the terrain and a 3D one. The period checkboxes are
-# state switches (p1-p5) read by both layers' `filter`.
+# #00204d (oldest) to #c2d96b (newest). Each period has two draped layers,
+# sized and full-size. The period checkboxes are state switches (p1-p5) read
+# by both layers' `filter`.
 #
 # Hexa_wgs84.geojson is Hexa.geojson converted from UTM zone 19S to
 # longitude/latitude, which web maps need.
 #
 # Hexagons have no popup; click a comuna instead for its summary.
 #
-# Hexagons are extruded (raised in 3D) by Height_m, a property in the GeoJSON:
-# 10 metres per year, where the years are a random whole number within the
-# period's range of #Years (1-10 for hexagons with #Years = 0). The real #Years
-# is unchanged and shows in the popup. Heights were made by a script with a
-# fixed seed, so they are the same every time.
+# Hexagon size shows the number of years (#Years); see hexa_sized under
+# sources: above. Click a comuna for its summary.
 #
-# To change the look of every period at once, edit fill-extrusion-opacity in
-# each layer's paint. To change a period's colour,
-# change both its fill-extrusion-color and its legend color.
-# The hexagons, loaded once and shared by the ten hexagon layers.
+# To change a period's colour, make a new mesh image (public/img/) and change
+# its legend color.
+# The hexagons, each loaded once and shared by the hexagon layers:
+# hexa = full-size hexagons; hexa_sized = the same hexagons shrunk around
+# their centre by number of years (#Years): 0 years = 20% of full width,
+# 54 years or more (the top 10%) = 100%, linear in between. Size_pct holds
+# the percentage. Made from Hexa_wgs84.geojson by a script.
 sources:
   hexa:
     type: geojson
     url: "/data/Hexa_wgs84.geojson"
+  hexa_sized:
+    type: geojson
+    url: "/data/Hexa_sized.geojson"
 
 layers:
-  # Draped hexagons: flat fills that follow the terrain and basemap.
-  # Shown when "Hexagon heights" is off, and at street level.
-  - id: hexa-flat-1680-1806
+  # Hexagons, all draped over the terrain and basemap (flat fills follow the
+  # ground). Fading from 70% to 30% as you zoom in to street level.
+  # Sized hexagons, shown when "Hexagon size" is on:
+  - id: hexa-sized-1680-1806
     type: fill
-    source: hexa
-    filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p1"], true]]
+    source: hexa_sized
+    filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p1"], true], ["==", ["global-state", "sizes"], true]]
     paint:
       fill-pattern: stipple-1
-      # Heights off: 70% fading to 30% at street level. Heights on: hidden
-      # until zoom 12.5, then fading in as the 3D hexagons fade out.
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["==", ["global-state", "heights"], true], 0, 0.7], 14.5, 0.3]
-    legend: false
-
-  - id: hexa-flat-1840-1941
-    type: fill
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p2"], true]]
-    paint:
-      fill-pattern: stipple-2
-      # Heights off: 70% fading to 30% at street level. Heights on: hidden
-      # until zoom 12.5, then fading in as the 3D hexagons fade out.
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["==", ["global-state", "heights"], true], 0, 0.7], 14.5, 0.3]
-    legend: false
-
-  - id: hexa-flat-1943-1985
-    type: fill
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p3"], true]]
-    paint:
-      fill-pattern: stipple-3
-      # Heights off: 70% fading to 30% at street level. Heights on: hidden
-      # until zoom 12.5, then fading in as the 3D hexagons fade out.
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["==", ["global-state", "heights"], true], 0, 0.7], 14.5, 0.3]
-    legend: false
-
-  - id: hexa-flat-1986-2013
-    type: fill
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p4"], true]]
-    paint:
-      fill-pattern: stipple-4
-      # Heights off: 70% fading to 30% at street level. Heights on: hidden
-      # until zoom 12.5, then fading in as the 3D hexagons fade out.
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["==", ["global-state", "heights"], true], 0, 0.7], 14.5, 0.3]
-    legend: false
-
-  - id: hexa-flat-2014-2024
-    type: fill
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p5"], true]]
-    paint:
-      fill-pattern: stipple-5
-      # Heights off: 70% fading to 30% at street level. Heights on: hidden
-      # until zoom 12.5, then fading in as the 3D hexagons fade out.
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12.5, ["case", ["==", ["global-state", "heights"], true], 0, 0.7], 14.5, 0.3]
-    legend: false
-
-  # 3D hexagons, shown when "Hexagon heights" is on.
-  - id: hexa-1680-1806
-    type: fill-extrusion
-    source: hexa
-    filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p1"], true], ["==", ["global-state", "heights"], true]]
-    paint:
-      fill-extrusion-pattern: stipple-1
-      # Fade out as you zoom in to street level, where the draped layer takes
-      # over and the 3D buildings show.
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0]
-      # At least 80 m so the 3D terrain does not cut through low hexagons
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
     legend: { label: 1680–1806, color: "#00204d", shape: square }
 
-  - id: hexa-1840-1941
-    type: fill-extrusion
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p2"], true], ["==", ["global-state", "heights"], true]]
+  - id: hexa-sized-1840-1941
+    type: fill
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p2"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-extrusion-pattern: stipple-2
-      # Fade out as you zoom in to street level, where the draped layer takes
-      # over and the 3D buildings show.
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0]
-      # At least 80 m so the 3D terrain does not cut through low hexagons
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]
+      fill-pattern: stipple-2
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
     legend: { label: 1840–1941, color: "#314e55", shape: square }
 
-  - id: hexa-1943-1985
-    type: fill-extrusion
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p3"], true], ["==", ["global-state", "heights"], true]]
+  - id: hexa-sized-1943-1985
+    type: fill
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p3"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-extrusion-pattern: stipple-3
-      # Fade out as you zoom in to street level, where the draped layer takes
-      # over and the 3D buildings show.
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0]
-      # At least 80 m so the 3D terrain does not cut through low hexagons
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]
+      fill-pattern: stipple-3
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
     legend: { label: 1943–1985, color: "#617d5c", shape: square }
 
-  - id: hexa-1986-2013
-    type: fill-extrusion
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p4"], true], ["==", ["global-state", "heights"], true]]
+  - id: hexa-sized-1986-2013
+    type: fill
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p4"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-extrusion-pattern: stipple-4
-      # Fade out as you zoom in to street level, where the draped layer takes
-      # over and the 3D buildings show.
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0]
-      # At least 80 m so the 3D terrain does not cut through low hexagons
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]
+      fill-pattern: stipple-4
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
     legend: { label: 1986–2013, color: "#92ab64", shape: square }
 
-  - id: hexa-2014-2024
-    type: fill-extrusion
-    source: hexa
-    filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p5"], true], ["==", ["global-state", "heights"], true]]
+  - id: hexa-sized-2014-2024
+    type: fill
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p5"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-extrusion-pattern: stipple-5
-      # Fade out as you zoom in to street level, where the draped layer takes
-      # over and the 3D buildings show.
-      fill-extrusion-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0]
-      # At least 80 m so the 3D terrain does not cut through low hexagons
-      fill-extrusion-height: ["max", ["get", "Height_m"], 80]
+      fill-pattern: stipple-5
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
     legend: { label: 2014–2024, color: "#c2d96b", shape: square }
+
+  # Full-size hexagons, shown when "Hexagon size" is off:
+  - id: hexa-full-1680-1806
+    type: fill
+    source: hexa
+    filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p1"], true], ["==", ["global-state", "sizes"], false]]
+    paint:
+      fill-pattern: stipple-1
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+    legend: false
+
+  - id: hexa-full-1840-1941
+    type: fill
+    source: hexa
+    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p2"], true], ["==", ["global-state", "sizes"], false]]
+    paint:
+      fill-pattern: stipple-2
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+    legend: false
+
+  - id: hexa-full-1943-1985
+    type: fill
+    source: hexa
+    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p3"], true], ["==", ["global-state", "sizes"], false]]
+    paint:
+      fill-pattern: stipple-3
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+    legend: false
+
+  - id: hexa-full-1986-2013
+    type: fill
+    source: hexa
+    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p4"], true], ["==", ["global-state", "sizes"], false]]
+    paint:
+      fill-pattern: stipple-4
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+    legend: false
+
+  - id: hexa-full-2014-2024
+    type: fill
+    source: hexa
+    filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p5"], true], ["==", ["global-state", "sizes"], false]]
+    paint:
+      fill-pattern: stipple-5
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+    legend: false
 
   # Invisible comuna areas that make each comuna clickable: a click opens a
   # summary popup and flies the map to the comuna (src/scripts/comuna-zoom.js).
