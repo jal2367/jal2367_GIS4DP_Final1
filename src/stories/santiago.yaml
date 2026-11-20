@@ -10,7 +10,7 @@ type: scrollytelling
 id: santiago-story
 theme: dark            # chapter cards: light or dark
 showMarkers: true      # a dot per chapter at the right edge; click one to jump
-markerColor: "#00204d"
+markerColor: "#c2d96b"     # chapter dots on the right, the site accent
 
 # The map when the page opens: the 32 comunas of Santiago, tilted, with terrain
 # (the terrain and hillshade come from the basemap file).
