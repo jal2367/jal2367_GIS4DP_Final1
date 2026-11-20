@@ -41,8 +41,23 @@
   header {
     @apply fixed top-0 left-0 right-0 z-50 flex items-center;
     height: var(--header-h);
-    @apply bg-stone-100/75 dark:bg-stone-900/25;
-    @apply backdrop-blur-sm saturate-200;
+    /* Same frosted dark glass as the map side panel (--map-glass below). */
+    background: rgba(62, 65, 70, 0.55);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #d4d7db;
+  }
+  /* Header links: light gray; the current page bold in #c2d96b. */
+  header a {
+    color: #d4d7db;
+  }
+  header a:hover {
+    color: #ffffff;
+  }
+  header a[aria-current="page"] {
+    color: #c2d96b;
+    font-weight: 700;
   }
 
   main {
@@ -245,4 +260,173 @@ ml-map .ml-map-params .period-pill .ml-map-params-label {
   width: 18px;
   height: 0;
   flex: none;
+}
+
+/* One continuous side panel (Growth Periods, Hydrography): the library's
+   top-left corner becomes a full-height frosted-glass sheet; the boxes in it
+   lose their own bubbles and become sections. Hidden/shown with the tab
+   (src/scripts/map-panels.js adds .side-panel, the tab and .is-collapsed). */
+:root {
+  --side-w: 260px;
+}
+.ml-map-chrome-top-left.side-panel {
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: var(--side-w);
+  max-width: 85vw;
+  max-height: none !important;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  gap: 0 !important;
+  align-items: stretch !important;
+  overflow-y: auto;
+  pointer-events: auto !important;
+  background: var(--map-glass);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.35);
+  color: var(--map-accent);
+  transition: transform 0.25s ease;
+}
+.ml-map-chrome-top-left.side-panel.is-collapsed {
+  transform: translateX(-100%);
+  box-shadow: none;
+}
+/* Sections: no bubble of their own, a thin divider between them. */
+.side-panel > *,
+.side-panel > .ml-astro-slot > * {
+  max-width: none !important;
+  overflow: visible !important;
+}
+.side-panel .map-glass,
+.side-panel .maplibre-legend,
+.side-panel .ml-map-params {
+  background: transparent !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 10px 0 !important;
+  min-width: 0 !important;
+}
+/* Period pills: a two-column grid to fit the panel width. */
+.side-panel .period-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.side-panel .ml-map-params .period-pill {
+  justify-content: center;
+  padding: 3px 6px;
+}
+/* The hide/show tab on the panel's edge. */
+.side-panel-tab {
+  position: absolute;
+  top: 12px;
+  left: min(var(--side-w), 85vw);
+  z-index: 2;
+  width: 24px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  background: var(--map-glass);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--map-accent);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: left 0.25s ease;
+}
+.side-panel-tab.is-collapsed {
+  left: 0;
+}
+.side-panel-tab:focus-visible {
+  outline: 2px solid var(--map-accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ml-map-chrome-top-left.side-panel,
+  .side-panel-tab {
+    transition: none;
+  }
+}
+
+/* Full-page maps run under the see-through site header, so the header's
+   frosted glass shows the map. Panels and controls start below it. */
+body.bleed .ml-map-chrome-top-left.side-panel {
+  top: var(--header-h) !important;
+}
+body.bleed .side-panel-tab {
+  top: calc(var(--header-h) + 12px);
+}
+body.bleed ml-map .ml-map-chrome-top-right,
+body.bleed ml-map .maplibregl-ctrl-top-right,
+body.bleed ml-map .maplibregl-ctrl-top-left {
+  margin-top: var(--header-h);
+}
+header a {
+  transition: color 0.2s ease;
+}
+
+/* North arrow and scale bar, pinned to the bottom of the side panel
+   (src/scripts/map-panels.js). The panel scrolls; this stays in view and the
+   rest of the panel scrolls behind it. */
+.ml-map-chrome-top-left.side-panel {
+  padding-bottom: 0 !important;
+}
+.side-panel-footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto; /* at the bottom even when the panel is not full */
+  margin-left: -14px;
+  margin-right: -14px;
+  padding: 10px 14px 12px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  background: rgba(52, 55, 60, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--map-accent);
+  z-index: 1;
+}
+.north-arrow {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--map-accent);
+  cursor: pointer;
+  line-height: 0;
+  transition: transform 0.1s linear;
+}
+.north-arrow:focus-visible {
+  outline: 2px solid var(--map-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.scale-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  padding-bottom: 2px;
+}
+.scale-bar-line {
+  height: 6px;
+  border: 1.5px solid var(--map-accent);
+  border-top: 0;
+}
+/* Sections keep their full height and the panel scrolls, instead of
+   squashing them on top of each other in short windows. */
+.side-panel > *,
+.side-panel > .ml-astro-slot > * {
+  flex-shrink: 0 !important;
 }

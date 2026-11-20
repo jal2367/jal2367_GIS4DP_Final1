@@ -1,6 +1,5 @@
 ---
 import Container from "@components/Container.astro";
-import Link from "@components/Link.astro";
 import { SITE } from "@consts";
 import { url } from "@lib/utils";
 
@@ -10,18 +9,22 @@ const nav = [
   { href: url("hydrography"), label: "Hydrography" },
   { href: url("scrollytelling"), label: "Scrollytelling" },
 ];
+
+// The page being viewed gets aria-current="page", styled bold #c2d96b in global.css.
+const strip = (path: string) => path.replace(/\/+$/, "");
+const here = strip(Astro.url.pathname);
 ---
 
 <header>
   <Container>
     <div class="flex flex-wrap gap-x-6 gap-y-2 justify-between items-center">
-      <Link href={url()} underline={false}>
-        <div class="font-semibold">
-          {SITE.NAME}
-        </div>
-      </Link>
+      <a href={url()} class="font-semibold" aria-current={here === strip(url()) ? "page" : undefined}>
+        {SITE.NAME}
+      </a>
       <nav class="hidden sm:flex gap-4 text-sm">
-        {nav.map((item) => <Link href={item.href} underline={false}>{item.label}</Link>)}
+        {nav.map((item) => (
+          <a href={item.href} aria-current={here === strip(item.href) ? "page" : undefined}>{item.label}</a>
+        ))}
       </nav>
     </div>
   </Container>

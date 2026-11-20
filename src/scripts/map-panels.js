@@ -33,6 +33,7 @@ function moveParamsLeft(root) {
 // The site wraps all its top-left boxes (info box, size legend) in one slot
 // container; `display: contents` lets each box be ordered on its own.
 function orderOf(el) {
+  if (el.classList.contains("side-panel-footer")) return 9;
   if (el.querySelector(".ml-map-params")) return 2;
   if (el.classList.contains("ml-map-legend") || el.querySelector(".maplibre-legend")) return 3;
   if (el.id === "size-legend" || el.querySelector("#size-legend")) return 4;
@@ -119,7 +120,123 @@ function layerSwatches(root) {
   }
 }
 
+// The left column as one continuous side panel (styled .side-panel in
+// global.css), with a tab on its edge to hide and show it. The choice is
+// remembered in this browser; on small screens the panel starts hidden.
+const STORE_KEY = "mapSidePanelCollapsed";
+function readCollapsed() {
+  try {
+    const saved = localStorage.getItem(STORE_KEY);
+    if (saved !== null) return saved === "1";
+  } catch { /* storage unavailable */ }
+  return window.matchMedia("(max-width: 640px)").matches;
+}
+function sidePanel(root) {
+  const left = leftColumn(root);
+  if (!left || left.classList.contains("side-panel")) return;
+  left.classList.add("side-panel");
+  left.id = left.id || "map-side-panel";
+
+  const tab = document.createElement("button");
+  tab.type = "button";
+  tab.className = "side-panel-tab";
+  tab.setAttribute("aria-controls", left.id);
+  left.parentElement.appendChild(tab);
+
+  const set = (collapsed, animate = true) => {
+    left.classList.toggle("is-collapsed", collapsed);
+    framePadding(root, left, collapsed, animate);
+    tab.classList.toggle("is-collapsed", collapsed);
+    tab.setAttribute("aria-expanded", String(!collapsed));
+    tab.setAttribute("aria-label", collapsed ? "Show panel" : "Hide panel");
+    tab.title = collapsed ? "Show panel" : "Hide panel";
+    tab.textContent = collapsed ? "›" : "‹";
+    left.inert = collapsed; // hidden panel is skipped by keyboard and screen readers
+  };
+  set(readCollapsed(), false);
+  // Keep the map centred on the visible area when the window is resized.
+  window.addEventListener("resize", () => framePadding(root, left, left.classList.contains("is-collapsed"), false));
+  tab.addEventListener("click", () => {
+    const collapsed = !left.classList.contains("is-collapsed");
+    set(collapsed);
+    try { localStorage.setItem(STORE_KEY, collapsed ? "1" : "0"); } catch { /* ignore */ }
+  });
+}
+
+// Shift the map's centre into the part of the map not covered by the side
+// panel (and, on full-page maps, the see-through site header), so the city
+// stays in the middle of what you can see. MapLibre keeps this padding for
+// later zooms and fly-tos too.
+function framePadding(root, left, collapsed, animate) {
+  const map = root.getMap ? root.getMap() : null;
+  if (!map) return;
+  const headerH = left.offsetTop || 0; // the panel starts below the header
+  const padding = { left: collapsed ? 0 : left.offsetWidth, top: headerH, right: 0, bottom: 0 };
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  map.easeTo({ padding, duration: animate && !reduce ? 250 : 0 });
+}
+
+// North arrow and scale bar (km), pinned to the bottom of the side panel:
+// the panel's other contents scroll behind them.
+const SVG_NS = "http://www.w3.org/2000/svg";
+function niceDistance(maxM) {
+  const pow = Math.pow(10, Math.floor(Math.log10(maxM)));
+  for (const f of [5, 2, 1]) if (f * pow <= maxM) return f * pow;
+  return pow;
+}
+function mapFooter(root) {
+  const left = leftColumn(root);
+  const map = root.getMap ? root.getMap() : null;
+  if (!left || !map || left.querySelector(".side-panel-footer")) return;
+
+  const footer = document.createElement("div");
+  footer.className = "side-panel-footer";
+
+  const north = document.createElement("button");
+  north.type = "button";
+  north.className = "north-arrow";
+  north.title = "North (click to point the map north)";
+  north.setAttribute("aria-label", "North arrow: click to point the map north");
+  north.innerHTML =
+    `<svg viewBox="0 0 28 40" width="26" height="38" aria-hidden="true">
+       <text x="14" y="10" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" font-family="sans-serif">N</text>
+       <polygon points="14,13 22,38 14,32" fill="currentColor"/>
+       <polygon points="14,13 6,38 14,32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+     </svg>`;
+  north.addEventListener("click", () => map.easeTo({ bearing: 0 }));
+
+  const scale = document.createElement("div");
+  scale.className = "scale-bar";
+  const bar = document.createElement("div");
+  bar.className = "scale-bar-line";
+  const label = document.createElement("span");
+  label.className = "scale-bar-label";
+  scale.append(bar, label);
+
+  footer.append(north, scale);
+  left.appendChild(footer);
+
+  const MAX_PX = 140;
+  const update = () => {
+    north.style.transform = `rotate(${-map.getBearing()}deg)`;
+    // Measure the ground distance across 100 px at the centre of the view
+    // (this accounts for the tilt).
+    const c = map.project(map.getCenter());
+    const a = map.unproject([c.x - 50, c.y]);
+    const b = map.unproject([c.x + 50, c.y]);
+    const mPerPx = a.distanceTo(b) / 100;
+    if (!isFinite(mPerPx) || mPerPx <= 0) return;
+    const metres = niceDistance(mPerPx * MAX_PX);
+    bar.style.width = `${Math.round(metres / mPerPx)}px`;
+    label.textContent = `${metres / 1000} km`;
+  };
+  map.on("move", update);
+  update();
+}
+
 function apply(root) {
+  sidePanel(root);
+  mapFooter(root);
   moveParamsLeft(root);
   pillifyPeriods(root);
   inlineToggles(root);
