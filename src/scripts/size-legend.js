@@ -58,21 +58,21 @@ function render(map, box) {
       [x0 + w, cy], [x0 + (3 * w) / 4, cy + h / 2], [x0 + w / 4, cy + h / 2],
     ].map((p) => p.map((v) => v.toFixed(1)).join(",")).join(" ");
     svg.appendChild(el("polygon", {
-      points: pts, fill: "rgba(120, 140, 110, 0.18)", stroke: "#44504a", "stroke-width": 1,
+      points: pts, fill: "rgba(194, 217, 107, 0.12)", stroke: "#c2d96b", "stroke-width": 1,
     }));
   }
 
   // Ruler: a line the width of the full hexagon, a tick under each hexagon's
   // right corner, and year labels where there is room.
-  svg.appendChild(el("line", { x1: x0, y1: rulerY, x2: x0 + W, y2: rulerY, stroke: "#44504a", "stroke-width": 1 }));
+  svg.appendChild(el("line", { x1: x0, y1: rulerY, x2: x0 + W, y2: rulerY, stroke: "#c2d96b", "stroke-width": 1 }));
   let lastLabelX = Infinity;
   for (const step of [...STEPS].reverse()) {
     const x = x0 + W * step.size;
-    svg.appendChild(el("line", { x1: x, y1: rulerY - 3, x2: x, y2: rulerY + 3, stroke: "#44504a", "stroke-width": 1 }));
+    svg.appendChild(el("line", { x1: x, y1: rulerY - 3, x2: x, y2: rulerY + 3, stroke: "#c2d96b", "stroke-width": 1 }));
     const isLast = step.size === 1;
     if (isLast || lastLabelX - x >= 26) {
       const text = el("text", {
-        x: isLast ? x + 2 : x, y: rulerY + 15, "font-size": 10, fill: "#333",
+        x: isLast ? x + 2 : x, y: rulerY + 15, "font-size": 10, fill: "#c2d96b",
         "text-anchor": isLast ? "start" : "middle", "font-family": "sans-serif",
       });
       text.textContent = step.label;

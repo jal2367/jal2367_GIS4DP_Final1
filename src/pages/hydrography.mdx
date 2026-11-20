@@ -1,6 +1,7 @@
 import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
 import { FullPageMap, loadMapConfig } from "@maplibre-yaml/astro";
+import MapPanels from "@components/MapPanels.astro";
 
 {/* The map is src/maps/hydrography.yaml. It is checked when the site builds. */}
 export const map = await loadMapConfig("./src/maps/hydrography.yaml");
@@ -11,7 +12,7 @@ export const map = await loadMapConfig("./src/maps/hydrography.yaml");
     config={map}
     style="top: var(--header-h); height: calc(100vh - var(--header-h));"
   >
-    <div slot="top-left" class="hidden sm:block rounded bg-white/90 px-3 py-2 text-sm text-stone-700 shadow max-w-64">
+    <div slot="top-left" class="hidden sm:block map-glass px-3 py-2 text-sm max-w-64">
       <strong>Hydrography</strong><br />
       Rivers, streams, ravines, canals and reservoirs of the Santiago region,
       with the collector network (Dirección de Obras Hidráulicas) in orange.
@@ -20,3 +21,6 @@ export const map = await loadMapConfig("./src/maps/hydrography.yaml");
     </div>
   </FullPageMap>
 </PageLayout>
+
+{/* Puts the layer panel in the left column. */}
+<MapPanels />

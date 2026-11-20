@@ -13,10 +13,10 @@ export const story = await loadScrollytellingConfig("./src/stories/santiago.yaml
   <Scrollytelling config={story}>
     {/* Graduated size legend, drawn by src/scripts/size-legend.js (the same as
         on Growth Periods). Bottom-right, away from the chapter cards. */}
-    <div slot="bottom-right" id="size-legend" class="rounded bg-white/90 px-3 py-2 text-xs text-stone-700 shadow">
+    <div slot="bottom-right" id="size-legend" class="map-glass px-3 py-2 text-xs">
       <strong>Size: number of years</strong>
       <svg class="block mt-1" role="img" aria-label="Hexagon sizes from 0 years (20%) to 54 or more years (100%)"></svg>
-      <div data-scale-note class="text-[10px] text-stone-500"></div>
+      <div data-scale-note class="text-[10px] opacity-75"></div>
     </div>
   </Scrollytelling>
 </PageLayout>

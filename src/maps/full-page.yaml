@@ -12,10 +12,9 @@ config:
   pitch: 55      # camera tilt in degrees (0 = flat, max 85)
   bearing: -20   # rotation in degrees (0 = north up)
 
-# Where the legend sits: top-left (default), top-right, bottom-left, bottom-right.
-legend:
-  position: bottom-left
-  title: "Colour: mean year · Size: number of years"
+# No colour legend: the period pill buttons in the layer panel show the colours
+# (src/scripts/map-panels.js). The size legend is drawn on the page.
+legend: false
 
 # Mesh patterns for the hexagons, one per period: a fine staggered grid of
 # slightly lighter dots on the period colour (8 px PNG tiles in public/img/,
@@ -39,7 +38,7 @@ state:
   # its boundary is highlighted like the dropdown choice. No control.
   highlight:
     default: ""
-  # Hexagon size on/off: a checkbox in the layer panel. On = each hexagon
+  # "Average years of development" on/off: a checkbox in the layer panel. On = each hexagon
   # scaled by its number of years; off = all hexagons full size.
   sizes:
     default: true
@@ -109,7 +108,7 @@ parameters:
     label: 2014–2024
     type: toggle
   sizes:
-    label: Hexagon size
+    label: Average years of development
     type: toggle
 
 # Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
@@ -143,7 +142,7 @@ sources:
 layers:
   # Hexagons, all draped over the terrain and basemap (flat fills follow the
   # ground). Fading from 70% to 30% as you zoom in to street level.
-  # Sized hexagons, shown when "Hexagon size" is on:
+  # Sized hexagons, shown when "Average years of development" is on:
   - id: hexa-sized-1680-1806
     type: fill
     source: hexa_sized
@@ -189,7 +188,7 @@ layers:
       fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
     legend: { label: 2014–2024, color: "#c2d96b", shape: square }
 
-  # Full-size hexagons, shown when "Hexagon size" is off:
+  # Full-size hexagons, shown when "Average years of development" is off:
   - id: hexa-full-1680-1806
     type: fill
     source: hexa

@@ -12,9 +12,9 @@ config:
   pitch: 55
   bearing: -20
 
-legend:
-  position: bottom-left
-  title: Hydrography
+# No separate legend: each layer checkbox shows its line colour, so the layer
+# panel is the legend (src/scripts/map-panels.js).
+legend: false
 
 # hidrografia.geojson is Hydrografia2.geojson made lighter for the web: the
 # whole region (not clipped), lines simplified to about 3 m, the CAD layer
