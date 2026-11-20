@@ -430,3 +430,21 @@ header a {
 .side-panel > .ml-astro-slot > * {
   flex-shrink: 0 !important;
 }
+
+/* North arrow (a circle with a line to north) and scale bar row
+   (src/scripts/map-compass.js): side panel footer and the story legend. */
+.map-compass {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--map-accent);
+}
+.story-compass {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.story-compass .north-arrow svg {
+  width: 24px;
+  height: 24px;
+}

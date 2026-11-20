@@ -2,6 +2,7 @@ import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
 import { Scrollytelling, loadScrollytellingConfig } from "@maplibre-yaml/astro";
 import SizeLegend from "@components/SizeLegend.astro";
+import MapCompass from "@components/MapCompass.astro";
 
 {/*
   The story is src/stories/santiago.yaml: the map, its layers and every chapter.
@@ -12,14 +13,18 @@ export const story = await loadScrollytellingConfig("./src/stories/santiago.yaml
 <PageLayout title="Scrollytelling" description={SITE.DESCRIPTION} bleed>
   <Scrollytelling config={story}>
     {/* Graduated size legend, drawn by src/scripts/size-legend.js (the same as
-        on Growth Periods). Bottom-right, away from the chapter cards. */}
+        on Growth Periods), with the north arrow and scale bar underneath.
+        Bottom-right, away from the chapter cards. */}
     <div slot="bottom-right" id="size-legend" class="map-glass px-3 py-2 text-xs">
       <strong>Size: number of years</strong>
       <svg class="block mt-1" role="img" aria-label="Hexagon sizes from 0 years (20%) to 54 or more years (100%)"></svg>
       <div data-scale-note class="text-[10px] opacity-75"></div>
+      {/* North arrow and scale bar, filled in by src/scripts/map-compass.js. */}
+      <div id="map-compass" class="story-compass"></div>
     </div>
   </Scrollytelling>
 </PageLayout>
 
 {/* Draws the size legend at true scale as the story moves the camera. */}
 <SizeLegend />
+<MapCompass />

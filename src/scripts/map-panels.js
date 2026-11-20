@@ -8,6 +8,8 @@
 // The library builds these panels itself, so this watches the map and
 // re-applies whenever a panel appears or is rebuilt.
 
+import { buildCompass } from "./map-compass.js";
+
 const PERIOD_COLORS = {
   "1680–1806": "#00204d",
   "1840–1941": "#314e55",
@@ -176,14 +178,8 @@ function framePadding(root, left, collapsed, animate) {
   map.easeTo({ padding, duration: animate && !reduce ? 250 : 0 });
 }
 
-// North arrow and scale bar (km), pinned to the bottom of the side panel:
-// the panel's other contents scroll behind them.
-const SVG_NS = "http://www.w3.org/2000/svg";
-function niceDistance(maxM) {
-  const pow = Math.pow(10, Math.floor(Math.log10(maxM)));
-  for (const f of [5, 2, 1]) if (f * pow <= maxM) return f * pow;
-  return pow;
-}
+// North arrow and scale bar (src/scripts/map-compass.js), pinned to the
+// bottom of the side panel: the panel's other contents scroll behind them.
 function mapFooter(root) {
   const left = leftColumn(root);
   const map = root.getMap ? root.getMap() : null;
@@ -191,47 +187,8 @@ function mapFooter(root) {
 
   const footer = document.createElement("div");
   footer.className = "side-panel-footer";
-
-  const north = document.createElement("button");
-  north.type = "button";
-  north.className = "north-arrow";
-  north.title = "North (click to point the map north)";
-  north.setAttribute("aria-label", "North arrow: click to point the map north");
-  north.innerHTML =
-    `<svg viewBox="0 0 28 40" width="26" height="38" aria-hidden="true">
-       <text x="14" y="10" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" font-family="sans-serif">N</text>
-       <polygon points="14,13 22,38 14,32" fill="currentColor"/>
-       <polygon points="14,13 6,38 14,32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-     </svg>`;
-  north.addEventListener("click", () => map.easeTo({ bearing: 0 }));
-
-  const scale = document.createElement("div");
-  scale.className = "scale-bar";
-  const bar = document.createElement("div");
-  bar.className = "scale-bar-line";
-  const label = document.createElement("span");
-  label.className = "scale-bar-label";
-  scale.append(bar, label);
-
-  footer.append(north, scale);
+  footer.appendChild(buildCompass(map));
   left.appendChild(footer);
-
-  const MAX_PX = 140;
-  const update = () => {
-    north.style.transform = `rotate(${-map.getBearing()}deg)`;
-    // Measure the ground distance across 100 px at the centre of the view
-    // (this accounts for the tilt).
-    const c = map.project(map.getCenter());
-    const a = map.unproject([c.x - 50, c.y]);
-    const b = map.unproject([c.x + 50, c.y]);
-    const mPerPx = a.distanceTo(b) / 100;
-    if (!isFinite(mPerPx) || mPerPx <= 0) return;
-    const metres = niceDistance(mPerPx * MAX_PX);
-    bar.style.width = `${Math.round(metres / mPerPx)}px`;
-    label.textContent = `${metres / 1000} km`;
-  };
-  map.on("move", update);
-  update();
 }
 
 function apply(root) {
