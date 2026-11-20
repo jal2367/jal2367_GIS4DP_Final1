@@ -7,8 +7,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Lora", ui-serif, Georgia, serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  /* Header and titles: a wide techno face, set in capitals. */
+  --font-display: "Audiowide", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -83,7 +84,7 @@
     margin-top: 1.5em;
     margin-bottom: 1.5em;
     line-height: initial;
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
   }
 
   main h1:not(ml-map *, ml-scrollytelling *) {
@@ -110,7 +111,7 @@
   /* Prose styling for MDX pages: wrap the page's text in <article>. */
   article {
     @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
-    @apply prose-headings:font-semibold prose-p:font-serif;
+    @apply prose-headings:font-semibold;
     @apply prose-headings:text-black dark:prose-headings:text-white;
     @apply prose-code:before:content-none prose-code:after:content-none;
   }
@@ -503,4 +504,45 @@ ml-scrollytelling .chapter-content .chapter-title {
 }
 ml-scrollytelling {
   --ml-marker-outline: rgba(62, 65, 70, 0.9);
+}
+
+/* Display font (Audiowide, in capitals) for the site header, page titles, the
+   titles in the map panels and the story's chapter titles. */
+header,
+main :is(h1, h2, h3, h4, h5):not(ml-map *, ml-scrollytelling *),
+.map-title,
+ml-scrollytelling .chapter-title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+header a {
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+/* Audiowide has one weight; no faux bold. */
+header a,
+.map-title,
+ml-scrollytelling .chapter-title {
+  font-weight: 400 !important;
+}
+header a.font-semibold {
+  font-size: 1rem;
+}
+/* Body font (Space Grotesk) inside the maps too: the map library sets its own on
+   its panels and popups. */
+ml-map .ml-map-chrome,
+ml-map .maplibregl-popup-content,
+.side-panel,
+.side-panel :is(select, button, label, span),
+.map-glass {
+  font-family: var(--font-sans) !important;
+}
+ml-map .map-title,
+ml-scrollytelling .map-title {
+  font-family: var(--font-display) !important;
+}
+ml-scrollytelling .chapter-title {
+  font-size: 1.4rem !important;
+  line-height: 1.25;
 }

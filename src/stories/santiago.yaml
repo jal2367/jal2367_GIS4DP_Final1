@@ -110,12 +110,14 @@ layers:
       url: "/data/comunas_labels.geojson"
     layout:
       text-field: ["get", "COMUNA"]
-      text-font: ["Metropolis Medium", "Noto Sans Regular"]
+      # Audiowide: declared under "font-faces" in public/data/Basemap.GIS4DP.json
+      # (files in public/fonts/), so it matches the site titles.
+      text-font: ["Audiowide", "Noto Sans Regular"]
       text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
       text-max-width: 7
     paint:
-      text-color: "#e6e9ec"
-      text-halo-color: "#2b2d30"
+      text-color: "#c2d96b"       # same as the side panel text
+      text-halo-color: "#161718"  # very dark gray outline
       text-halo-width: 1.5
 
   # Santiago and Providencia, where the oldest hexagons are: a thick white
