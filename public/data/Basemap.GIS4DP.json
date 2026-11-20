@@ -39,8 +39,12 @@
     },
     "satellite": {
       "type": "raster",
-      "url": "https://api.maptiler.com/tiles/satellite-v2/tiles.json?key=y0fw7pkq30UtQjr7mmo8",
-      "tileSize": 512
+      "tiles": [
+        "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg"
+      ],
+      "tileSize": 256,
+      "maxzoom": 15,
+      "attribution": "<a href=\"https://s2maps.eu\" target=\"_blank\">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2024)"
     }
   },
   "terrain": {
