@@ -1,7 +1,7 @@
 import type { Metadata, Site } from "@types";
 
 export const SITE: Site = {
-  NAME: "Project Website",
+  NAME: "Overview",
   DESCRIPTION: "<A description of your website>",
 };
 

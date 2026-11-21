@@ -164,12 +164,12 @@ html ml-scrollytelling {
 
 /* Map panels (Growth Periods, Hydrography, and the story's size legend):
    frosted dark glass, lighter than the basemap, with text and accents in
-   #c2d96b. The map library sets white backgrounds inline on its legend and
+   the neutral accent. The map library sets white backgrounds inline on its legend and
    layer panel, hence the !important. The layer panel is moved to the left
    column and the period checkboxes become pill buttons by
    src/scripts/map-panels.js. */
 :root {
-  --map-accent: #c2d96b;
+  --map-accent: #ffee58; /* yellow, as the Base map layers, on every page */
   --map-glass: rgba(20, 21, 24, 0.72);
 }
 .map-glass,
@@ -819,12 +819,12 @@ body.bleed .layer-rail {
 }
 
 
-/* Santiago Map: neutral light-gray accent for the shared parts (rail, page
-   links, buttons, scale bar); each side-panel section has its own colour:
+/* Explore: the site's yellow accent for the shared parts (rail, page links,
+   buttons, scale bar); each side-panel section has its own colour:
    Growth Periods pink (#ff4d94, a period colour), Hydrography aquamarine
    (#7fffd4). Marked by .accent-growth on the page's size legend. */
 body:has(.accent-growth) {
-  --map-accent: #d4d7db;
+  --map-accent: #ffee58;
 }
 .panel-section[data-section="growth"] {
   --map-accent: #ff4d94;
@@ -948,8 +948,8 @@ body.bleed:has(ml-scrollytelling) header > * > div {
 }
 body.bleed:has(ml-scrollytelling) header nav {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  gap: 0;
 }
 .side-panel .panel-section-fold {
   font-family: var(--font-display) !important;
@@ -1210,4 +1210,370 @@ body,
   .rail-card-main canvas {
     transition: none;
   }
+}
+/* Overview | Findings side by side at the top of the rail, split by a thin
+   vertical line. */
+.rail-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rail-brand .rail-nav {
+  margin-top: 0;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+.rail-brand-name {
+  padding-right: 0;
+}
+
+/* Page links (src/components/Header.astro): the other pages side by side,
+   split by thin vertical lines, in the title font. Used in the site header,
+   the story's floating panel and the top of the map's layer rail. */
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 4px;
+}
+.site-nav a {
+  font-family: var(--font-display) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: #e8e8e8 !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.site-nav a:hover {
+  color: var(--map-accent, #ffffff) !important;
+}
+.site-nav a + a {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+header .site-nav {
+  height: 100%;
+}
+body.bleed:has(ml-scrollytelling) header .site-nav {
+  flex-direction: row;
+}
+.rail-site-nav {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* The current page in the page links (Overview lists itself). */
+.site-nav a[aria-current="page"] {
+  color: var(--map-accent, #ffee58) !important;
+}
+
+/* Findings page: side panel on the far left like Explore's layer rail
+   (src/scripts/story-panel.js): page links, chapter progress, then the size
+   legend, north arrow and scale bar at the bottom. */
+.story-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 20;
+  width: min(var(--rail-w), 70vw);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--rail-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.35);
+  color: var(--map-accent);
+}
+.story-progress {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px;
+}
+/* The story's chapter dots, as a vertical list with titles. */
+.story-panel .chapter-markers {
+  position: static !important;
+  transform: none !important;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.story-panel .chapter-marker {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: 100% !important;
+  height: auto !important;
+  padding: 5px 4px !important;
+  border-radius: 6px !important;
+  place-items: initial;
+  text-align: left;
+}
+.story-panel .chapter-marker:hover {
+  background: color-mix(in srgb, var(--map-accent) 8%, transparent) !important;
+}
+.story-panel .chapter-marker::before {
+  flex: none;
+}
+.chapter-marker-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+  color: #9aa0a6;
+}
+.story-panel .chapter-marker.active .chapter-marker-label {
+  color: #e8e8e8;
+}
+.story-panel-foot {
+  flex: none;
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.story-panel-foot #size-legend {
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+/* Room for the panel: chapter cards and the floating header move over. */
+ml-scrollytelling.has-story-panel .scrolly-chapters {
+  padding-left: var(--rail-w);
+}
+body.bleed:has(.story-panel) header {
+  display: none;
+}
+
+/* Overview page (the thesis proposal): a side panel like Explore's and
+   Findings', with the page links and a table of contents; the text sits to
+   its right. */
+.overview-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+  width: min(var(--rail-w), 80vw);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--rail-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--map-accent);
+}
+body:has(.overview-panel) header {
+  display: none;
+}
+body:has(.overview-panel) main,
+body:has(.overview-panel) footer {
+  padding-left: var(--rail-w);
+}
+body:has(.overview-panel) main {
+  padding-top: 3rem;
+}
+.overview-toc {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px;
+}
+.overview-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.overview-toc a {
+  display: flex;
+  gap: 10px;
+  padding: 6px 6px;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+  color: #9aa0a6 !important;
+  text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.overview-toc a:hover {
+  color: #e8e8e8 !important;
+  background: color-mix(in srgb, var(--map-accent) 8%, transparent);
+}
+.overview-toc a[aria-current="location"] {
+  color: var(--map-accent) !important;
+}
+.toc-num {
+  color: color-mix(in srgb, var(--map-accent) 70%, transparent);
+  font-family: var(--font-display);
+}
+.overview-body {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+  color: #d4d7db;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.7;
+}
+.overview-kicker {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--map-accent);
+  margin: 0;
+}
+.overview-title {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 2.2rem !important;
+  color: #e8e8e8;
+  margin: 0.3em 0 1.5em !important;
+}
+.overview-section {
+  scroll-margin-top: 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.overview-section h2 {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.3rem !important;
+  color: #e8e8e8;
+  margin: 0 0 0.6em !important;
+}
+@media (max-width: 640px) {
+  .overview-panel {
+    position: static;
+    width: auto;
+  }
+  body:has(.overview-panel) main,
+  body:has(.overview-panel) footer {
+    padding-left: 0;
+  }
+}
+/* Three page links fit on one line in the Overview panel. */
+.overview-panel .site-nav {
+  flex-wrap: nowrap;
+}
+.overview-panel .site-nav a {
+  font-size: 0.86rem;
+}
+.overview-panel .site-nav a + a {
+  margin-left: 8px;
+  padding-left: 8px;
+}
+/* Room at the end so the last sections can scroll to the top. */
+.overview-body {
+  padding-bottom: 60vh;
+}
+body:has(.overview-panel) {
+  background: #0e0f11;
+}
+
+/* Page links on every page: all three, the current one full size in the
+   accent colour, the others smaller until hovered or focused. */
+.site-nav {
+  flex-wrap: nowrap;
+  align-items: baseline;
+}
+.site-nav a,
+.overview-panel .site-nav a {
+  font-size: 0.7rem;
+  transition: font-size 0.2s ease, color 0.2s ease;
+}
+.site-nav a[aria-current="page"],
+.site-nav a:hover,
+.site-nav a:focus-visible,
+.overview-panel .site-nav a[aria-current="page"],
+.overview-panel .site-nav a:hover,
+.overview-panel .site-nav a:focus-visible {
+  font-size: 0.98rem;
+}
+.site-nav a + a,
+.overview-panel .site-nav a + a {
+  margin-left: 8px;
+  padding-left: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-nav a {
+    transition: none;
+  }
+}
+/* While another page's name is hovered or focused, the current page's name
+   shrinks back, so only one name is ever large and the row stays inside the
+   panel. */
+.site-nav:has(a:not([aria-current]):hover) a[aria-current="page"],
+.site-nav:has(a:not([aria-current]):focus-visible) a[aria-current="page"] {
+  font-size: 0.7rem;
+}
+/* Page links stay put: each name keeps the width it needs when large (a
+   hidden copy reserves it) and the row has a fixed height, so hovering never
+   moves the dividers or anything below. Large names 0.86rem so all three fit
+   the panel; while another name is hovered, the current one is small and
+   light gray. */
+.site-nav {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  align-items: center;
+  height: 24px;
+}
+.site-nav a {
+  display: inline-grid;
+  justify-items: start;
+  align-content: center;
+  height: 24px;
+  line-height: 1;
+}
+.site-nav a::after {
+  content: attr(data-label);
+  font-size: 0.86rem;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.site-nav a,
+.overview-panel .site-nav a {
+  font-size: 0.68rem;
+}
+.site-nav a[aria-current="page"],
+.site-nav a:hover,
+.site-nav a:focus-visible,
+.overview-panel .site-nav a[aria-current="page"],
+.overview-panel .site-nav a:hover,
+.overview-panel .site-nav a:focus-visible {
+  font-size: 0.86rem;
+}
+.site-nav:has(a:not([aria-current]):hover) a[aria-current="page"],
+.site-nav:has(a:not([aria-current]):focus-visible) a[aria-current="page"] {
+  font-size: 0.68rem;
+  color: #e8e8e8 !important;
+}
+/* Spacing follows the text again (no reserved widths); the row and the
+   divider lines keep a fixed height, so nothing below moves. */
+.site-nav a::after {
+  content: none;
+}
+/* Findings: the current chapter's title in the accent, like the Overview
+   table of contents. */
+.story-panel .chapter-marker.active .chapter-marker-label {
+  color: var(--map-accent);
 }

@@ -10,7 +10,7 @@ type: scrollytelling
 id: santiago-story
 theme: dark            # chapter cards: light or dark
 showMarkers: true      # a dot per chapter at the right edge; click one to jump
-markerColor: "#c2d96b"     # chapter dots on the right, the site accent
+markerColor: "#ffee58"     # chapter dots (in the side panel), the site's yellow accent
 
 # The map when the page opens: the 32 comunas of Santiago, tilted, with terrain
 # (the terrain and hillshade come from the basemap file).
@@ -232,8 +232,8 @@ layers:
       text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
       text-max-width: 7
     paint:
-      text-color: "#c2d96b"       # same as the side panel text
-      text-halo-color: "#161718"  # very dark gray outline
+      text-color: "#e8e8e8"       # very light gray, as on Explore
+      text-halo-color: "#0a0a0a"  # onyx outline, as on Explore
       text-halo-width: 1.5
 
   # Santiago and Providencia, where the oldest hexagons are: a thick white

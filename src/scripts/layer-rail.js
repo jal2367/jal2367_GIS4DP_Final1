@@ -352,25 +352,20 @@ export function buildLayerRail(root, onLayout) {
 
   // Top of the rail: the site name and page links (the site header is
   // hidden on map pages, see global.css), then the rail's hide button.
-  // Top of the rail: the site name and the links to the other pages (the
-  // site header is hidden on this page, see global.css), at the same size.
+  // Top of the rail: the links to the other pages (the site header is hidden
+  // on this page, see global.css).
   // The rail stays open; its layer cards are always shown.
   const brand = document.createElement("div");
   brand.className = "rail-brand";
-  const siteLinks = [...document.querySelectorAll("header a")];
+  // The site header's links to the other pages (already in order, this page
+  // left out), side by side.
+  const siteLinks = [...document.querySelectorAll("header .site-nav a")];
   if (siteLinks.length) {
-    const home = siteLinks[0].cloneNode(true);
-    home.className = "rail-brand-name";
     const nav = document.createElement("nav");
-    nav.className = "rail-nav";
+    nav.className = "site-nav rail-site-nav";
     nav.setAttribute("aria-label", "Pages");
-    for (const a of siteLinks.slice(1)) {
-      if (a.getAttribute("aria-current") === "page") continue; // this page
-      const link = a.cloneNode(true);
-      link.removeAttribute("class");
-      nav.appendChild(link);
-    }
-    brand.append(home, nav);
+    for (const a of siteLinks) nav.appendChild(a.cloneNode(true));
+    brand.appendChild(nav);
   }
 
   const list = document.createElement("div");

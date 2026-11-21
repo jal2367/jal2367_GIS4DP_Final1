@@ -1,34 +1,82 @@
 ---
-import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
-import { HOME } from "@consts";
+import { HOME, SITE } from "@consts";
 import { url } from "@lib/utils";
+
+// Overview: the thesis project proposal. A side panel on the left like the
+// Explore and Findings pages: the page links on top, then a table of
+// contents that jumps to each section below (and follows your scrolling).
+// To add, remove or rename a section, edit this list; each gets a heading
+// and a placeholder paragraph to replace with your text.
+const sections = [
+  { id: "introduction", title: "Introduction" },
+  { id: "literature-review", title: "Literature Review" },
+  { id: "historical-review", title: "Historical Review" },
+  { id: "theoretical-framework", title: "Theoretical Framework" },
+  { id: "methodology", title: "Methodology" },
+  { id: "quantitative-research", title: "Quantitative Research" },
+  { id: "qualitative-research", title: "Qualitative Research" },
+  { id: "analysis", title: "Analysis" },
+  { id: "conclusion", title: "Conclusion" },
+  { id: "action", title: "Action" },
+];
+const pages = [
+  { href: url(), label: SITE.NAME, current: true },
+  { href: url("scrollytelling"), label: "Findings" },
+  { href: url("full_page_map"), label: "Explore" },
+];
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
-  <Container>
-    <h4 class="animate font-semibold text-black dark:text-white">
-      Boilerplate Astro website for presenting spatial narratives <span
-        class="text-xl">🗺️</span
-      >
-    </h4>
-    <div class="space-y-8">
-      <h2 class="font-semibold text-black dark:text-white">About</h2>
-      <p>
-        This is a starting point for a website that tells a story with maps. It is built with <a href="https://astro.build/">Astro</a>, <a href="https://tailwindcss.com/">Tailwind CSS</a> and <a href="https://docs.maplibre-yaml.org/">maplibre-yaml</a>, which turns a YAML file into a <a href="https://maplibre.org/">MapLibre</a> map.
-        Every map on this site is a file in <b>src/maps/</b> or <b>src/stories/</b>: edit the YAML, not code.
-      </p>
-      <ul class="list-disc pl-6 space-y-4">
-        <li>
-          <a href={url("full_page_map")}>Santiago Map</a> (<b>src/maps/full-page.yaml</b>): urban growth (hexagons across 32 comunas, coloured by mean year and sized by number of years, with a comuna filter) and hydrography (rivers, streams, ravines, canals, reservoirs and the collector network) on one map.
-        </li>
-        <li>
-          <a href={url("scrollytelling")}>Scrollytelling</a> (<b>src/pages/scrollytelling.mdx</b> and <b>src/stories/santiago.yaml</b>): a story map whose chapters move the camera and show and hide layers as you scroll.
-        </li>
-      </ul>
-      <p>
-        To find the <code>center</code> and <code>zoom</code> for a map, move around <a href="https://labs.mapbox.com/location-helper/">this location helper</a> and copy the numbers.
-      </p>
+  <aside class="overview-panel" aria-label="Contents">
+    <div class="rail-brand">
+      <nav class="site-nav rail-site-nav" aria-label="Pages">
+        {pages.map((page) => (
+          <a href={page.href} data-label={page.label} aria-current={page.current ? "page" : undefined}>{page.label}</a>
+        ))}
+      </nav>
     </div>
-  </Container>
+    <nav class="overview-toc" aria-label="Table of contents">
+      <ol>
+        {sections.map((section, i) => (
+          <li>
+            <a href={`#${section.id}`} data-toc={section.id}>
+              <span class="toc-num">{String(i + 1).padStart(2, "0")}</span>
+              {section.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </aside>
+
+  <div class="overview-body">
+    <p class="overview-kicker">Thesis project proposal</p>
+    <h1 class="overview-title">Santiago, 1680–2024</h1>
+    {sections.map((section, i) => (
+      <section id={section.id} class="overview-section">
+        <h2><span class="toc-num">{String(i + 1).padStart(2, "0")}</span> {section.title}</h2>
+        <p>[Write your {section.title.toLowerCase()} here.]</p>
+      </section>
+    ))}
+  </div>
 </PageLayout>
+
+<script>
+  // Highlight the section you are reading in the table of contents: the last
+  // one whose top has scrolled up near the top of the window.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-toc]")];
+  const sections = [...document.querySelectorAll<HTMLElement>(".overview-section")];
+  function update() {
+    const line = 80; // px: just below where a jump lands (scroll-margin 2rem)
+    let current = sections[0];
+    for (const s of sections) if (s.getBoundingClientRect().top <= line) current = s;
+    for (const a of links) {
+      if (a.dataset.toc === current?.id) a.setAttribute("aria-current", "location");
+      else a.removeAttribute("aria-current");
+    }
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  update();
+</script>

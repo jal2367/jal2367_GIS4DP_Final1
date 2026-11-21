@@ -8,7 +8,7 @@ import MapPanels from "@components/MapPanels.astro";
 {/* The map is src/maps/full-page.yaml. It is checked when the site builds. */}
 export const map = await loadMapConfig("./src/maps/full-page.yaml");
 
-<PageLayout title="Santiago Map" description={SITE.DESCRIPTION} bleed>
+<PageLayout title="Explore" description={SITE.DESCRIPTION} bleed>
   {/* FullPageMap covers the whole window. */}
   <FullPageMap
     config={map}

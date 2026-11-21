@@ -3,28 +3,27 @@ import Container from "@components/Container.astro";
 import { SITE } from "@consts";
 import { url } from "@lib/utils";
 
-// The links in the header. `url()` adds the site's base path (see astro.config.mjs).
-const nav = [
-  { href: url("full_page_map"), label: "Santiago Map" },
-  { href: url("scrollytelling"), label: "Scrollytelling" },
+// The site's pages, in order: Overview (the home page, named SITE.NAME),
+// Findings (the story) and Explore (the map), side by side and split by thin
+// vertical lines (global.css .site-nav). Every page lists all three; the
+// current page is full size and the others smaller until hovered or focused.
+// `url()` adds the site's base path.
+const pages = [
+  { href: url(), label: SITE.NAME },
+  { href: url("scrollytelling"), label: "Findings" },
+  { href: url("full_page_map"), label: "Explore" },
 ];
-
-// The page being viewed gets aria-current="page", styled bold #c2d96b in global.css.
 const strip = (path: string) => path.replace(/\/+$/, "");
 const here = strip(Astro.url.pathname);
+const others = pages;
 ---
 
 <header>
   <Container>
-    <div class="flex flex-wrap gap-x-6 gap-y-2 justify-between items-center">
-      <a href={url()} class="font-semibold" aria-current={here === strip(url()) ? "page" : undefined}>
-        {SITE.NAME}
-      </a>
-      <nav class="hidden sm:flex gap-4 text-sm">
-        {nav.map((item) => (
-          <a href={item.href} aria-current={here === strip(item.href) ? "page" : undefined}>{item.label}</a>
-        ))}
-      </nav>
-    </div>
+    <nav class="site-nav" aria-label="Pages">
+      {others.map((page) => (
+        <a href={page.href} data-label={page.label} aria-current={strip(page.href) === here ? "page" : undefined}>{page.label}</a>
+      ))}
+    </nav>
   </Container>
 </header>
