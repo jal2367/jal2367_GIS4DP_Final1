@@ -149,15 +149,32 @@ function buildSections(root) {
 function resetGrowthControls(root) {
   const panel = root.querySelector(".ml-map-params");
   if (!panel) return;
-  const select = panel.querySelector("select");
-  if (select && select.value !== "All comunas") {
-    select.value = "All comunas";
+  const select = root.querySelector(".rail-comuna select") || panel.querySelector("select");
+  // The options are numbered; the first one is "All comunas".
+  if (select && select.selectedIndex !== 0) {
+    select.selectedIndex = 0;
     select.dispatchEvent(new Event("change", { bubbles: true }));
   }
   for (const box of panel.querySelectorAll('input[type="checkbox"]')) {
     if (box.closest(".ml-map-params-layer")) continue; // layer switches (hidden)
     if (!box.checked) box.click();
   }
+}
+
+// The comuna dropdown goes to the layer rail, right above the layer cards.
+// (The library builds it in its panel; it keeps working from here.)
+function comunaToRail(root) {
+  const rail = root.querySelector(".layer-rail");
+  const select = root.querySelector(".ml-map-params select");
+  if (!rail || !select) return;
+  const row = select.closest(".ml-map-params-row") || select.parentElement;
+  let box = rail.querySelector(".rail-comuna");
+  if (!box) {
+    box = document.createElement("div");
+    box.className = "rail-comuna";
+    rail.insertBefore(box, rail.querySelector(".layer-rail-list"));
+  }
+  if (row.parentElement !== box) box.replaceChildren(row);
 }
 
 // Put each piece in its section.
@@ -326,6 +343,7 @@ function apply(root) {
   fillSections(root);
   mapFooter(root);
   moveParamsLeft(root);
+  comunaToRail(root);
   pillifyPeriods(root);
   inlineToggles(root);
   const left = leftColumn(root);
