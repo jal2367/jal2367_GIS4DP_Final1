@@ -1,9 +1,9 @@
-// Layer rail (Growth Periods and Hydrography): a darker frosted strip on the
-// far left with the map's layers drawn as a tilted, exploded stack, data on
-// top and the basemap at the bottom. Each card draws that layer's real
-// geometry; clicking a card shows or hides the layer on the map. The rail
-// retracts to a thin strip. Styled in src/styles/global.css (.layer-rail),
-// set up by src/scripts/map-panels.js.
+// Layer rail (Santiago Map): a dark frosted panel on the far left with the
+// site name and page links on top, then the map's layers drawn as a tilted,
+// exploded stack, data on top and the basemap at the bottom. Each card draws
+// that layer's real geometry; clicking a card shows or hides the layer on the
+// map. Styled in src/styles/global.css (.layer-rail), set up by
+// src/scripts/map-panels.js.
 
 // Common footprint for every card, so the planes line up like one stack.
 const BBOX = [-70.97, -33.66, -70.43, -33.28]; // west, south, east, north
@@ -23,52 +23,45 @@ const periodColor = (y) => PERIODS.find(([max]) => y < max)[1];
 
 // The cards for each map, top to bottom. `layers` are map layer ids (a
 // function for layers found by name); `draw` says what to draw and how.
-const SATELLITE = { label: "Satellite", swatch: "#bfc3c8", layers: ["satellite"], draw: { kind: "satellite" } };
-const TERRAIN = { label: "Terrain", swatch: "#8fb0c8", layers: ["hillshade"], terrain: true, draw: { kind: "terrain" } };
-const STACKS = {
-  growth: [
-    {
-      label: "Hexagons", swatch: ["#9b00e8", "#ffff00"],
-      layers: (map) => map.getLayersOrder().filter((id) => id.startsWith("hexa-")),
-      draw: { kind: "vector", layer: "hexa-sized-1680-1806", width: 0.6, glow: true, color: (p) => periodColor(p.Year_Mean) },
-    },
-    {
-      label: "Comunas", swatch: "#9aa4ac",
-      layers: ["comunas-fill", "comunas-outline", "comunas-labels"],
-      draw: { kind: "vector", layer: "comunas-outline", width: 0.7, color: () => "#b8c0c6" },
-    },
-    SATELLITE,
-    TERRAIN,
-  ],
-  // Same colours as src/maps/hydrography.yaml: aquamarines for natural
-  // water (deepest for rivers to palest for ravines), dark violets for
-  // engineered water (deepest for the collector network to palest for
-  // reservoirs). Cards with `parts` get a pill per part to switch it alone.
-  hydro: [
-    {
-      label: "Natural features", swatch: ["#00d6a8", "#c9fff0"],
-      parts: [
-        { label: "Rivers", color: "#00d6a8", layers: ["hydro-rivers", "hydro-rivers-glow"], drawLayer: "hydro-rivers", where: (p) => p.TIPO === "Rivers", width: 0.9 },
-        { label: "Streams", color: "#7fffd4", layers: ["hydro-streams", "hydro-streams-glow"], drawLayer: "hydro-streams", where: (p) => p.TIPO === "Streams", width: 0.7 },
-        { label: "Ravines", color: "#c9fff0", layers: ["hydro-ravines", "hydro-ravines-glow"], drawLayer: "hydro-ravines", where: (p) => p.TIPO === "Ravines", width: 0.4, alpha: 0.5 },
-      ],
-    },
-    {
-      label: "Engineered features", swatch: ["#9400d3", "#dba8ff"],
-      parts: [
-        { label: "Collector", color: "#9400d3", layers: ["sistema-colector", "sistema-colector-glow"], drawLayer: "sistema-colector", width: 0.8 },
-        { label: "Canals", color: "#b44cff", layers: ["hydro-canals", "hydro-canals-glow"], drawLayer: "hydro-canals", where: (p) => p.TIPO === "Canals", width: 0.6 },
-        { label: "Reservoirs", color: "#dba8ff", layers: ["hydro-reservoirs", "hydro-reservoirs-glow"], drawLayer: "hydro-reservoirs", where: (p) => p.TIPO === "Reservoirs and ponds", width: 0.7 },
-      ],
-    },
-    {
-      label: "Comunas", swatch: "#9aa4ac", layers: ["comunas-outline", "comunas-labels"],
-      draw: { kind: "vector", layer: "comunas-outline", width: 0.7, color: () => "#b8c0c6" },
-    },
-    SATELLITE,
-    TERRAIN,
-  ],
-};
+const SATELLITE = { label: "Satellite", swatch: "#bfc3c8", section: "base", layers: ["satellite"], startOff: true, draw: { kind: "satellite" } };
+const TERRAIN = { label: "Terrain", swatch: "#8fb0c8", section: "base", layers: ["hillshade"], terrain: true, draw: { kind: "terrain" } };
+// Santiago Map (src/maps/full-page.yaml): growth, then hydrography, then
+// the base layers. Hydrography colours as in the map file: aquamarines for
+// natural water (deepest for rivers to palest for ravines), dark violets for
+// engineered water (deepest for the collector network to palest for
+// reservoirs). Cards with `parts` get a pill per part (in the side panel).
+// `section` ties a card to a side-panel section (growth, hydro or base):
+// its on/off switch and its colour.
+const STACK = [
+  {
+    label: "Hexagons", swatch: ["#9b00e8", "#ffff00"], section: "growth",
+    layers: (map) => map.getLayersOrder().filter((id) => id.startsWith("hexa-")),
+    draw: { kind: "vector", layer: "hexa-sized-1680-1806", width: 0.6, glow: true, color: (p) => periodColor(p.Year_Mean) },
+  },
+  {
+    label: "Natural features", swatch: ["#00d6a8", "#c9fff0"], section: "hydro",
+    parts: [
+      { label: "Rivers", color: "#00d6a8", layers: ["hydro-rivers", "hydro-rivers-glow"], drawLayer: "hydro-rivers", where: (p) => p.TIPO === "Rivers", width: 0.9 },
+      { label: "Streams", color: "#7fffd4", layers: ["hydro-streams", "hydro-streams-glow"], drawLayer: "hydro-streams", where: (p) => p.TIPO === "Streams", width: 0.7 },
+      { label: "Ravines", color: "#c9fff0", layers: ["hydro-ravines", "hydro-ravines-glow"], drawLayer: "hydro-ravines", where: (p) => p.TIPO === "Ravines", width: 0.4, alpha: 0.5 },
+    ],
+  },
+  {
+    label: "Engineered features", swatch: ["#9400d3", "#dba8ff"], section: "hydro",
+    parts: [
+      { label: "Collector", color: "#9400d3", layers: ["sistema-colector", "sistema-colector-glow"], drawLayer: "sistema-colector", width: 0.8 },
+      { label: "Canals", color: "#b44cff", layers: ["hydro-canals", "hydro-canals-glow"], drawLayer: "hydro-canals", where: (p) => p.TIPO === "Canals", width: 0.6 },
+      { label: "Reservoirs", color: "#dba8ff", layers: ["hydro-reservoirs", "hydro-reservoirs-glow"], drawLayer: "hydro-reservoirs", where: (p) => p.TIPO === "Reservoirs and ponds", width: 0.7 },
+    ],
+  },
+  {
+    label: "Comunas", swatch: "#9aa4ac", section: "base",
+    layers: ["comunas-fill", "comunas-outline", "comunas-labels"],
+    draw: { kind: "vector", layer: "comunas-outline", width: 0.7, color: () => "#b8c0c6" },
+  },
+  SATELLITE,
+  TERRAIN,
+];
 
 // ---- geometry: lon/lat -> point on the tilted plane of a card ----
 
@@ -341,24 +334,14 @@ function setGroupVisible(map, group, visible, savedTerrain) {
 
 // ---- the rail ----
 
-export const RAIL_STORE_KEY = "mapLayerRailCollapsed";
-
-function readCollapsed() {
-  try {
-    const saved = localStorage.getItem(RAIL_STORE_KEY);
-    if (saved !== null) return saved === "1";
-  } catch { /* storage unavailable */ }
-  return window.matchMedia("(max-width: 640px)").matches;
-}
-
 /**
- * Builds the rail once for this map. `onLayout` is called whenever the rail
+ * Builds the rail once for this map. `onLayout` is called once the rail
  * opens or closes, so the side panel and map centre can follow it.
  */
 export function buildLayerRail(root, onLayout) {
   const map = root.getMap ? root.getMap() : null;
   if (!map || root.querySelector(".layer-rail")) return null;
-  const stack = map.getLayer("hydro-rivers") ? STACKS.hydro : map.getLayer("comunas-fill") ? STACKS.growth : null;
+  const stack = map.getLayer("comunas-fill") ? STACK : null;
   if (!stack) return null;
   const savedTerrain = map.getTerrain ? map.getTerrain() : null;
 
@@ -367,34 +350,40 @@ export function buildLayerRail(root, onLayout) {
   rail.id = "map-layer-rail";
   rail.setAttribute("aria-label", "Map layers");
 
-  const head = document.createElement("div");
-  head.className = "layer-rail-head";
-  const title = document.createElement("span");
-  title.className = "layer-rail-title";
-  title.textContent = "Layers";
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "layer-rail-close";
-  close.textContent = "‹";
-  close.title = "Hide layers";
-  close.setAttribute("aria-label", "Hide layers");
-  head.append(title, close);
+  // Top of the rail: the site name and page links (the site header is
+  // hidden on map pages, see global.css), then the rail's hide button.
+  // Top of the rail: the site name and the links to the other pages (the
+  // site header is hidden on this page, see global.css), at the same size.
+  // The rail stays open; its layer cards are always shown.
+  const brand = document.createElement("div");
+  brand.className = "rail-brand";
+  const siteLinks = [...document.querySelectorAll("header a")];
+  if (siteLinks.length) {
+    const home = siteLinks[0].cloneNode(true);
+    home.className = "rail-brand-name";
+    const nav = document.createElement("nav");
+    nav.className = "rail-nav";
+    nav.setAttribute("aria-label", "Pages");
+    for (const a of siteLinks.slice(1)) {
+      if (a.getAttribute("aria-current") === "page") continue; // this page
+      const link = a.cloneNode(true);
+      link.removeAttribute("class");
+      nav.appendChild(link);
+    }
+    brand.append(home, nav);
+  }
 
   const list = document.createElement("div");
   list.className = "layer-rail-list";
 
-  // The thin strip left when the rail is retracted: click to bring it back.
-  const strip = document.createElement("button");
-  strip.type = "button";
-  strip.className = "layer-rail-strip";
-  strip.textContent = "›";
-  strip.title = "Show layers";
-  strip.setAttribute("aria-label", "Show layers");
-
-  rail.append(head, list, strip);
+  rail.append(brand, list);
   root.appendChild(rail);
 
   const cards = [];
+  // Every card's group, with isOn()/setOn() for the side panel's switches;
+  // any change fires "rail-change" on the map element.
+  rail.groups = [];
+  const changed = () => root.dispatchEvent(new CustomEvent("rail-change"));
   // Sub-layer pills for the side panel (see mapPills below).
   const pillSection = document.createElement("div");
   pillSection.className = "rail-pill-section";
@@ -405,6 +394,8 @@ export function buildLayerRail(root, onLayout) {
     // groups with parts, a row of pills that switch each part on its own.
     const card = document.createElement("div");
     card.className = "rail-card";
+    // Colours the label like its side-panel section (global.css).
+    if (group.section) card.dataset.section = group.section;
     const main = document.createElement("button");
     main.type = "button";
     main.className = "rail-card-main";
@@ -423,8 +414,11 @@ export function buildLayerRail(root, onLayout) {
     main.append(canvas, label);
     card.appendChild(main);
     list.appendChild(card);
+    // Layers that start hidden on this page (the style shares them with the story).
+    if (group.startOff) setGroupVisible(map, group, false, savedTerrain);
     // On unless its layers are hidden (layers still loading count as on).
     main.setAttribute("aria-pressed", String(isOn(layerIds(map, group))));
+    rail.groups.push(group);
 
     if (group.parts) {
       group.draw = { kind: "parts", parts: group.parts };
@@ -449,6 +443,7 @@ export function buildLayerRail(root, onLayout) {
           part.on = !part.on;
           setGroupVisible(map, { layers: part.layers }, part.on);
           sync();
+          changed();
         });
       }
       // The pills live in the side panel (map-panels.js moves the section
@@ -464,19 +459,31 @@ export function buildLayerRail(root, onLayout) {
         main.setAttribute("aria-pressed", String(group.parts.some((p) => p.on)));
         drawCard(canvas, map, group.draw);
       };
-      // The drawing switches all parts: off if any is on, otherwise all on.
-      main.addEventListener("click", () => {
-        const on = !group.parts.some((p) => p.on);
+      group.isOn = () => group.parts.some((p) => p.on);
+      // Back to how the page opened (each part as it started).
+      for (const part of group.parts) part.initial = part.on;
+      group.reset = () => {
+        for (const part of group.parts) { part.on = part.initial; setGroupVisible(map, { layers: part.layers }, part.on); }
+        sync();
+        changed();
+      };
+      group.setOn = (on) => {
         for (const part of group.parts) { part.on = on; setGroupVisible(map, { layers: part.layers }, on); }
         sync();
-      });
+        changed();
+      };
     } else {
-      main.addEventListener("click", () => {
-        const on = main.getAttribute("aria-pressed") !== "true";
+      group.isOn = () => main.getAttribute("aria-pressed") === "true";
+      const initial = group.isOn();
+      group.reset = () => group.setOn(initial);
+      group.setOn = (on) => {
         main.setAttribute("aria-pressed", String(on));
         setGroupVisible(map, group, on, savedTerrain);
-      });
+        changed();
+      };
     }
+    // The drawing switches the group: off if (any of) it is on, otherwise on.
+    main.addEventListener("click", () => group.setOn(!group.isOn()));
     cards.push([canvas, group]);
   }
   // Draw once the rail is laid out (each canvas needs its width). Redraw when
@@ -497,23 +504,15 @@ export function buildLayerRail(root, onLayout) {
   map.on("idle", () => { if (drawn.size < cards.length) drawAll(false); });
   requestAnimationFrame(() => drawAll(true));
 
-  const set = (collapsed) => {
-    rail.classList.toggle("is-collapsed", collapsed);
-    list.inert = collapsed;
-    close.inert = collapsed;
-    strip.hidden = !collapsed;
-    root.classList.toggle("rail-collapsed", collapsed);
-    onLayout && onLayout();
-  };
-  const toggle = (collapsed) => {
-    set(collapsed);
-    try { localStorage.setItem(RAIL_STORE_KEY, collapsed ? "1" : "0"); } catch { /* ignore */ }
-  };
-  close.addEventListener("click", () => toggle(true));
-  strip.addEventListener("click", () => toggle(false));
   root.classList.add("has-layer-rail");
-  set(readCollapsed());
+  onLayout && onLayout();
   return rail;
+}
+
+/** The rail's groups (each with label, section, isOn(), setOn()). */
+export function railGroups(root) {
+  const rail = root.querySelector(".layer-rail");
+  return (rail && rail.groups) || [];
 }
 
 /** The sub-layer pill section built with the rail, to put in the side panel. */
@@ -527,6 +526,5 @@ export function railPills(root) {
 export function railWidth(root) {
   const rail = root.querySelector(".layer-rail");
   if (!rail) return 0;
-  const strip = parseFloat(getComputedStyle(rail).getPropertyValue("--rail-strip")) || 12;
-  return rail.classList.contains("is-collapsed") ? strip : rail.offsetWidth;
+  return rail.offsetWidth;
 }

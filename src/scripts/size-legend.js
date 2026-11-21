@@ -1,4 +1,4 @@
-// Graduated size legend for the Growth Periods map and the story (in the
+// Graduated size legend for the Santiago Map and the story (in the
 // page's accent colour): nested hexagons at 20%,
 // 40%, 60%, 80% and 100% of full size, drawn at TRUE SCALE for the current
 // zoom (at the map centre), with a ruler underneath in years.

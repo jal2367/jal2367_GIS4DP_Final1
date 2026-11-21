@@ -22,7 +22,7 @@ config:
   bearing: -20
   interactive: false   # scrolling moves the story, not the map
 
-# Patterns, the same as on the Growth Periods map (src/maps/full-page.yaml):
+# Patterns, the same as on the Santiago Map (src/maps/full-page.yaml):
 # a very dense square grid in each period colour, almost solid (public/img/).
 # Each period also has a glowing edge (-glow and -line).
 images:

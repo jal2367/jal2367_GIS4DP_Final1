@@ -1,7 +1,9 @@
 # yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
 #
-# The map on src/pages/full_page_map.mdx: it fills the window under the site
-# header, with zoom and reset buttons, a legend and a layer panel.
+# The map on src/pages/full_page_map.mdx ("Santiago Map"): urban growth
+# (hexagons by period) and hydrography (natural and engineered water) on one
+# map, with zoom and reset buttons and the layer rail and side panel
+# (src/scripts/map-panels.js, src/scripts/layer-rail.js).
 type: map
 id: full-page
 config:
@@ -141,6 +143,20 @@ sources:
   hexa_sized:
     type: geojson
     url: "/data/Hexa_sized.geojson"
+  # hidrografia.geojson is Hydrografia2.geojson made lighter for the web: the
+  # whole region (not clipped), lines simplified to about 3 m, the CAD layer
+  # names grouped into TIPO (the original name is kept in CAPA). Dropped as not
+  # water: CAD audit leftovers, "ca" and mining tailings dams (TRANQUE DE
+  # RELAVE). Declared once here so the five layers share one copy (9 MB, about
+  # 1.5 MB to download).
+  hidrografia:
+    type: geojson
+    url: "/data/hidrografia.geojson"
+  # Collector network, shared by its line and its glow.
+  colector:
+    type: geojson
+    url: "/data/sistema_colector.geojson"
+
 
 layers:
   # Hexagons, all draped over the terrain and basemap (flat fills follow the
@@ -316,6 +332,192 @@ layers:
               - str: " ("
               - property: Hexagons
               - str: " hexagons)"
+
+  # ---- Hydrography (merged from the former Hydrography page) ----
+  # Colours (aquamarine / midnight blue / dark violet palette): natural water
+  # in aquamarines, deepest for the biggest (rivers #00d6a8) to palest for
+  # the smallest (ravines #c9fff0); engineered water in dark violets, deepest
+  # for the biggest system (collector network #9400d3) to palest (reservoirs
+  # and ponds #dba8ff, mostly man-made). Each line has a soft "-glow" copy
+  # underneath (wider, blurred) for the neon look. Width, opacity and glow
+  # step down with size so the hierarchy reads at a glance: rivers and the
+  # collector network boldest, ravines and reservoirs faintest. The layer rail
+  # (src/scripts/layer-rail.js) uses the same colours; keep them in step.
+  #
+  # Hydrography (rivers, streams, ravines, canals, reservoirs) all come from
+  # the shared "hidrografia" source above; each TIPO is its own layer.
+  - id: hydro-ravines-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Ravines"]
+    paint:
+      line-color: "#c9fff0"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 3]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 1.2, 14, 2.4]
+      line-opacity: 0.08
+    legend: false
+
+  - id: hydro-ravines
+    type: line
+    label: Ravines (quebradas)
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Ravines"]
+    paint:
+      line-color: "#c9fff0"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.4, 14, 1]
+      line-opacity: 0.45
+      line-dasharray: [3, 2]
+    legend: false
+    interactive: &hydro-popup
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: TIPO
+          - p:
+              - str: "Type in source: "
+              - property: CAPA
+
+  - id: hydro-reservoirs-glow
+    type: line
+    layout: { visibility: none }   # engineered features start off
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Reservoirs and ponds"]
+    paint:
+      line-color: "#dba8ff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 2, 14, 4]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 1.6, 14, 3.2]
+      line-opacity: 0.15
+    legend: false
+
+  - id: hydro-reservoirs
+    type: line
+    layout: { visibility: none }   # engineered features start off
+    label: Reservoirs and ponds
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Reservoirs and ponds"]
+    paint:
+      line-color: "#dba8ff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.5]
+      line-opacity: 0.6
+    legend: false
+    interactive: *hydro-popup
+
+  - id: hydro-canals-glow
+    type: line
+    layout: { visibility: none }   # engineered features start off
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Canals"]
+    paint:
+      line-color: "#b44cff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 6]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.4, 14, 4.8]
+      line-opacity: 0.2
+    legend: false
+
+  - id: hydro-canals
+    type: line
+    layout: { visibility: none }   # engineered features start off
+    label: Canals
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Canals"]
+    paint:
+      line-color: "#b44cff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.8, 14, 2]
+      line-opacity: 0.75
+    legend: false
+    interactive: *hydro-popup
+
+  - id: hydro-streams-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Streams"]
+    paint:
+      line-color: "#7fffd4"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 3.2, 14, 7.2]
+      line-opacity: 0.3
+    legend: false
+
+  - id: hydro-streams
+    type: line
+    label: Streams (esteros)
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Streams"]
+    paint:
+      line-color: "#7fffd4"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.1, 14, 2.8]
+      line-opacity: 0.9
+    legend: false
+    interactive: *hydro-popup
+
+  - id: hydro-rivers-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Rivers"]
+    paint:
+      line-color: "#00d6a8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 24]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 8, 14, 19.2]
+      line-opacity: 0.55
+    legend: false
+
+  - id: hydro-rivers
+    type: line
+    label: Rivers
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Rivers"]
+    paint:
+      line-color: "#00d6a8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 8]
+      line-opacity: 1
+    legend: false
+    interactive: *hydro-popup
+
+  # Collector network (Sistema Colector) from the Dirección de Obras
+  # Hidráulicas: the deepest dark violet. sistema_colector.geojson is
+  # "Sistema Colector.geojson" cut down to the Región Metropolitana (1,265 of
+  # 2,937 lines) with only the fields used here, so the page loads faster.
+  - id: sistema-colector-glow
+    type: line
+    layout: { visibility: none }   # engineered features start off
+    source: colector
+    paint:
+      line-color: "#9400d3"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 12]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 4.8, 14, 9.6]
+      line-opacity: 0.4
+    legend: false
+
+  - id: sistema-colector
+    type: line
+    layout: { visibility: none }   # engineered features start off
+    label: Collector network
+    source: colector
+    paint:
+      line-color: "#9400d3"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.6, 14, 4]
+      line-opacity: 0.95
+    legend: false
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: NOMBRE
+                else: "Collector"
+          - p:
+              - str: "Length: "
+              - property: LONG_M
+              - str: " m"
+          - p:
+              - str: "Updated: "
+              - property: ACTUALIZADO
+          - p:
+              - str: "Source: Dirección de Obras Hidráulicas"
+
 
   # Comuna boundaries for the 32 comunas, from caracena/chile-geojson on
   # GitHub (Región Metropolitana file). The comuna picked in the dropdown is

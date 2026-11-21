@@ -11,7 +11,7 @@
 // re-applies whenever a panel appears or is rebuilt.
 
 import { buildCompass } from "./map-compass.js";
-import { buildLayerRail, railPills, railWidth } from "./layer-rail.js";
+import { buildLayerRail, railGroups, railPills, railWidth } from "./layer-rail.js";
 
 const PERIOD_COLORS = {
   "1680–1806": "#9b00e8",
@@ -29,15 +29,156 @@ function moveParamsLeft(root) {
   const panel = root.querySelector(".ml-map-params");
   const left = leftColumn(root);
   if (!panel || !left) return;
+  // Into the Growth Periods section when there is one, else the left column.
+  const target = sectionBody(left, "growth") || left;
   const mount = panel.parentElement; // the library's wrapper in its corner
-  if (mount && mount.parentElement !== left) left.appendChild(mount);
+  if (mount && mount.parentElement !== target) target.appendChild(mount);
   orderLeft(left);
+}
+
+// ---- Side panel sections (Santiago Map) ----
+// Two foldable sections, each with its own accent colour (global.css) and an
+// on/off switch tied to the layer rail's cards for that topic:
+//   Growth Periods: comuna dropdown, period pills, size switch, size legend;
+//   Hydrography: the natural / engineered sub-layer pills;
+//   Base map: a pill per base layer (comunas, satellite, terrain).
+const SECTIONS = [
+  { key: "growth", title: "Growth Periods" },
+  { key: "hydro", title: "Hydrography" },
+  { key: "base", title: "Base map", pills: true },
+];
+function sectionBody(left, key) {
+  return left.querySelector(`.panel-section[data-section="${key}"] > .panel-section-body`);
+}
+function buildSections(root) {
+  const left = leftColumn(root);
+  if (!left || left.querySelector(".panel-section") || !railGroups(root).length) return;
+  for (const { key, title, pills } of SECTIONS) {
+    const groups = () => railGroups(root).filter((g) => g.section === key);
+    if (!groups().length) continue;
+    const section = document.createElement("section");
+    section.className = "panel-section";
+    section.dataset.section = key;
+    const head = document.createElement("div");
+    head.className = "panel-section-head";
+    const fold = document.createElement("button");
+    fold.type = "button";
+    fold.className = "panel-section-fold";
+    const caret = document.createElement("span");
+    caret.className = "panel-section-caret";
+    caret.setAttribute("aria-hidden", "true");
+    caret.textContent = "▾";
+    fold.append(caret, document.createTextNode(title));
+    const sw = document.createElement("button");
+    sw.type = "button";
+    sw.className = "panel-switch";
+    sw.setAttribute("role", "switch");
+    sw.setAttribute("aria-label", `Show ${title}`);
+    head.append(fold, sw);
+    const body = document.createElement("div");
+    body.className = "panel-section-body";
+    body.id = `panel-section-${key}`;
+    fold.setAttribute("aria-controls", body.id);
+    section.append(head, body);
+    left.appendChild(section);
+
+    // Fold, remembered in this browser.
+    const store = `mapSectionFolded-${key}`;
+    const setFolded = (folded) => {
+      section.classList.toggle("is-folded", folded);
+      fold.setAttribute("aria-expanded", String(!folded));
+      body.hidden = folded;
+    };
+    let folded = false;
+    try { folded = localStorage.getItem(store) === "1"; } catch { /* ignore */ }
+    setFolded(folded);
+    fold.addEventListener("click", () => {
+      const f = !section.classList.contains("is-folded");
+      setFolded(f);
+      try { localStorage.setItem(store, f ? "1" : "0"); } catch { /* ignore */ }
+    });
+
+    // On/off: on if any of its layers are on. Switching off hides them all;
+    // switching on brings the section back to how the page opened (layers,
+    // sub-layers and, for Growth Periods, the comuna, period and size
+    // controls).
+    const sync = () => sw.setAttribute("aria-checked", String(groups().some((g) => g.isOn())));
+    sw.addEventListener("click", () => {
+      if (groups().some((g) => g.isOn())) {
+        for (const g of groups()) g.setOn(false);
+        return;
+      }
+      for (const g of groups()) g.reset();
+      if (!groups().some((g) => g.isOn())) for (const g of groups()) g.setOn(true);
+      if (key === "growth") resetGrowthControls(root);
+    });
+    root.addEventListener("rail-change", sync);
+    sync();
+
+    // A pill per layer group, styled like the other sections' pills.
+    if (pills) {
+      const row = document.createElement("div");
+      row.className = "rail-pills";
+      row.setAttribute("role", "group");
+      row.setAttribute("aria-label", title);
+      const syncPills = [];
+      for (const g of groups()) {
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "rail-pill";
+        const dot = document.createElement("i");
+        dot.style.background = "var(--map-accent)";
+        pill.append(dot, document.createTextNode(g.label));
+        pill.addEventListener("click", () => g.setOn(!g.isOn()));
+        row.appendChild(pill);
+        syncPills.push(() => pill.setAttribute("aria-pressed", String(g.isOn())));
+      }
+      const syncAll = () => syncPills.forEach((fn) => fn());
+      root.addEventListener("rail-change", syncAll);
+      syncAll();
+      const wrap = document.createElement("div");
+      wrap.className = "rail-pill-section";
+      wrap.appendChild(row);
+      body.appendChild(wrap);
+    }
+  }
+}
+// Growth Periods controls back to their defaults: all comunas, every period
+// on, sizes on. Done through the panel's own inputs so the map and the
+// buttons stay in step.
+function resetGrowthControls(root) {
+  const panel = root.querySelector(".ml-map-params");
+  if (!panel) return;
+  const select = panel.querySelector("select");
+  if (select && select.value !== "All comunas") {
+    select.value = "All comunas";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  for (const box of panel.querySelectorAll('input[type="checkbox"]')) {
+    if (box.closest(".ml-map-params-layer")) continue; // layer switches (hidden)
+    if (!box.checked) box.click();
+  }
+}
+
+// Put each piece in its section.
+function fillSections(root) {
+  const left = leftColumn(root);
+  if (!left) return;
+  const growth = sectionBody(left, "growth");
+  const hydro = sectionBody(left, "hydro");
+  const legend = left.querySelector("#size-legend");
+  if (growth && legend && legend.parentElement !== growth) growth.appendChild(legend);
+  const pills = railPills(root);
+  if (hydro && pills && pills.parentElement !== hydro) hydro.appendChild(pills);
 }
 
 // Info box first, then controls, colour legend, size legend.
 // The site wraps all its top-left boxes (info box, size legend) in one slot
 // container; `display: contents` lets each box be ordered on its own.
 function orderOf(el) {
+  if (el.dataset && el.dataset.section === "growth") return 2;
+  if (el.dataset && el.dataset.section === "hydro") return 3;
+  if (el.dataset && el.dataset.section === "base") return 4;
   if (el.classList.contains("rail-pill-section")) return 2;
   if (el.classList.contains("side-panel-footer")) return 9;
   if (el.querySelector(".ml-map-params")) return 2;
@@ -129,7 +270,7 @@ function sidePanel(root) {
     tab.setAttribute("aria-expanded", String(!collapsed));
     tab.setAttribute("aria-label", collapsed ? "Show panel" : "Hide panel");
     tab.title = collapsed ? "Show panel" : "Hide panel";
-    tab.textContent = collapsed ? "›" : "‹";
+    // The tab shows a short line (global.css), no arrow.
     left.inert = collapsed; // hidden panel is skipped by keyboard and screen readers
   };
   set(readCollapsed(), false);
@@ -160,26 +301,29 @@ function updateLayout(root, animate = true) {
   map.easeTo({ padding, duration: animate && !reduce ? 250 : 0 });
 }
 
-// North arrow and scale bar (src/scripts/map-compass.js), pinned to the
-// bottom of the side panel: the panel's other contents scroll behind them.
+// North arrow and scale bar (src/scripts/map-compass.js): the panel's other
+// contents scroll behind them.
+// Pinned to the bottom of the layer rail when there is one, else of the
+// side panel.
 function mapFooter(root) {
-  const left = leftColumn(root);
+  const host = root.querySelector(".layer-rail") || leftColumn(root);
   const map = root.getMap ? root.getMap() : null;
-  if (!left || !map || left.querySelector(".side-panel-footer")) return;
+  const existing = root.querySelector(".side-panel-footer");
+  // Built before the rail existed: move it into the rail.
+  if (existing) { if (host && existing.parentElement !== host) host.appendChild(existing); return; }
+  if (!host || !map) return;
 
   const footer = document.createElement("div");
   footer.className = "side-panel-footer";
   footer.appendChild(buildCompass(map));
-  left.appendChild(footer);
+  host.appendChild(footer);
 }
 
 function apply(root) {
   buildLayerRail(root, () => updateLayout(root));
   sidePanel(root);
-  // Sub-layer pills (Hydrography) go in the side panel, under the info box.
-  const pills = railPills(root);
-  const leftCol = leftColumn(root);
-  if (pills && leftCol && pills.parentElement !== leftCol) leftCol.appendChild(pills);
+  buildSections(root);
+  fillSections(root);
   mapFooter(root);
   moveParamsLeft(root);
   pillifyPeriods(root);
