@@ -61,48 +61,34 @@ function buildSections(root) {
     section.dataset.section = key;
     const head = document.createElement("div");
     head.className = "panel-section-head";
-    const fold = document.createElement("button");
-    fold.type = "button";
-    fold.className = "panel-section-fold";
-    const caret = document.createElement("span");
-    caret.className = "panel-section-caret";
-    caret.setAttribute("aria-hidden", "true");
-    caret.textContent = "▾";
-    fold.append(caret, document.createTextNode(title));
+    const name = document.createElement("span");
+    name.className = "panel-section-title";
+    name.textContent = title;
+    // On/off: an X when on that collapses into a line when off (global.css).
     const sw = document.createElement("button");
     sw.type = "button";
     sw.className = "panel-switch";
     sw.setAttribute("role", "switch");
     sw.setAttribute("aria-label", `Show ${title}`);
-    head.append(fold, sw);
+    head.append(name, sw);
     const body = document.createElement("div");
     body.className = "panel-section-body";
     body.id = `panel-section-${key}`;
-    fold.setAttribute("aria-controls", body.id);
+    sw.setAttribute("aria-controls", body.id);
     section.append(head, body);
     left.appendChild(section);
 
-    // Fold, remembered in this browser.
-    const store = `mapSectionFolded-${key}`;
-    const setFolded = (folded) => {
-      section.classList.toggle("is-folded", folded);
-      fold.setAttribute("aria-expanded", String(!folded));
-      body.hidden = folded;
+    // On if any of its layers are on; the section folds away while off.
+    // Switching off hides them all; switching on brings the section back to
+    // how the page opened (layers, sub-layers and, for Growth Periods, the
+    // comuna, period and size controls).
+    const sync = () => {
+      const on = groups().some((g) => g.isOn());
+      sw.setAttribute("aria-checked", String(on));
+      sw.title = on ? `Hide ${title}` : `Show ${title}`;
+      section.classList.toggle("is-folded", !on);
+      body.hidden = !on;
     };
-    let folded = false;
-    try { folded = localStorage.getItem(store) === "1"; } catch { /* ignore */ }
-    setFolded(folded);
-    fold.addEventListener("click", () => {
-      const f = !section.classList.contains("is-folded");
-      setFolded(f);
-      try { localStorage.setItem(store, f ? "1" : "0"); } catch { /* ignore */ }
-    });
-
-    // On/off: on if any of its layers are on. Switching off hides them all;
-    // switching on brings the section back to how the page opened (layers,
-    // sub-layers and, for Growth Periods, the comuna, period and size
-    // controls).
-    const sync = () => sw.setAttribute("aria-checked", String(groups().some((g) => g.isOn())));
     sw.addEventListener("click", () => {
       if (groups().some((g) => g.isOn())) {
         for (const g of groups()) g.setOn(false);

@@ -7,9 +7,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  /* Header and titles: a wide techno face, set in capitals. */
-  --font-display: "Audiowide", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "JetBrains Mono", ui-monospace, monospace;
+  /* Titles: a dot-matrix display face, set in capitals. */
+  --font-display: "Doto", ui-monospace, monospace;
 }
 
 :root {
@@ -498,7 +498,7 @@ ml-scrollytelling {
   --ml-marker-outline: rgba(20, 21, 24, 0.9);
 }
 
-/* Display font (Audiowide, in capitals) for the site header, page titles, the
+/* Display font (Doto, in capitals) for the site header, page titles, the
    titles in the map panels and the story's chapter titles. */
 header,
 main :is(h1, h2, h3, h4, h5):not(ml-map *, ml-scrollytelling *),
@@ -512,16 +512,16 @@ header a {
   font-weight: 400;
   font-size: 0.8rem;
 }
-/* Audiowide has one weight; no faux bold. */
+/* Doto at its bold weight so the dots read clearly. */
 header a,
 .map-title,
 ml-scrollytelling .chapter-title {
-  font-weight: 400 !important;
+  font-weight: 700 !important;
 }
 header a.font-semibold {
   font-size: 1rem;
 }
-/* Body font (Space Grotesk) inside the maps too: the map library sets its own on
+/* Body font (JetBrains Mono) inside the maps too: the map library sets its own on
    its panels and popups. */
 ml-map .ml-map-chrome,
 ml-map .maplibregl-popup-content,
@@ -822,7 +822,7 @@ body.bleed .layer-rail {
 /* Santiago Map: neutral light-gray accent for the shared parts (rail, page
    links, buttons, scale bar); each side-panel section has its own colour:
    Growth Periods pink (#ff4d94, a period colour), Hydrography aquamarine
-   (#7fffd4). Marked by .accent-growth on the page's info box. */
+   (#7fffd4). Marked by .accent-growth on the page's size legend. */
 body:has(.accent-growth) {
   --map-accent: #d4d7db;
 }
@@ -1115,4 +1115,99 @@ body.bleed .side-panel-tab {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* Body text in JetBrains Mono Light. */
+body,
+.side-panel,
+.layer-rail {
+  font-weight: 300;
+}
+/* Layer names in the title font (Doto): rail card labels, sub-layer pills
+   and their group headings. */
+.rail-card-label,
+.rail-pill,
+.rail-pills-head {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  letter-spacing: 0.02em;
+}
+
+/* Section header: the title (Doto) and an X that collapses into a line when
+   the section is switched off (and the section folds away). Replaces the
+   earlier switch and fold arrow. */
+.panel-section-title {
+  flex: 1;
+  padding: 4px 0;
+  font-family: var(--font-display) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+  color: var(--map-accent);
+}
+.panel-section .panel-switch {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  box-shadow: none;
+}
+.panel-section .panel-switch::before,
+.panel-section .panel-switch::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 16px;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: var(--map-accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--map-accent) 60%, transparent);
+  transform: rotate(0deg);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.panel-section .panel-switch[aria-checked="true"]::before {
+  transform: rotate(45deg);
+}
+.panel-section .panel-switch[aria-checked="true"]::after {
+  transform: rotate(-45deg);
+}
+.panel-section .panel-switch[aria-checked="false"]::before,
+.panel-section .panel-switch[aria-checked="false"]::after {
+  opacity: 0.7;
+}
+.panel-section .panel-switch:hover {
+  background: color-mix(in srgb, var(--map-accent) 12%, transparent);
+}
+.panel-section.is-folded {
+  padding-bottom: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel-section .panel-switch::before,
+  .panel-section .panel-switch::after {
+    transition: none;
+  }
+}
+.side-panel .panel-section .panel-section-title {
+  font-family: var(--font-display) !important;
+}
+
+/* A layer switched off: its preview flattens slightly (the drawing is
+   squashed to a shorter height) and dims, and the stack tightens up around
+   it; it springs back when switched on. */
+.rail-card-main canvas {
+  transition: height 0.25s ease, opacity 0.25s ease;
+}
+.rail-card-main[aria-pressed="false"] canvas {
+  height: 74px !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-card-main canvas {
+    transition: none;
+  }
 }

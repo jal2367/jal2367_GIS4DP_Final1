@@ -50,9 +50,9 @@
   "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
   "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=y0fw7pkq30UtQjr7mmo8",
   "font-faces": {
-    "Audiowide": [
+    "JetBrains Mono": [
       {
-        "url": "/jal2367_GIS4DP_Final1/fonts/audiowide-latin.woff2",
+        "url": "/jal2367_GIS4DP_Final1/fonts/jetbrains-mono-latin.woff2",
         "unicode-range": [
           "U+0000-00FF",
           "U+0131",
@@ -76,7 +76,7 @@
         ]
       },
       {
-        "url": "/jal2367_GIS4DP_Final1/fonts/audiowide-latin-ext.woff2",
+        "url": "/jal2367_GIS4DP_Final1/fonts/jetbrains-mono-latin-ext.woff2",
         "unicode-range": [
           "U+0100-02BA",
           "U+02BD-02C5",

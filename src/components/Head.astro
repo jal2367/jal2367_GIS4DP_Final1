@@ -1,15 +1,15 @@
 ---
 import "../styles/global.css";
 // Fonts, stored with the site (npm packages, no requests to Google):
-//   Space Grotesk for body text (--font-sans), Audiowide for the header and
-//   titles (--font-display). See src/styles/global.css.
-import "@fontsource/space-grotesk/latin-400.css";
-import "@fontsource/space-grotesk/latin-600.css";
-import "@fontsource/space-grotesk/latin-700.css";
-import "@fontsource/audiowide/latin-400.css";
-import grotesk400 from "@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2";
-import grotesk600 from "@fontsource/space-grotesk/files/space-grotesk-latin-600-normal.woff2";
-import audiowide400 from "@fontsource/audiowide/files/audiowide-latin-400-normal.woff2";
+//   JetBrains Mono Light for body text (--font-sans), Doto (dot matrix) for
+//   the titles (--font-display). See src/styles/global.css.
+import "@fontsource/jetbrains-mono/300.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/600.css";
+import "@fontsource/doto/700.css";
+import mono300 from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-300-normal.woff2";
+import mono600 from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2";
+import doto700 from "@fontsource/doto/files/doto-latin-700-normal.woff2";
 
 interface Props {
   title: string;
@@ -28,9 +28,9 @@ const { title, description, image } = Astro.props;
 <meta name="generator" content={Astro.generator} />
 
 <!-- Font preloads -->
-<link rel="preload" href={grotesk400} as="font" type="font/woff2" crossorigin/>
-<link rel="preload" href={grotesk600} as="font" type="font/woff2" crossorigin/>
-<link rel="preload" href={audiowide400} as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href={mono300} as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href={mono600} as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href={doto700} as="font" type="font/woff2" crossorigin/>
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />

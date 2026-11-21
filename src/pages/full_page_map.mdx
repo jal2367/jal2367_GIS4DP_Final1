@@ -14,15 +14,8 @@ export const map = await loadMapConfig("./src/maps/full-page.yaml");
     config={map}
     style="top: 0; height: 100vh;"
   >
-    <div slot="top-left" class="accent-growth hidden sm:block map-glass px-3 py-2 text-sm max-w-64">
-      <strong class="map-title">Santiago, 1680–2024</strong><br />
-      How the city grew (hexagons across 32 comunas, coloured by mean year
-      and sized by number of years) over its rivers, streams and engineered
-      water. Switch layers in the rail on the left or the sections below;
-      pick a comuna to fly to it, click one for its summary.
-    </div>
     {/* Graduated size legend, drawn by src/scripts/size-legend.js */}
-    <div slot="top-left" id="size-legend" class="map-glass px-3 py-2 text-xs">
+    <div slot="top-left" id="size-legend" class="accent-growth map-glass px-3 py-2 text-xs">
       <strong class="map-title">Size: number of years</strong>
       <svg class="block mt-1" role="img" aria-label="Hexagon sizes from 0 years (20%) to 54 or more years (100%)"></svg>
       <div data-scale-note class="text-[10px] opacity-75"></div>
