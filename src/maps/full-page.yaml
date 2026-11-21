@@ -144,11 +144,12 @@ sources:
     type: geojson
     url: "/data/Hexa_sized.geojson"
   # hidrografia.geojson is Hydrografia2.geojson made lighter for the web: the
-  # whole region (not clipped), lines simplified to about 3 m, the CAD layer
-  # names grouped into TIPO (the original name is kept in CAPA). Dropped as not
-  # water: CAD audit leftovers, "ca" and mining tailings dams (TRANQUE DE
-  # RELAVE). Declared once here so the five layers share one copy (9 MB, about
-  # 1.5 MB to download).
+  # whole region (not clipped), the CAD layer names grouped into TIPO, lines
+  # simplified to 8 m, coordinates rounded to ~1 m, and all lines of one TIPO
+  # merged into one feature (5 in all). Dropped as not water: CAD audit
+  # leftovers, "ca" and mining tailings dams (TRANQUE DE RELAVE). Declared once
+  # here so the hydrography layers share one copy (4.3 MB, about 1.1 MB to
+  # download).
   hidrografia:
     type: geojson
     url: "/data/hidrografia.geojson"
@@ -375,9 +376,6 @@ layers:
         popup:
           - h3:
               - property: TIPO
-          - p:
-              - str: "Type in source: "
-              - property: CAPA
 
   - id: hydro-reservoirs-glow
     type: line
@@ -478,7 +476,8 @@ layers:
   # Collector network (Sistema Colector) from the Dirección de Obras
   # Hidráulicas: the deepest dark violet. sistema_colector.geojson is
   # "Sistema Colector.geojson" cut down to the Región Metropolitana (1,265 of
-  # 2,937 lines) with only the fields used here, so the page loads faster.
+  # 2,937 lines) with only the fields used here, simplified to 5 m (0.4 MB),
+  # so the page loads faster.
   - id: sistema-colector-glow
     type: line
     layout: { visibility: none }   # engineered features start off
