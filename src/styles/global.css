@@ -1577,3 +1577,21 @@ body:has(.overview-panel) {
 .story-panel .chapter-marker.active .chapter-marker-label {
   color: var(--map-accent);
 }
+
+/* Explore: the layer rail's space and background are there from the first
+   paint, so nothing jumps when the rail is filled in after the map loads. */
+body:has(.accent-growth) ml-map {
+  --rail-x: var(--rail-w);
+}
+body:has(.accent-growth) ml-map::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--rail-w);
+  background: var(--rail-glass);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}

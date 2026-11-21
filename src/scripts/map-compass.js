@@ -51,7 +51,13 @@ export function buildCompass(map, maxPx = 140) {
     bar.style.width = `${Math.round(metres / mPerPx)}px`;
     label.textContent = `${metres / 1000} km`;
   };
-  map.on("move", update);
+  // At most once a frame while the map moves.
+  let queued = false;
+  map.on("move", () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; update(); });
+  });
   update();
   return box;
 }

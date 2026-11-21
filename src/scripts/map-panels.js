@@ -294,7 +294,9 @@ function sidePanel(root) {
 function updateLayout(root, animate = true) {
   const map = root.getMap ? root.getMap() : null;
   const left = leftColumn(root);
-  const railX = railWidth(root);
+  // Before the rail is built, its space is already reserved (global.css).
+  const railX = root.querySelector(".layer-rail") ? railWidth(root)
+    : parseFloat(getComputedStyle(root).getPropertyValue("--rail-x")) || 0;
   root.style.setProperty("--rail-x", `${railX}px`);
   if (!map || !left) return;
   const panelOpen = !left.classList.contains("is-collapsed");
@@ -336,18 +338,30 @@ function apply(root) {
   if (left) orderLeft(left);
 }
 
+// Changes inside these redraw constantly (as the map moves) and never need
+// the panels re-arranged, so they are ignored.
+const IGNORE = "#size-legend, .map-compass, .rail-card, .maplibregl-canvas-container, .maplibregl-popup";
 const watched = new WeakSet();
 function watch(root) {
-  if (!root || watched.has(root)) return;
+  if (!root) return;
+  if (watched.has(root)) { apply(root); return; } // e.g. the map just finished loading
   watched.add(root);
   apply(root);
-  // Batch changes (the size legend redraws as the map moves) to once a frame.
+  // Re-apply when the library adds or rebuilds a panel, at most once a frame.
   let queued = false;
-  new MutationObserver(() => {
-    if (queued) return;
+  new MutationObserver((mutations) => {
+    if (queued || mutations.every((m) => m.target.closest && m.target.closest(IGNORE))) return;
     queued = true;
     requestAnimationFrame(() => { queued = false; apply(root); });
   }).observe(root, { childList: true, subtree: true });
+  // The layer rail needs the map's layers: build it as soon as they exist.
+  const map = root.getMap ? root.getMap() : null;
+  if (map) {
+    const ready = () => apply(root);
+    if (map.isStyleLoaded && map.isStyleLoaded()) ready();
+    map.once("load", ready);
+    map.once("idle", ready);
+  }
 }
 
 document.addEventListener("ml-map:load", (event) => watch(event.target));

@@ -175,24 +175,33 @@ function sampler(m) {
 
 // ---- drawings ----
 
+// Points closer than about half a pixel on the card are skipped: a card is
+// ~200 px across, so the 24,000 hydrography lines need only a fraction of
+// their points, which keeps drawing fast.
 function strokeGeometry(ctx, proj, geom) {
-  const line = (coords) => coords.forEach(([lon, lat], i) => {
-    const [x, y] = proj.lonLat(lon, lat);
-    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-  });
+  const line = (coords) => {
+    let px = Infinity, py = Infinity;
+    coords.forEach(([lon, lat], i) => {
+      const [x, y] = proj.lonLat(lon, lat);
+      if (!i) { ctx.moveTo(x, y); px = x; py = y; return; }
+      if (Math.abs(x - px) + Math.abs(y - py) < 0.6 && i < coords.length - 1) return;
+      ctx.lineTo(x, y); px = x; py = y;
+    });
+  };
   const t = geom && geom.type;
   if (t === "LineString") line(geom.coordinates);
   else if (t === "MultiLineString" || t === "Polygon") geom.coordinates.forEach(line);
   else if (t === "MultiPolygon") geom.coordinates.forEach((poly) => poly.forEach(line));
 }
 
-async function drawVector(ctx, proj, map, spec) {
-  const data = await layerData(map, spec.layer);
-  if (!data || !data.features || !data.features.length) return false;
-  ctx.lineWidth = spec.width;
-  ctx.lineJoin = "round";
-  // Group by colour so each colour is one path.
-  const byColor = new Map();
+const groupCache = new WeakMap(); // data -> Map(key -> Map(colour -> geometries))
+function groupedGeometries(data, spec) {
+  let perData = groupCache.get(data);
+  if (!perData) { perData = new Map(); groupCache.set(data, perData); }
+  const key = `${spec.layer}|${spec.where}|${spec.color}`;
+  let byColor = perData.get(key);
+  if (byColor) return byColor;
+  byColor = new Map();
   for (const f of data.features) {
     const p = f.properties || {};
     if (spec.where && !spec.where(p)) continue;
@@ -200,14 +209,33 @@ async function drawVector(ctx, proj, map, spec) {
     if (!byColor.has(c)) byColor.set(c, []);
     byColor.get(c).push(f.geometry);
   }
+  perData.set(key, byColor);
+  return byColor;
+}
+
+async function drawVector(ctx, proj, map, spec) {
+  const data = await layerData(map, spec.layer);
+  if (!data || !data.features || !data.features.length) return false;
+  ctx.lineWidth = spec.width;
+  ctx.lineJoin = "round";
+  // Group by colour so each colour is one path (sorted once per layer and
+  // filter, then reused on every redraw).
+  const byColor = groupedGeometries(data, spec);
   for (const [color, geoms] of byColor) {
+    const path = new Path2D();
+    geoms.forEach((g) => strokeGeometry(path, proj, g));
+    // Neon glow, like the map's "-glow" layers: a wider, faint stroke under
+    // the line (much cheaper than a canvas blur on thousands of lines).
+    if (spec.glow) {
+      ctx.globalAlpha = 0.25;
+      ctx.lineWidth = spec.width * 3.5;
+      ctx.strokeStyle = color;
+      ctx.stroke(path);
+      ctx.globalAlpha = 1;
+    }
+    ctx.lineWidth = spec.width;
     ctx.strokeStyle = color;
-    // Neon glow, like the map's "-glow" layers.
-    ctx.shadowColor = spec.glow ? color : "transparent";
-    ctx.shadowBlur = spec.glow ? 4 : 0;
-    ctx.beginPath();
-    geoms.forEach((g) => strokeGeometry(ctx, proj, g));
-    ctx.stroke();
+    ctx.stroke(path);
   }
   return true;
 }
@@ -486,18 +514,30 @@ export function buildLayerRail(root, onLayout) {
   // card whose data was still loading each time the map settles.
   const drawn = new Set();
   let lastKey = "";
+  // Cards are drawn one at a time, each when the browser is idle, so drawing
+  // never freezes the page or the map while it loads.
+  const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 50));
+  let running = false;
   const drawAll = (force) => {
     const key = `${list.clientWidth}x${window.devicePixelRatio || 1}`;
     if (force || key !== lastKey) { drawn.clear(); lastKey = key; }
-    for (const [canvas, group] of cards) {
-      if (drawn.has(canvas)) continue;
+    if (running) return;
+    running = true;
+    const next = () => {
+      const item = cards.find(([canvas]) => !drawn.has(canvas));
+      if (!item) { running = false; return; }
+      const [canvas, group] = item;
       drawn.add(canvas);
-      drawCard(canvas, map, group.draw).then((ok) => { if (!ok) drawn.delete(canvas); });
-    }
+      drawCard(canvas, map, group.draw).then((ok) => {
+        if (!ok) { drawn.delete(canvas); running = false; return; } // retry when the map settles
+        idle(next);
+      });
+    };
+    idle(next);
   };
   new ResizeObserver(() => drawAll(false)).observe(list);
   map.on("idle", () => { if (drawn.size < cards.length) drawAll(false); });
-  requestAnimationFrame(() => drawAll(true));
+  drawAll(true);
 
   root.classList.add("has-layer-rail");
   onLayout && onLayout();

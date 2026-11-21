@@ -96,8 +96,13 @@ function wire(element) {
   const map = element && element.getMap ? element.getMap() : null;
   if (!box || !map || box.dataset.wired) return;
   box.dataset.wired = "1";
-  const draw = () => render(map, box);
-  map.on("zoom", draw);
+  // At most once a frame while the map moves (zoom also fires move).
+  let queued = false;
+  const draw = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; render(map, box); });
+  };
   map.on("move", draw);
   draw();
 }
