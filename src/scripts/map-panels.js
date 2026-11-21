@@ -4,18 +4,21 @@
 //      legend feature sits on the left, ordered: info box, controls, colour
 //      legend, size legend;
 //   2. turns the period checkboxes (labels like "1680–1806") into rounded
-//      pill buttons with the period colour (styled in src/styles/global.css).
+//      pill buttons with the period colour (styled in src/styles/global.css);
+//   3. adds the layer rail on the far left (src/scripts/layer-rail.js); the
+//      layer checkboxes it replaces are hidden in global.css.
 // The library builds these panels itself, so this watches the map and
 // re-applies whenever a panel appears or is rebuilt.
 
 import { buildCompass } from "./map-compass.js";
+import { buildLayerRail, railPills, railWidth } from "./layer-rail.js";
 
 const PERIOD_COLORS = {
-  "1680–1806": "#00204d",
-  "1840–1941": "#314e55",
-  "1943–1985": "#617d5c",
-  "1986–2013": "#92ab64",
-  "2014–2024": "#c2d96b",
+  "1680–1806": "#9b00e8",
+  "1840–1941": "#ff00ff",
+  "1943–1985": "#ff4d94",
+  "1986–2013": "#ffa31a",
+  "2014–2024": "#ffff00",
 };
 
 function leftColumn(root) {
@@ -35,6 +38,7 @@ function moveParamsLeft(root) {
 // The site wraps all its top-left boxes (info box, size legend) in one slot
 // container; `display: contents` lets each box be ordered on its own.
 function orderOf(el) {
+  if (el.classList.contains("rail-pill-section")) return 2;
   if (el.classList.contains("side-panel-footer")) return 9;
   if (el.querySelector(".ml-map-params")) return 2;
   if (el.classList.contains("ml-map-legend") || el.querySelector(".maplibre-legend")) return 3;
@@ -70,6 +74,7 @@ function pillifyPeriods(root) {
     const swatch = document.createElement("span");
     swatch.className = "period-swatch";
     swatch.style.background = PERIOD_COLORS[caption.textContent.trim()];
+    swatch.style.boxShadow = `0 0 6px ${PERIOD_COLORS[caption.textContent.trim()]}`; // slight glow
     row.classList.add("period-pill");
     row.style.cssText = ""; // drop the library's block layout
     caption.style.cssText = "";
@@ -91,34 +96,6 @@ function inlineToggles(root) {
     row.style.cssText = "display:flex;gap:6px;align-items:center;margin:4px 0;";
     caption.style.cssText = "font-weight:600;";
     row.prepend(input);
-  }
-}
-
-// Layer checkboxes double as the legend: a line swatch in the layer's colour
-// next to its name (Hydrography layers; comuna boundaries on both maps).
-// Keep the colours in step with the layers' line-color in the map YAML.
-const LAYER_SWATCHES = {
-  "Ravines (quebradas)": { color: "#5f8fa8", dashed: true },
-  "Reservoirs and ponds": { color: "#9ad0f5" },
-  "Canals": { color: "#7fdcc4" },
-  "Streams (esteros)": { color: "#6fc3ea" },
-  "Rivers": { color: "#3fa9f5", thick: true },
-  "Collector network": { color: "#f2a541" },
-  "Comuna boundaries": { color: "#9aa4ac" },
-};
-
-function layerSwatches(root) {
-  const panel = root.querySelector(".ml-map-params");
-  if (!panel) return;
-  for (const row of panel.querySelectorAll("label.ml-map-params-layer")) {
-    if (row.querySelector(".layer-swatch")) continue;
-    const caption = row.querySelector("span:not(.layer-swatch)");
-    const swatch = caption && LAYER_SWATCHES[caption.textContent.trim()];
-    if (!swatch) continue;
-    const line = document.createElement("span");
-    line.className = "layer-swatch";
-    line.style.borderTop = `${swatch.thick ? 4 : 2}px ${swatch.dashed ? "dashed" : "solid"} ${swatch.color}`;
-    caption.before(line);
   }
 }
 
@@ -147,7 +124,7 @@ function sidePanel(root) {
 
   const set = (collapsed, animate = true) => {
     left.classList.toggle("is-collapsed", collapsed);
-    framePadding(root, left, collapsed, animate);
+    updateLayout(root, animate);
     tab.classList.toggle("is-collapsed", collapsed);
     tab.setAttribute("aria-expanded", String(!collapsed));
     tab.setAttribute("aria-label", collapsed ? "Show panel" : "Hide panel");
@@ -157,7 +134,7 @@ function sidePanel(root) {
   };
   set(readCollapsed(), false);
   // Keep the map centred on the visible area when the window is resized.
-  window.addEventListener("resize", () => framePadding(root, left, left.classList.contains("is-collapsed"), false));
+  window.addEventListener("resize", () => updateLayout(root, false));
   tab.addEventListener("click", () => {
     const collapsed = !left.classList.contains("is-collapsed");
     set(collapsed);
@@ -165,15 +142,20 @@ function sidePanel(root) {
   });
 }
 
-// Shift the map's centre into the part of the map not covered by the side
-// panel (and, on full-page maps, the see-through site header), so the city
-// stays in the middle of what you can see. MapLibre keeps this padding for
-// later zooms and fly-tos too.
-function framePadding(root, left, collapsed, animate) {
+// Lay out the layer rail and side panel side by side (the panel starts where
+// the rail ends, via --rail-x), then shift the map's centre into the part of
+// the map they leave uncovered (and below the see-through site header), so
+// the city stays in the middle of what you can see. MapLibre keeps this
+// padding for later zooms and fly-tos too.
+function updateLayout(root, animate = true) {
   const map = root.getMap ? root.getMap() : null;
-  if (!map) return;
+  const left = leftColumn(root);
+  const railX = railWidth(root);
+  root.style.setProperty("--rail-x", `${railX}px`);
+  if (!map || !left) return;
+  const panelOpen = !left.classList.contains("is-collapsed");
   const headerH = left.offsetTop || 0; // the panel starts below the header
-  const padding = { left: collapsed ? 0 : left.offsetWidth, top: headerH, right: 0, bottom: 0 };
+  const padding = { left: railX + (panelOpen ? left.offsetWidth : 0), top: headerH, right: 0, bottom: 0 };
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   map.easeTo({ padding, duration: animate && !reduce ? 250 : 0 });
 }
@@ -192,12 +174,16 @@ function mapFooter(root) {
 }
 
 function apply(root) {
+  buildLayerRail(root, () => updateLayout(root));
   sidePanel(root);
+  // Sub-layer pills (Hydrography) go in the side panel, under the info box.
+  const pills = railPills(root);
+  const leftCol = leftColumn(root);
+  if (pills && leftCol && pills.parentElement !== leftCol) leftCol.appendChild(pills);
   mapFooter(root);
   moveParamsLeft(root);
   pillifyPeriods(root);
   inlineToggles(root);
-  layerSwatches(root);
   const left = leftColumn(root);
   if (left) orderLeft(left);
 }

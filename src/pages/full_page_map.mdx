@@ -14,11 +14,10 @@ export const map = await loadMapConfig("./src/maps/full-page.yaml");
     config={map}
     style="top: 0; height: 100vh;"
   >
-    <div slot="top-left" class="hidden sm:block map-glass px-3 py-2 text-sm max-w-64">
+    <div slot="top-left" class="accent-growth hidden sm:block map-glass px-3 py-2 text-sm max-w-64">
       <strong class="map-title">Santiago, 1680–2024</strong><br />
       Hexagons across 32 comunas, coloured by mean year and sized by number
-      of years. Use the layer panel to switch periods on and off, or pick a
-      comuna to fly to it. Click a comuna for its summary.
+      of years. Switch layers in the Layers rail on the left; use the period buttons below, or pick a comuna to fly to it. Click a comuna for its summary.
     </div>
     {/* Graduated size legend, drawn by src/scripts/size-legend.js */}
     <div slot="top-left" id="size-legend" class="map-glass px-3 py-2 text-xs">

@@ -39,12 +39,8 @@
     },
     "satellite": {
       "type": "raster",
-      "tiles": [
-        "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg"
-      ],
-      "tileSize": 256,
-      "maxzoom": 15,
-      "attribution": "<a href=\"https://s2maps.eu\" target=\"_blank\">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2024)"
+      "url": "https://api.maptiler.com/tiles/satellite-v2/tiles.json?key=y0fw7pkq30UtQjr7mmo8",
+      "tileSize": 512
     }
   },
   "terrain": {
@@ -55,8 +51,48 @@
   "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=y0fw7pkq30UtQjr7mmo8",
   "font-faces": {
     "Audiowide": [
-      { "url": "/jal2367_GIS4DP_Final1/fonts/audiowide-latin.woff2", "unicode-range": ["U+0000-00FF", "U+0131", "U+0152-0153", "U+02BB-02BC", "U+02C6", "U+02DA", "U+02DC", "U+0304", "U+0308", "U+0329", "U+2000-206F", "U+20AC", "U+2122", "U+2191", "U+2193", "U+2212", "U+2215", "U+FEFF", "U+FFFD"] },
-      { "url": "/jal2367_GIS4DP_Final1/fonts/audiowide-latin-ext.woff2", "unicode-range": ["U+0100-02BA", "U+02BD-02C5", "U+02C7-02CC", "U+02CE-02D7", "U+02DD-02FF", "U+1D00-1DBF", "U+1E00-1E9F", "U+1EF2-1EFF", "U+2020", "U+20A0-20AB", "U+20AD-20C0", "U+2C60-2C7F", "U+A720-A7FF"] }
+      {
+        "url": "/jal2367_GIS4DP_Final1/fonts/audiowide-latin.woff2",
+        "unicode-range": [
+          "U+0000-00FF",
+          "U+0131",
+          "U+0152-0153",
+          "U+02BB-02BC",
+          "U+02C6",
+          "U+02DA",
+          "U+02DC",
+          "U+0304",
+          "U+0308",
+          "U+0329",
+          "U+2000-206F",
+          "U+20AC",
+          "U+2122",
+          "U+2191",
+          "U+2193",
+          "U+2212",
+          "U+2215",
+          "U+FEFF",
+          "U+FFFD"
+        ]
+      },
+      {
+        "url": "/jal2367_GIS4DP_Final1/fonts/audiowide-latin-ext.woff2",
+        "unicode-range": [
+          "U+0100-02BA",
+          "U+02BD-02C5",
+          "U+02C7-02CC",
+          "U+02CE-02D7",
+          "U+02DD-02FF",
+          "U+1D00-1DBF",
+          "U+1E00-1E9F",
+          "U+1EF2-1EFF",
+          "U+2020",
+          "U+20A0-20AB",
+          "U+20AD-20C0",
+          "U+2C60-2C7F",
+          "U+A720-A7FF"
+        ]
+      }
     ]
   },
   "layers": [
@@ -74,7 +110,7 @@
       "paint": {
         "raster-saturation": -1,
         "raster-brightness-min": 0,
-        "raster-brightness-max": 0.55,
+        "raster-brightness-max": 0.25,
         "raster-contrast": 0.15
       }
     },
@@ -271,9 +307,9 @@
       "source": "hillshade",
       "paint": {
         "hillshade-exaggeration": 0.15,
-        "hillshade-shadow-color": "#141517",
-        "hillshade-highlight-color": "#55595e",
-        "hillshade-accent-color": "#23252a",
+        "hillshade-shadow-color": "#0a0b0c",
+        "hillshade-highlight-color": "#3a3d41",
+        "hillshade-accent-color": "#16181b",
         "hillshade-illumination-direction": 315
       }
     },
@@ -292,7 +328,7 @@
         "line-cap": "butt"
       },
       "paint": {
-        "line-color": "#2a3a46"
+        "line-color": "#1c2730"
       }
     },
     {

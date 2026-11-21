@@ -22,14 +22,15 @@ config:
   bearing: -20
   interactive: false   # scrolling moves the story, not the map
 
-# Stipple patterns, the same as on the Growth Periods map (src/maps/full-page.yaml):
-# a fine mesh of slightly lighter dots on each period colour (public/img/).
+# Patterns, the same as on the Growth Periods map (src/maps/full-page.yaml):
+# a very dense square grid in each period colour, almost solid (public/img/).
+# Each period also has a glowing edge (-glow and -line).
 images:
-  stipple-1: { url: "/img/stipple-1.png", pixelRatio: 2 }
-  stipple-2: { url: "/img/stipple-2.png", pixelRatio: 2 }
-  stipple-3: { url: "/img/stipple-3.png", pixelRatio: 2 }
-  stipple-4: { url: "/img/stipple-4.png", pixelRatio: 2 }
-  stipple-5: { url: "/img/stipple-5.png", pixelRatio: 2 }
+  grid-1: { url: "/img/grid-1.png", pixelRatio: 2 }
+  grid-2: { url: "/img/grid-2.png", pixelRatio: 2 }
+  grid-3: { url: "/img/grid-3.png", pixelRatio: 2 }
+  grid-4: { url: "/img/grid-4.png", pixelRatio: 2 }
+  grid-5: { url: "/img/grid-5.png", pixelRatio: 2 }
 
 # The five periods, the same mesh colours, filters and sizes as the Growth
 # Periods map, draped over the terrain.
@@ -49,8 +50,8 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-pattern: stipple-1   # lighter dots on #00204d
-      fill-opacity: 0.7
+      fill-pattern: grid-1   # #9b00e8 grid
+      fill-opacity: 0.75
 
   - id: story-1840-1941
     type: fill
@@ -59,8 +60,8 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-pattern: stipple-2   # lighter dots on #314e55
-      fill-opacity: 0.7
+      fill-pattern: grid-2   # #ff00ff grid
+      fill-opacity: 0.75
 
   - id: story-1943-1985
     type: fill
@@ -69,8 +70,8 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-pattern: stipple-3   # lighter dots on #617d5c
-      fill-opacity: 0.7
+      fill-pattern: grid-3   # #ff4d94 grid
+      fill-opacity: 0.75
 
   - id: story-1986-2013
     type: fill
@@ -79,8 +80,8 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-pattern: stipple-4   # lighter dots on #92ab64
-      fill-opacity: 0.7
+      fill-pattern: grid-4   # #ffa31a grid
+      fill-opacity: 0.75
 
   - id: story-2014-2024
     type: fill
@@ -89,10 +90,125 @@ layers:
     layout:
       visibility: none
     paint:
-      fill-pattern: stipple-5   # lighter dots on #c2d96b
-      fill-opacity: 0.7
+      fill-pattern: grid-5   # #ffff00 grid
+      fill-opacity: 0.75
 
   # Comuna boundaries and names, on for the whole story.
+  - id: story-1680-1806-glow
+    type: line
+    source: hexa_sized
+    filter: ["<", ["get", "Year_Mean"], 1840]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#9b00e8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+
+  - id: story-1680-1806-line
+    type: line
+    source: hexa_sized
+    filter: ["<", ["get", "Year_Mean"], 1840]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#9b00e8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
+
+  - id: story-1840-1941-glow
+    type: line
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ff00ff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+
+  - id: story-1840-1941-line
+    type: line
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ff00ff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
+
+  - id: story-1943-1985-glow
+    type: line
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ff4d94"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+
+  - id: story-1943-1985-line
+    type: line
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ff4d94"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
+
+  - id: story-1986-2013-glow
+    type: line
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ffa31a"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+
+  - id: story-1986-2013-line
+    type: line
+    source: hexa_sized
+    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ffa31a"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
+
+  - id: story-2014-2024-glow
+    type: line
+    source: hexa_sized
+    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ffff00"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+
+  - id: story-2014-2024-line
+    type: line
+    source: hexa_sized
+    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    layout:
+      visibility: none
+    paint:
+      line-color: "#ffff00"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
+
   - id: story-comunas
     type: line
     source:
@@ -171,7 +287,7 @@ chapters:
     bearing: -20
     alignment: left
     layers:
-      show: [story-1680-1806, story-highlight]
+      show: [story-1680-1806, story-1680-1806-glow, story-1680-1806-line, story-highlight]
 
   - id: period-2
     title: 1840–1941
@@ -184,7 +300,7 @@ chapters:
     bearing: -10
     alignment: right
     layers:
-      show: [story-1840-1941]
+      show: [story-1840-1941, story-1840-1941-glow, story-1840-1941-line]
       hide: [story-highlight]
 
   - id: period-3
@@ -198,7 +314,7 @@ chapters:
     bearing: 0
     alignment: left
     layers:
-      show: [story-1943-1985]
+      show: [story-1943-1985, story-1943-1985-glow, story-1943-1985-line]
 
   - id: period-4
     title: 1986–2013
@@ -211,7 +327,7 @@ chapters:
     bearing: 15
     alignment: right
     layers:
-      show: [story-1986-2013]
+      show: [story-1986-2013, story-1986-2013-glow, story-1986-2013-line]
 
   - id: period-5
     title: 2014–2024
@@ -224,7 +340,7 @@ chapters:
     bearing: -15
     alignment: left
     layers:
-      show: [story-2014-2024]
+      show: [story-2014-2024, story-2014-2024-glow, story-2014-2024-line]
 
   - id: outro
     title: Santiago today

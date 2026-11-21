@@ -26,22 +26,46 @@ sources:
   hidrografia:
     type: geojson
     url: "/data/hidrografia.geojson"
+  # Collector network, shared by its line and its glow.
+  colector:
+    type: geojson
+    url: "/data/sistema_colector.geojson"
 
 layers:
-  # Hydrography (rivers, streams, ravines, canals, reservoirs), all from the
-  # shared "hidrografia" source above. Each TIPO is its own layer so it gets
-  # its own checkbox.
+  # Colours (aquamarine / midnight blue / dark violet palette): natural water
+  # in aquamarines, deepest for the biggest (rivers #00d6a8) to palest for
+  # the smallest (ravines #c9fff0); engineered water in dark violets, deepest
+  # for the biggest system (collector network #9400d3) to palest (reservoirs
+  # and ponds #dba8ff, mostly man-made). Each line has a soft "-glow" copy
+  # underneath (wider, blurred) for the neon look. Width, opacity and glow
+  # step down with size so the hierarchy reads at a glance: rivers and the
+  # collector network boldest, ravines and reservoirs faintest. The layer rail
+  # (src/scripts/layer-rail.js) uses the same colours; keep them in step.
+  #
+  # Hydrography (rivers, streams, ravines, canals, reservoirs) all come from
+  # the shared "hidrografia" source above; each TIPO is its own layer.
+  - id: hydro-ravines-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Ravines"]
+    paint:
+      line-color: "#c9fff0"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.5, 14, 3]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 1.2, 14, 2.4]
+      line-opacity: 0.08
+    legend: false
+
   - id: hydro-ravines
     type: line
     label: Ravines (quebradas)
     source: hidrografia
     filter: ["==", ["get", "TIPO"], "Ravines"]
     paint:
-      line-color: "#5f8fa8"
-      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.5]
-      line-opacity: 0.7
+      line-color: "#c9fff0"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.4, 14, 1]
+      line-opacity: 0.45
       line-dasharray: [3, 2]
-    legend: { label: Ravines (quebradas), color: "#5f8fa8", shape: line }
+    legend: false
     interactive: &hydro-popup
       hover:
         cursor: pointer
@@ -53,16 +77,39 @@ layers:
               - str: "Type in source: "
               - property: CAPA
 
+  - id: hydro-reservoirs-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Reservoirs and ponds"]
+    paint:
+      line-color: "#dba8ff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 2, 14, 4]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 1.6, 14, 3.2]
+      line-opacity: 0.15
+    legend: false
+
   - id: hydro-reservoirs
     type: line
     label: Reservoirs and ponds
     source: hidrografia
     filter: ["==", ["get", "TIPO"], "Reservoirs and ponds"]
     paint:
-      line-color: "#9ad0f5"
-      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2]
-    legend: { label: Reservoirs and ponds, color: "#9ad0f5", shape: line }
+      line-color: "#dba8ff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.5]
+      line-opacity: 0.6
+    legend: false
     interactive: *hydro-popup
+
+  - id: hydro-canals-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Canals"]
+    paint:
+      line-color: "#b44cff"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 6]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.4, 14, 4.8]
+      line-opacity: 0.2
+    legend: false
 
   - id: hydro-canals
     type: line
@@ -70,10 +117,22 @@ layers:
     source: hidrografia
     filter: ["==", ["get", "TIPO"], "Canals"]
     paint:
-      line-color: "#7fdcc4"
+      line-color: "#b44cff"
       line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.8, 14, 2]
-    legend: { label: Canals, color: "#7fdcc4", shape: line }
+      line-opacity: 0.75
+    legend: false
     interactive: *hydro-popup
+
+  - id: hydro-streams-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Streams"]
+    paint:
+      line-color: "#7fffd4"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 3.2, 14, 7.2]
+      line-opacity: 0.3
+    legend: false
 
   - id: hydro-streams
     type: line
@@ -81,10 +140,22 @@ layers:
     source: hidrografia
     filter: ["==", ["get", "TIPO"], "Streams"]
     paint:
-      line-color: "#6fc3ea"
-      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2.5]
-    legend: { label: Streams (esteros), color: "#6fc3ea", shape: line }
+      line-color: "#7fffd4"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.1, 14, 2.8]
+      line-opacity: 0.9
+    legend: false
     interactive: *hydro-popup
+
+  - id: hydro-rivers-glow
+    type: line
+    source: hidrografia
+    filter: ["==", ["get", "TIPO"], "Rivers"]
+    paint:
+      line-color: "#00d6a8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 10, 14, 24]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 8, 14, 19.2]
+      line-opacity: 0.55
+    legend: false
 
   - id: hydro-rivers
     type: line
@@ -92,27 +163,35 @@ layers:
     source: hidrografia
     filter: ["==", ["get", "TIPO"], "Rivers"]
     paint:
-      line-color: "#3fa9f5"
-      line-width: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 6]
-    legend: { label: Rivers, color: "#3fa9f5", shape: line }
+      line-color: "#00d6a8"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 8]
+      line-opacity: 1
+    legend: false
     interactive: *hydro-popup
 
   # Collector network (Sistema Colector) from the Dirección de Obras
-  # Hidráulicas, in orange to set it apart from the natural water.
-  # sistema_colector.geojson is "Sistema Colector.geojson" cut
-  # down to the Región Metropolitana (1,265 of 2,937 lines) with only the
-  # fields used here, so the page loads faster.
+  # Hidráulicas: the deepest dark violet. sistema_colector.geojson is
+  # "Sistema Colector.geojson" cut down to the Región Metropolitana (1,265 of
+  # 2,937 lines) with only the fields used here, so the page loads faster.
+  - id: sistema-colector-glow
+    type: line
+    source: colector
+    paint:
+      line-color: "#9400d3"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 12]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 4.8, 14, 9.6]
+      line-opacity: 0.4
+    legend: false
+
   - id: sistema-colector
     type: line
     label: Collector network
-    source:
-      type: geojson
-      url: "/data/sistema_colector.geojson"
+    source: colector
     paint:
-      line-color: "#f2a541"
-      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.2, 14, 3]
-      line-opacity: 0.9
-    legend: { label: Collector network, color: "#f2a541", shape: line }
+      line-color: "#9400d3"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 1.6, 14, 4]
+      line-opacity: 0.95
+    legend: false
     interactive:
       hover:
         cursor: pointer
@@ -158,7 +237,7 @@ layers:
       text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
       text-max-width: 7
     paint:
-      text-color: "#c2d96b"       # same as the side panel text
-      text-halo-color: "#161718"  # very dark gray outline
+      text-color: "#e8e8e8"       # very light gray, as on Growth Periods
+      text-halo-color: "#0a0a0a"  # onyx outline, as on Growth Periods
       text-halo-width: 1.5
     legend: false

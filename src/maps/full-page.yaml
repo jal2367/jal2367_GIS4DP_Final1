@@ -16,17 +16,18 @@ config:
 # (src/scripts/map-panels.js). The size legend is drawn on the page.
 legend: false
 
-# Mesh patterns for the hexagons, one per period: a fine staggered grid of
-# slightly lighter dots on the period colour (8 px PNG tiles in public/img/,
-# drawn at pixelRatio 2: dots 1 px wide and 2 px apart on screen, crisp on
-# high-resolution screens), so it reads as a texture rather than single dots.
-# (A pattern replaces the fill colour, so the colour is baked into each image.)
+# Inside of the hexagons, one pattern per period: a very dense square grid in
+# the period colour, so it reads almost as a solid colour with a fine screen
+# texture up close (3 px PNG tiles in public/img/, drawn at pixelRatio 2:
+# lines 1.5 px apart on screen).
+# A pattern replaces the fill colour, so the colour is baked into each image.
+# The bright glowing edges are the hexa-line-* and hexa-glow-* layers below.
 images:
-  stipple-1: { url: "/img/stipple-1.png", pixelRatio: 2 }
-  stipple-2: { url: "/img/stipple-2.png", pixelRatio: 2 }
-  stipple-3: { url: "/img/stipple-3.png", pixelRatio: 2 }
-  stipple-4: { url: "/img/stipple-4.png", pixelRatio: 2 }
-  stipple-5: { url: "/img/stipple-5.png", pixelRatio: 2 }
+  grid-1: { url: "/img/grid-1.png", pixelRatio: 2 }
+  grid-2: { url: "/img/grid-2.png", pixelRatio: 2 }
+  grid-3: { url: "/img/grid-3.png", pixelRatio: 2 }
+  grid-4: { url: "/img/grid-4.png", pixelRatio: 2 }
+  grid-5: { url: "/img/grid-5.png", pixelRatio: 2 }
 
 # Comuna filter: a dropdown in the layer panel. Every hexagon layer's `filter`
 # reads the choice with ["global-state", "comuna"] and shows either all
@@ -112,7 +113,9 @@ parameters:
     type: toggle
 
 # Hexagons coloured by Year_Mean: 5 classes, natural breaks (Jenks), from
-# #00204d (oldest) to #c2d96b (newest). Each period has two draped layers,
+# the onyx-magenta-yellow gradient, dark past to bright present: purple
+# #9b00e8, magenta #ff00ff, pink #ff4d94, orange #ffa31a, yellow #ffff00.
+# Each period has two draped layers,
 # sized and full-size. The period checkboxes are state switches (p1-p5) read
 # by both layers' `filter`.
 #
@@ -148,45 +151,45 @@ layers:
     source: hexa_sized
     filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p1"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-pattern: stipple-1
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
-    legend: { label: 1680–1806, color: "#00204d", shape: square }
+      fill-pattern: grid-1
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
+    legend: { label: 1680–1806, color: "#9b00e8", shape: square }
 
   - id: hexa-sized-1840-1941
     type: fill
     source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p2"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-pattern: stipple-2
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
-    legend: { label: 1840–1941, color: "#314e55", shape: square }
+      fill-pattern: grid-2
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
+    legend: { label: 1840–1941, color: "#ff00ff", shape: square }
 
   - id: hexa-sized-1943-1985
     type: fill
     source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p3"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-pattern: stipple-3
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
-    legend: { label: 1943–1985, color: "#617d5c", shape: square }
+      fill-pattern: grid-3
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
+    legend: { label: 1943–1985, color: "#ff4d94", shape: square }
 
   - id: hexa-sized-1986-2013
     type: fill
     source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p4"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-pattern: stipple-4
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
-    legend: { label: 1986–2013, color: "#92ab64", shape: square }
+      fill-pattern: grid-4
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
+    legend: { label: 1986–2013, color: "#ffa31a", shape: square }
 
   - id: hexa-sized-2014-2024
     type: fill
     source: hexa_sized
     filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p5"], true], ["==", ["global-state", "sizes"], true]]
     paint:
-      fill-pattern: stipple-5
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
-    legend: { label: 2014–2024, color: "#c2d96b", shape: square }
+      fill-pattern: grid-5
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
+    legend: { label: 2014–2024, color: "#ffff00", shape: square }
 
   # Full-size hexagons, shown when "Average years of development" is off:
   - id: hexa-full-1680-1806
@@ -194,8 +197,8 @@ layers:
     source: hexa
     filter: ["all", ["<", ["get", "Year_Mean"], 1840], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p1"], true], ["==", ["global-state", "sizes"], false]]
     paint:
-      fill-pattern: stipple-1
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+      fill-pattern: grid-1
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
     legend: false
 
   - id: hexa-full-1840-1941
@@ -203,8 +206,8 @@ layers:
     source: hexa
     filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p2"], true], ["==", ["global-state", "sizes"], false]]
     paint:
-      fill-pattern: stipple-2
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+      fill-pattern: grid-2
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
     legend: false
 
   - id: hexa-full-1943-1985
@@ -212,8 +215,8 @@ layers:
     source: hexa
     filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p3"], true], ["==", ["global-state", "sizes"], false]]
     paint:
-      fill-pattern: stipple-3
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+      fill-pattern: grid-3
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
     legend: false
 
   - id: hexa-full-1986-2013
@@ -221,8 +224,8 @@ layers:
     source: hexa
     filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p4"], true], ["==", ["global-state", "sizes"], false]]
     paint:
-      fill-pattern: stipple-4
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+      fill-pattern: grid-4
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
     legend: false
 
   - id: hexa-full-2014-2024
@@ -230,8 +233,53 @@ layers:
     source: hexa
     filter: ["all", [">=", ["get", "Year_Mean"], 2014.4], ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "p5"], true], ["==", ["global-state", "sizes"], false]]
     paint:
-      fill-pattern: stipple-5
-      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.7, 14.5, 0.3]
+      fill-pattern: grid-5
+      fill-opacity: ["interpolate", ["linear"], ["zoom"], 12, 0.8, 14.5, 0.55]
+    legend: false
+
+  # Glowing hexagon edges, like a radar screen: a blurred wide line (glow)
+  # under a thin bright one, coloured by period with the same breaks, comuna
+  # filter, period buttons and size switch as the fills above.
+  - id: hexa-glow-sized
+    type: line
+    source: hexa_sized
+    filter: ["all", ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "sizes"], true], ["any", ["all", ["<", ["get", "Year_Mean"], 1840], ["==", ["global-state", "p1"], true]], ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["==", ["global-state", "p2"], true]], ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["==", ["global-state", "p3"], true]], ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p4"], true]], ["all", [">=", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p5"], true]]]]
+    paint:
+      line-color: ["step", ["get", "Year_Mean"], "#9b00e8", 1840, "#ff00ff", 1942.5, "#ff4d94", 1985.666667, "#ffa31a", 2014.4, "#ffff00"]
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+    legend: false
+
+  - id: hexa-line-sized
+    type: line
+    source: hexa_sized
+    filter: ["all", ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "sizes"], true], ["any", ["all", ["<", ["get", "Year_Mean"], 1840], ["==", ["global-state", "p1"], true]], ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["==", ["global-state", "p2"], true]], ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["==", ["global-state", "p3"], true]], ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p4"], true]], ["all", [">=", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p5"], true]]]]
+    paint:
+      line-color: ["step", ["get", "Year_Mean"], "#9b00e8", 1840, "#ff00ff", 1942.5, "#ff4d94", 1985.666667, "#ffa31a", 2014.4, "#ffff00"]
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
+    legend: false
+
+  - id: hexa-glow-full
+    type: line
+    source: hexa
+    filter: ["all", ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "sizes"], false], ["any", ["all", ["<", ["get", "Year_Mean"], 1840], ["==", ["global-state", "p1"], true]], ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["==", ["global-state", "p2"], true]], ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["==", ["global-state", "p3"], true]], ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p4"], true]], ["all", [">=", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p5"], true]]]]
+    paint:
+      line-color: ["step", ["get", "Year_Mean"], "#9b00e8", 1840, "#ff00ff", 1942.5, "#ff4d94", 1985.666667, "#ffa31a", 2014.4, "#ffff00"]
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 9]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
+      line-opacity: 0.45
+    legend: false
+
+  - id: hexa-line-full
+    type: line
+    source: hexa
+    filter: ["all", ["any", ["==", ["global-state", "comuna"], "All comunas"], ["==", ["get", "COMUNA"], ["global-state", "comuna"]]], ["==", ["global-state", "sizes"], false], ["any", ["all", ["<", ["get", "Year_Mean"], 1840], ["==", ["global-state", "p1"], true]], ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5], ["==", ["global-state", "p2"], true]], ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667], ["==", ["global-state", "p3"], true]], ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p4"], true]], ["all", [">=", ["get", "Year_Mean"], 2014.4], ["==", ["global-state", "p5"], true]]]]
+    paint:
+      line-color: ["step", ["get", "Year_Mean"], "#9b00e8", 1840, "#ff00ff", 1942.5, "#ff4d94", 1985.666667, "#ffa31a", 2014.4, "#ffff00"]
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
+      line-opacity: 0.95
     legend: false
 
   # Invisible comuna areas that make each comuna clickable: a click opens a
@@ -301,7 +349,7 @@ layers:
       text-size: ["interpolate", ["linear"], ["zoom"], 10, 10, 13, 14]
       text-max-width: 7
     paint:
-      text-color: "#c2d96b"       # same as the side panel text
-      text-halo-color: "#161718"  # very dark gray outline
+      text-color: "#e8e8e8"       # very light gray
+      text-halo-color: "#0a0a0a"  # very dark gray outline (onyx)
       text-halo-width: 1.5
     legend: false

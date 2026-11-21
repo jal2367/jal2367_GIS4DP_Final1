@@ -1,4 +1,5 @@
-// Graduated size legend for the Growth Periods map and the story: nested hexagons at 20%,
+// Graduated size legend for the Growth Periods map and the story (in the
+// page's accent colour): nested hexagons at 20%,
 // 40%, 60%, 80% and 100% of full size, drawn at TRUE SCALE for the current
 // zoom (at the map centre), with a ruler underneath in years.
 //
@@ -15,7 +16,7 @@ const STEPS = [
   { size: 0.8, label: "40.5" },
   { size: 1.0, label: "54+" },
 ];
-const MAX_PX = 220; // wider than this and the legend is shrunk (and says so)
+const MAX_PX = 180; // wider than this and the legend is shrunk (and says so); fits the side panel
 const PAD = 8;
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -34,6 +35,8 @@ function render(map, box) {
   const svg = box.querySelector("svg");
   const note = box.querySelector("[data-scale-note]");
   if (!svg) return;
+  // Draw in the page's accent colour (--map-accent, set in global.css).
+  const accent = getComputedStyle(box).getPropertyValue("--map-accent").trim() || "#c2d96b";
 
   const trueW = HEX_W_M / metresPerPixel(map);
   const k = trueW > MAX_PX ? MAX_PX / trueW : 1;
@@ -58,21 +61,21 @@ function render(map, box) {
       [x0 + w, cy], [x0 + (3 * w) / 4, cy + h / 2], [x0 + w / 4, cy + h / 2],
     ].map((p) => p.map((v) => v.toFixed(1)).join(",")).join(" ");
     svg.appendChild(el("polygon", {
-      points: pts, fill: "rgba(194, 217, 107, 0.12)", stroke: "#c2d96b", "stroke-width": 1,
+      points: pts, fill: accent, "fill-opacity": 0.12, stroke: accent, "stroke-width": 1,
     }));
   }
 
   // Ruler: a line the width of the full hexagon, a tick under each hexagon's
   // right corner, and year labels where there is room.
-  svg.appendChild(el("line", { x1: x0, y1: rulerY, x2: x0 + W, y2: rulerY, stroke: "#c2d96b", "stroke-width": 1 }));
+  svg.appendChild(el("line", { x1: x0, y1: rulerY, x2: x0 + W, y2: rulerY, stroke: accent, "stroke-width": 1 }));
   let lastLabelX = Infinity;
   for (const step of [...STEPS].reverse()) {
     const x = x0 + W * step.size;
-    svg.appendChild(el("line", { x1: x, y1: rulerY - 3, x2: x, y2: rulerY + 3, stroke: "#c2d96b", "stroke-width": 1 }));
+    svg.appendChild(el("line", { x1: x, y1: rulerY - 3, x2: x, y2: rulerY + 3, stroke: accent, "stroke-width": 1 }));
     const isLast = step.size === 1;
     if (isLast || lastLabelX - x >= 26) {
       const text = el("text", {
-        x: isLast ? x + 2 : x, y: rulerY + 15, "font-size": 10, fill: "#c2d96b",
+        x: isLast ? x + 2 : x, y: rulerY + 15, "font-size": 10, fill: accent,
         "text-anchor": isLast ? "start" : "middle", "font-family": "sans-serif",
       });
       text.textContent = step.label;
