@@ -2102,3 +2102,126 @@ ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color:
 .cp-head {
   padding: 6px 0 14px;
 }
+
+/* Overview: nested subsections (indented in the contents, smaller headings). */
+.overview-toc .toc-sub a {
+  padding-left: 22px;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+.overview-subsection {
+  border-top: 0;
+  padding: 0.8rem 0 0.8rem 1.2rem;
+}
+.overview-subsection h3 {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1rem !important;
+  color: #d4d7db;
+  margin: 0 0 0.5em !important;
+}
+/* Folded subsections in the Overview contents; a small marker on sections
+   that have them. */
+.overview-toc .toc-sub.is-folded {
+  display: none;
+}
+.overview-toc .toc-has-sub > a::after {
+  content: "+";
+  margin-left: auto;
+  color: color-mix(in srgb, var(--map-accent) 70%, transparent);
+}
+.overview-toc .toc-has-sub.is-open > a::after {
+  content: "−";
+}
+
+/* Page links in their own page's colour on every page: Overview in its
+   lime accent, Findings in its pink accent, Explore in its gradient (above),
+   whichever page you are on. */
+.site-nav a[href$="/jal2367_GIS4DP_Final1/"],
+.site-nav a[href$="/jal2367_GIS4DP_Final1"] {
+  color: #c6ff33 !important;
+}
+.site-nav a[href$="scrollytelling"] {
+  color: #ff0080 !important;
+}
+/* While another name is hovered, the current page's name greys out. */
+.site-nav:has(a:not([aria-current]):hover) a[aria-current="page"],
+.site-nav:has(a:not([aria-current]):focus-visible) a[aria-current="page"] {
+  color: #9aa0a6 !important;
+}
+/* Overview and Findings names in a sober gray, taking their colour only on
+   their own page (the one you clicked) or when hovered/focused. Explore
+   keeps its gradient. */
+.site-nav a[href$="/jal2367_GIS4DP_Final1/"],
+.site-nav a[href$="/jal2367_GIS4DP_Final1"],
+.site-nav a[href$="scrollytelling"] {
+  color: #9aa0a6 !important;
+}
+.site-nav a[href$="/jal2367_GIS4DP_Final1/"]:is([aria-current="page"], :hover, :focus-visible),
+.site-nav a[href$="/jal2367_GIS4DP_Final1"]:is([aria-current="page"], :hover, :focus-visible) {
+  color: #c6ff33 !important;
+}
+.site-nav a[href$="scrollytelling"]:is([aria-current="page"], :hover, :focus-visible) {
+  color: #ff0080 !important;
+}
+.site-nav:has(a:not([aria-current]):hover) a[aria-current="page"]:not([href$="full_page_map"]),
+.site-nav:has(a:not([aria-current]):focus-visible) a[aria-current="page"]:not([href$="full_page_map"]) {
+  color: #9aa0a6 !important;
+}
+/* Comuna panel group signs drawn like the layer sections' × (same 22 px
+   box, 16 px × 2 px strokes, glow); open ×, closed +. */
+.cp-sign {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+}
+.cp-sign::before,
+.cp-sign::after {
+  top: 50%;
+  left: 3px;
+  width: 16px;
+  height: 2px;
+  margin-top: -1px;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--gc, var(--cp)) 60%, transparent);
+}
+.cp-group-head:hover .cp-sign {
+  background: color-mix(in srgb, var(--gc, var(--cp)) 12%, transparent);
+}
+/* Comuna panel group signs behave exactly like the layer sections': an ×
+   when open that collapses into a flat line when closed (strokes rotate
+   ±45° to 0°; the sign itself no longer turns). */
+.cp-group .cp-sign,
+.cp-group.is-closed .cp-sign {
+  transform: none;
+}
+.cp-group .cp-sign::before {
+  transform: rotate(45deg);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.cp-group .cp-sign::after {
+  transform: rotate(-45deg);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.cp-group.is-closed .cp-sign::before,
+.cp-group.is-closed .cp-sign::after {
+  transform: rotate(0deg);
+  opacity: 0.7;
+}
+/* The comuna panel's close × sized to the comuna name. */
+.cp-close {
+  font-size: 2rem;
+  line-height: 1;
+  padding: 0 4px 2px;
+  font-weight: 300;
+}
+/* Page links centred across the panel's width; the row stays centred as
+   names grow and shrink on hover (spacing follows the text). */
+.rail-brand {
+  justify-content: center;
+}
+.rail-site-nav {
+  width: 100%;
+  justify-content: center;
+}

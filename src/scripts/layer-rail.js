@@ -57,12 +57,12 @@ const STACK = [
       { label: "Bajo", color: "#6e0073", layers: ["pc-bajo"], drawLayer: "pc-bajo", where: (p) => p.nivel === "Bajo", width: 0.9 },
     ],
   },
-  // Kernel density of the puntos críticos (map layer pc-density), its own
-  // card in the same purple group.
+  // Risk hotspots: risk-weighted kernel density of the puntos críticos (map
+  // layer pc-density), its own card in the same purple group.
   {
-    label: "Density", swatch: ["#b000b3", "#ff7aff"], section: "hash",
+    label: "Risk Hotspots", swatch: ["#b000b3", "#ff7aff"], section: "hash",
     parts: [
-      { label: "Kernel density", color: "#ff00ff", layers: ["pc-density"], drawLayer: "pc-density", heat: true },
+      { label: "Risk-weighted density", color: "#ff00ff", layers: ["pc-density"], drawLayer: "pc-density", heat: true },
     ],
   },
   {
@@ -277,17 +277,20 @@ async function drawVector(ctx, proj, map, spec) {
   return true;
 }
 
-// Density preview: every point as a soft, faint blob added on top of the
-// others, so clusters build up into a glow like the map's heatmap.
+// Density preview: every point as a soft, faint blob (stronger for higher
+// risk) added on top of the others, so clusters build up into a glow like
+// the map's risk-weighted heatmap.
 async function drawHeat(ctx, proj, map, part) {
   const data = await layerData(map, part.drawLayer);
   if (!data || !data.features || !data.features.length) return false;
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
   ctx.fillStyle = part.color;
-  ctx.globalAlpha = 0.07;
+  // Same risk weights as the map's heatmap (Bajo 0.5 ... Muy Alto 8).
+  const W = { "Muy Alto": 8, Alto: 3, Medio: 1, Bajo: 0.5 };
   for (const f of data.features) {
     if (!f.geometry || f.geometry.type !== "Point") continue;
+    ctx.globalAlpha = Math.min(0.5, 0.03 * (W[f.properties && f.properties.nivel] || 0.5));
     const [x, y] = proj.lonLat(f.geometry.coordinates[0], f.geometry.coordinates[1]);
     ctx.beginPath();
     ctx.arc(x, y, 3.5, 0, Math.PI * 2);

@@ -513,15 +513,18 @@ layers:
               - str: "Source: Dirección de Obras Hidráulicas"
 
 
-  # Kernel density of the puntos críticos (a MapLibre heatmap): each point
-  # weighted by its risk level (Bajo 1, Medio 2, Alto 3, Muy Alto 4), in the
-  # same magenta ramp as the points, under them.
+  # Risk-weighted kernel density of the puntos críticos (a MapLibre
+  # heatmap): each point weighted strongly by its risk level (Bajo 0.5,
+  # Medio 1, Alto 3, Muy Alto 8: one Muy Alto outweighs 16 Bajo), so hot
+  # spots follow serious risk rather than just many points. Same magenta
+  # ramp as the points, under them.
   - id: pc-density
     type: heatmap
+    layout: { visibility: none }   # off when the page opens
     source: puntos_criticos
     paint:
-      heatmap-weight: ["match", ["get", "nivel"], "Muy Alto", 4, "Alto", 3, "Medio", 2, 1]
-      heatmap-intensity: ["interpolate", ["linear"], ["zoom"], 9, 0.18, 13, 0.5, 15, 0.9]
+      heatmap-weight: ["match", ["get", "nivel"], "Muy Alto", 8, "Alto", 3, "Medio", 1, 0.5]
+      heatmap-intensity: ["interpolate", ["linear"], ["zoom"], 9, 0.09, 13, 0.25, 15, 0.45]
       heatmap-radius: ["interpolate", ["linear"], ["zoom"], 9, 22, 12, 50, 15, 90]
       heatmap-color: ["interpolate", ["linear"], ["heatmap-density"], 0, "rgba(110, 0, 115, 0)", 0.15, "rgba(110, 0, 115, 0.45)", 0.4, "#b000b3", 0.7, "#ff00ff", 1, "#ff7aff"]
       heatmap-opacity: 0.7
@@ -534,6 +537,7 @@ layers:
 
   - id: pc-bajo
     type: circle
+    layout: { visibility: none }   # off when the page opens
     source: puntos_criticos
     filter: ["==", ["get", "nivel"], "Bajo"]
     paint:
@@ -568,6 +572,7 @@ layers:
 
   - id: pc-medio
     type: circle
+    layout: { visibility: none }   # off when the page opens
     source: puntos_criticos
     filter: ["==", ["get", "nivel"], "Medio"]
     paint:
@@ -581,6 +586,7 @@ layers:
 
   - id: pc-alto
     type: circle
+    layout: { visibility: none }   # off when the page opens
     source: puntos_criticos
     filter: ["==", ["get", "nivel"], "Alto"]
     paint:
@@ -594,6 +600,7 @@ layers:
 
   - id: pc-muy-alto-glow
     type: circle
+    layout: { visibility: none }   # off when the page opens
     source: puntos_criticos
     filter: ["==", ["get", "nivel"], "Muy Alto"]
     paint:
@@ -605,6 +612,7 @@ layers:
 
   - id: pc-muy-alto
     type: circle
+    layout: { visibility: none }   # off when the page opens
     source: puntos_criticos
     filter: ["==", ["get", "nivel"], "Muy Alto"]
     paint:

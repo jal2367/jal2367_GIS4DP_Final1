@@ -12,15 +12,38 @@ import bounds from "../data/comuna-bounds.json";
 // Keep in step with `center` and `zoom` in src/maps/full-page.yaml.
 const HOME = { center: [-70.7, -33.47], zoom: 10.5 };
 
+// The map's left padding: the layer rail plus whichever panel is open
+// beside it (the comuna info panel when a comuna is picked, which is twice
+// the side panel's width, else the side panel), so the comuna is centred in
+// the part of the window the panels leave open.
+function leftPadding(map, comunaOpen) {
+  const root = map.getContainer().closest("ml-map") || map.getContainer();
+  const rail = root.querySelector(".layer-rail");
+  const side = root.querySelector(".ml-map-chrome-top-left.side-panel");
+  const railW = rail ? rail.offsetWidth : 0;
+  if (comunaOpen) return railW + Math.min(520, window.innerWidth * 0.92);
+  return railW + (side && !side.classList.contains("is-collapsed") ? side.offsetWidth : 0);
+}
+
 function flyToComuna(map, name) {
   const keep = { pitch: map.getPitch(), bearing: map.getBearing(), duration: 1600 };
   const box = bounds[name];
+  const padding = { ...map.getPadding(), left: leftPadding(map, !!box) };
   if (!box) {
-    map.flyTo({ ...HOME, ...keep });
+    map.flyTo({ ...HOME, ...keep, padding });
     return;
   }
-  const camera = map.cameraForBounds(box, { padding: 80, bearing: map.getBearing() });
-  if (camera) map.flyTo({ center: camera.center, zoom: camera.zoom, ...keep });
+  // Fit the comuna into the open area (padding animates with the flight).
+  // (cameraForBounds already allows for the map's current padding, so only
+  // the extra width the new panel takes is added.)
+  const extra = Math.max(0, padding.left - map.getPadding().left);
+  const camera = map.cameraForBounds(box, {
+    padding: { top: 80, bottom: 80, left: 80 + extra, right: 80 },
+    bearing: map.getBearing(),
+  });
+  // Centre on the comuna itself; the padding shifts it into the open area.
+  const center = [(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2];
+  map.flyTo({ center, zoom: camera ? camera.zoom : map.getZoom(), ...keep, padding });
 }
 
 // Highlight a clicked comuna's boundary (the "highlight" state in

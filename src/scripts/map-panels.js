@@ -237,6 +237,7 @@ function comunaPanel(root) {
   root.appendChild(panel);
 
   const close = () => {
+    if (!panel.hidden) requestAnimationFrame(() => updateLayout(root)); // back to the side panel's area
     panel.hidden = true;
     left.classList.remove("is-covered");
     left.inert = left.classList.contains("is-collapsed");

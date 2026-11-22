@@ -7,19 +7,34 @@ import { url } from "@lib/utils";
 // Explore and Findings pages: the page links on top, then a table of
 // contents that jumps to each section below (and follows your scrolling).
 // To add, remove or rename a section, edit this list; each gets a heading
-// and a placeholder paragraph to replace with your text.
-const sections = [
+// and a placeholder paragraph to replace with your text. `sub` nests
+// subsections under a section (numbered 05.1, 05.2...).
+const outline = [
   { id: "introduction", title: "Introduction" },
   { id: "literature-review", title: "Literature Review" },
   { id: "historical-review", title: "Historical Review" },
   { id: "theoretical-framework", title: "Theoretical Framework" },
-  { id: "methodology", title: "Methodology" },
-  { id: "quantitative-research", title: "Quantitative Research" },
-  { id: "qualitative-research", title: "Qualitative Research" },
-  { id: "analysis", title: "Analysis" },
+  { id: "methodology", title: "Methodology", sub: [
+    { id: "quantitative-research", title: "Quantitative Research" },
+    { id: "qualitative-research", title: "Qualitative Research" },
+    { id: "analysis", title: "Analysis" },
+  ] },
+  { id: "climate-change-implications", title: "Climate Change Implications", sub: [
+    { id: "stormwater-drainage", title: "Santiago's Stormwater Drainage System" },
+    { id: "el-nino-2026", title: "El Niño 2026" },
+  ] },
   { id: "conclusion", title: "Conclusion" },
   { id: "action", title: "Action" },
 ];
+// Flattened in reading order, with numbers ("05" for sections, "5.1" for
+// subsections), depth and the parent section's id.
+const sections = outline.flatMap((s, i) => {
+  const n = String(i + 1).padStart(2, "0");
+  return [
+    { ...s, num: n, depth: 0, parent: s.id, hasSub: !!(s.sub && s.sub.length) },
+    ...(s.sub || []).map((c, j) => ({ ...c, num: `${i + 1}.${j + 1}`, depth: 1, parent: s.id })),
+  ];
+});
 const pages = [
   { href: url(), label: SITE.NAME, current: true },
   { href: url("scrollytelling"), label: "Findings" },
@@ -38,10 +53,10 @@ const pages = [
     </div>
     <nav class="overview-toc" aria-label="Table of contents">
       <ol>
-        {sections.map((section, i) => (
-          <li>
+        {sections.map((section) => (
+          <li class:list={{ "toc-sub": section.depth === 1, "toc-has-sub": section.hasSub }} data-parent={section.parent}>
             <a href={`#${section.id}`} data-toc={section.id}>
-              <span class="toc-num">{String(i + 1).padStart(2, "0")}</span>
+              <span class="toc-num">{section.num}</span>
               {section.title}
             </a>
           </li>
@@ -53,9 +68,11 @@ const pages = [
   <div class="overview-body">
     <p class="overview-kicker">Thesis project proposal</p>
     <h1 class="overview-title">Santiago, 1680–2024</h1>
-    {sections.map((section, i) => (
-      <section id={section.id} class="overview-section">
-        <h2><span class="toc-num">{String(i + 1).padStart(2, "0")}</span> {section.title}</h2>
+    {sections.map((section) => (
+      <section id={section.id} class:list={["overview-section", { "overview-subsection": section.depth === 1 }]}>
+        {section.depth === 1
+          ? <h3><span class="toc-num">{section.num}</span> {section.title}</h3>
+          : <h2><span class="toc-num">{section.num}</span> {section.title}</h2>}
         <p>[Write your {section.title.toLowerCase()} here.]</p>
       </section>
     ))}
@@ -65,8 +82,12 @@ const pages = [
 <script>
   // Highlight the section you are reading in the table of contents: the last
   // one whose top has scrolled up near the top of the window.
+  // Subsections stay folded in the contents unless you are reading that
+  // section (or one of its subsections) or clicked its main entry.
   const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-toc]")];
   const sections = [...document.querySelectorAll<HTMLElement>(".overview-section")];
+  const items = [...document.querySelectorAll<HTMLElement>(".overview-toc li")];
+  let clicked: string | null = null;
   function update() {
     const line = 80; // px: just below where a jump lands (scroll-margin 2rem)
     let current = sections[0];
@@ -75,6 +96,17 @@ const pages = [
       if (a.dataset.toc === current?.id) a.setAttribute("aria-current", "location");
       else a.removeAttribute("aria-current");
     }
+    const reading = items.find((li) => li.querySelector(`[data-toc="${current?.id}"]`))?.dataset.parent;
+    for (const li of items) {
+      const open = li.dataset.parent === reading || li.dataset.parent === clicked;
+      if (li.classList.contains("toc-sub")) li.classList.toggle("is-folded", !open);
+      if (li.classList.contains("toc-has-sub")) li.classList.toggle("is-open", open);
+    }
+  }
+  // Clicking a main entry opens its subsections (until another is clicked).
+  for (const li of items) {
+    if (li.classList.contains("toc-sub")) continue;
+    li.querySelector("a")?.addEventListener("click", () => { clicked = li.dataset.parent || null; update(); });
   }
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
