@@ -32,7 +32,7 @@ const sections = outline.flatMap((s, i) => {
   const n = String(i + 1).padStart(2, "0");
   return [
     { ...s, num: n, depth: 0, parent: s.id, hasSub: !!(s.sub && s.sub.length) },
-    ...(s.sub || []).map((c, j) => ({ ...c, num: `${i + 1}.${j + 1}`, depth: 1, parent: s.id })),
+    ...(s.sub || []).map((c, j) => ({ ...c, num: `${i + 1}.${j + 1}`, depth: 1, parent: s.id, hasSub: false })),
   ];
 });
 const pages = [

@@ -318,7 +318,6 @@ function fillSections(root) {
   const left = leftColumn(root);
   if (!left) return;
   const growth = sectionBody(left, "growth");
-  const hydro = sectionBody(left, "hydro");
   const legend = left.querySelector("#size-legend");
   if (growth && legend && legend.parentElement !== growth) growth.appendChild(legend);
   // Each group's sub-layer pills go to its own section (Hydrography, the
