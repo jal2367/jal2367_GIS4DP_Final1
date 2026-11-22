@@ -427,6 +427,8 @@ function sidePanel(root) {
 
   const set = (collapsed, animate = true) => {
     left.classList.toggle("is-collapsed", collapsed);
+    // With the panel hidden, no layer card shows as selected (global.css).
+    root.classList.toggle("side-hidden", collapsed);
     updateLayout(root, animate);
     tab.classList.toggle("is-collapsed", collapsed);
     tab.setAttribute("aria-expanded", String(!collapsed));

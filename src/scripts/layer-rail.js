@@ -600,7 +600,8 @@ export function buildLayerRail(root, onLayout) {
     // layer on or off.
     main.title = `${group.label}: show controls / switch on or off`;
     main.addEventListener("click", () => {
-      if (root.dataset.activeSection === group.section) {
+      // (With the side panel hidden, a click only reopens and selects.)
+      if (root.dataset.activeSection === group.section && !root.classList.contains("side-hidden")) {
         group.setOn(!group.isOn());
         return;
       }

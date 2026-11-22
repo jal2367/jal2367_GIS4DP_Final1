@@ -2251,3 +2251,15 @@ ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color:
 .rail-card {
   pointer-events: none;
 }
+
+/* Side panel hidden: no card is selected; all collapse and dim alike. */
+.side-hidden .rail-card.is-active .rail-card-main canvas {
+  height: 74px !important;
+  opacity: 0.55;
+}
+.side-hidden .rail-card.is-active .rail-card-main[aria-pressed="false"] canvas {
+  opacity: 0.25;
+}
+.side-hidden .rail-card.is-active .rail-card-main::after {
+  height: 42px;
+}
