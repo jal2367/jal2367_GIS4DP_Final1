@@ -10,7 +10,7 @@ config:
   mapStyle: "/data/Basemap.GIS4DP.json"
   center: [-70.70, -33.47]   # middle of the hexagons in the 32 comunas
   zoom: 10.5
-  minZoom: 10     # farthest zoom-out: just fits the 32 comunas
+  minZoom: 8.5    # farthest zoom-out: fits the full hexagon layer (about 120 x 110 km)
   pitch: 55      # camera tilt in degrees (0 = flat, max 85)
   bearing: -20   # rotation in degrees (0 = north up)
 
@@ -153,6 +153,17 @@ sources:
   hidrografia:
     type: geojson
     url: "/data/hidrografia.geojson"
+  # Puntos críticos de invierno 2026 (SENAPRED, Programa Invierno): the
+  # 2,320 points in the Región Metropolitana, downloaded from
+  # visor-grd.senapred.gob.cl (ArcGIS MapServer PROG_INVIERNO_2/
+  # Puntos_Criticos_INV_2026, layer 0) with the fields used here.
+  puntos_criticos:
+    type: geojson
+    url: "/data/puntos_criticos_invierno.geojson"
+  # Comuna boundaries, shared by the outline and its shadow.
+  comunas_lines:
+    type: geojson
+    url: "/data/comunas.geojson"
   # Collector network, shared by its line and its glow.
   colector:
     type: geojson
@@ -299,8 +310,8 @@ layers:
       line-opacity: 0.95
     legend: false
 
-  # Invisible comuna areas that make each comuna clickable: a click opens a
-  # summary popup and flies the map to the comuna (src/scripts/comuna-zoom.js).
+  # Invisible comuna areas that make each comuna clickable: a click opens the
+  # comuna's info panel and flies the map to it.
   # Mean_year, Period, Hexagons, First_year and Last_year were calculated from
   # the hexagons and saved in comunas.geojson.
   - id: comunas-fill
@@ -312,27 +323,11 @@ layers:
       fill-color: "#ffffff"
       fill-opacity: 0
     legend: false
+    # No popup: a click opens the comuna's info panel in place of the side
+    # panel (src/scripts/map-panels.js) and flies there (comuna-zoom.js).
     interactive:
       hover:
         cursor: pointer
-      click:
-        popup:
-          - h3:
-              - property: COMUNA
-          - p:
-              - str: "Mean year: "
-              - property: Mean_year
-          - p:
-              - str: "Period: "
-              - property: Period
-          - p:
-              - str: "Years covered: "
-              - property: First_year
-              - str: "–"
-              - property: Last_year
-              - str: " ("
-              - property: Hexagons
-              - str: " hexagons)"
 
   # ---- Hydrography (merged from the former Hydrography page) ----
   # Colours (aquamarine / midnight blue / dark violet palette): natural water
@@ -518,20 +513,135 @@ layers:
               - str: "Source: Dirección de Obras Hidráulicas"
 
 
+  # Kernel density of the puntos críticos (a MapLibre heatmap): each point
+  # weighted by its risk level (Bajo 1, Medio 2, Alto 3, Muy Alto 4), in the
+  # same magenta ramp as the points, under them.
+  - id: pc-density
+    type: heatmap
+    source: puntos_criticos
+    paint:
+      heatmap-weight: ["match", ["get", "nivel"], "Muy Alto", 4, "Alto", 3, "Medio", 2, 1]
+      heatmap-intensity: ["interpolate", ["linear"], ["zoom"], 9, 0.18, 13, 0.5, 15, 0.9]
+      heatmap-radius: ["interpolate", ["linear"], ["zoom"], 9, 22, 12, 50, 15, 90]
+      heatmap-color: ["interpolate", ["linear"], ["heatmap-density"], 0, "rgba(110, 0, 115, 0)", 0.15, "rgba(110, 0, 115, 0.45)", 0.4, "#b000b3", 0.7, "#ff00ff", 1, "#ff7aff"]
+      heatmap-opacity: 0.7
+    legend: false
+
+  # Puntos críticos de invierno, graduated magenta (the hexagons' #ff00ff)
+  # by nivel_de_riesgo: dim
+  # and small for Bajo up to bright and large (with a glow) for Muy Alto.
+  # One layer per level, so each gets its own pill in the side panel.
+
+  - id: pc-bajo
+    type: circle
+    source: puntos_criticos
+    filter: ["==", ["get", "nivel"], "Bajo"]
+    paint:
+      circle-color: "#6e0073"
+      circle-radius: ["interpolate", ["linear"], ["zoom"], 10, 2, 15, 3.5]
+      circle-opacity: 0.85
+      circle-stroke-color: "#0a0a0a"
+      circle-stroke-width: 0.6
+    legend: false
+    interactive: &pc-popup
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: sector
+                else: "Punto crítico"
+          - p:
+              - str: "Comuna: "
+              - property: comuna
+          - p:
+              - str: "Riesgo: "
+              - property: nivel
+          - p:
+              - str: "Causa: "
+              - property: causa
+          - p:
+              - str: "Acción: "
+              - property: accion
+          - p:
+              - str: "Fuente: SENAPRED, Invierno 2026"
+
+  - id: pc-medio
+    type: circle
+    source: puntos_criticos
+    filter: ["==", ["get", "nivel"], "Medio"]
+    paint:
+      circle-color: "#b000b3"
+      circle-radius: ["interpolate", ["linear"], ["zoom"], 10, 2.6, 15, 4.5]
+      circle-opacity: 0.9
+      circle-stroke-color: "#0a0a0a"
+      circle-stroke-width: 0.6
+    legend: false
+    interactive: *pc-popup
+
+  - id: pc-alto
+    type: circle
+    source: puntos_criticos
+    filter: ["==", ["get", "nivel"], "Alto"]
+    paint:
+      circle-color: "#ff00ff"
+      circle-radius: ["interpolate", ["linear"], ["zoom"], 10, 3.2, 15, 5.5]
+      circle-opacity: 0.95
+      circle-stroke-color: "#0a0a0a"
+      circle-stroke-width: 0.6
+    legend: false
+    interactive: *pc-popup
+
+  - id: pc-muy-alto-glow
+    type: circle
+    source: puntos_criticos
+    filter: ["==", ["get", "nivel"], "Muy Alto"]
+    paint:
+      circle-color: "#ff7aff"
+      circle-radius: ["interpolate", ["linear"], ["zoom"], 10, 9, 15, 16]
+      circle-blur: 1
+      circle-opacity: 0.45
+    legend: false
+
+  - id: pc-muy-alto
+    type: circle
+    source: puntos_criticos
+    filter: ["==", ["get", "nivel"], "Muy Alto"]
+    paint:
+      circle-color: "#ff7aff"
+      circle-radius: ["interpolate", ["linear"], ["zoom"], 10, 4, 15, 7]
+      circle-opacity: 1
+      circle-stroke-color: "#0a0a0a"
+      circle-stroke-width: 0.6
+    legend: false
+    interactive: *pc-popup
+
   # Comuna boundaries for the 32 comunas, from caracena/chile-geojson on
   # GitHub (Región Metropolitana file). The comuna picked in the dropdown is
   # (or clicked on the map) is drawn thicker and in white; picking it also flies the map there (see
   # src/scripts/comuna-zoom.js).
+  # A soft dark shadow under the boundaries, nudged down a few pixels, so
+  # the lines look lifted slightly above the hexagons, water and points.
+  - id: comunas-shadow
+    type: line
+    source: comunas_lines
+    paint:
+      line-color: "#000000"
+      line-width: ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 7]
+      line-blur: ["interpolate", ["linear"], ["zoom"], 10, 3, 14, 5]
+      line-opacity: 0.75
+      line-translate: [0, 4]
+      line-translate-anchor: viewport
+    legend: false
+
   - id: comunas-outline
     type: line
     label: Comuna boundaries
-    source:
-      type: geojson
-      url: "/data/comunas.geojson"
+    source: comunas_lines
     paint:
       line-color: ["case", ["any", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], ["==", ["get", "COMUNA"], ["global-state", "highlight"]]], "#ffffff", "#9aa4ac"]
-      line-width: ["case", ["any", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], ["==", ["get", "COMUNA"], ["global-state", "highlight"]]], 3, 1.2]
-      line-opacity: 0.85
+      line-width: ["case", ["any", ["==", ["get", "COMUNA"], ["global-state", "comuna"]], ["==", ["get", "COMUNA"], ["global-state", "highlight"]]], 3, 1.3]
+      line-opacity: 0.95
     legend: false
 
   # Comuna names, one point per comuna (comunas_labels.geojson, made from the

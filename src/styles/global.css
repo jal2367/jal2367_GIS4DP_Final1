@@ -150,11 +150,6 @@
   }
 }
 
-/* Maps: popups use dark text even in dark mode (their background is white). */
-.maplibregl-popup-content {
-  color: #333;
-}
-
 /* The story's map fills the window and runs under the see-through header.
    (`html` in front makes this win over the story's own stylesheet.) */
 html ml-scrollytelling {
@@ -169,7 +164,7 @@ html ml-scrollytelling {
    column and the period checkboxes become pill buttons by
    src/scripts/map-panels.js. */
 :root {
-  --map-accent: #ffee58; /* yellow, as the Base map layers, on every page */
+  --map-accent: #c6ff33; /* lime (Neon Pulse palette), as the Base map, on every page */
   --map-glass: rgba(20, 21, 24, 0.72);
 }
 .map-glass,
@@ -821,19 +816,20 @@ body.bleed .layer-rail {
 
 /* Explore: the site's yellow accent for the shared parts (rail, page links,
    buttons, scale bar); each side-panel section has its own colour:
-   Growth Periods pink (#ff4d94, a period colour), Hydrography aquamarine
-   (#7fffd4). Marked by .accent-growth on the page's size legend. */
+   Social violet #9b00e8, Puntos críticos orange #ffa31a (hexagon colours),
+   Growth Periods pink #ff0080, Hydrography cyan #00ffff, Base map lime
+   #c6ff33. Marked by .accent-growth on the page's size legend. */
 body:has(.accent-growth) {
-  --map-accent: #ffee58;
+  --map-accent: #c6ff33;
 }
 .panel-section[data-section="growth"] {
-  --map-accent: #ff4d94;
+  --map-accent: #ff0080;
 }
 .panel-section[data-section="hydro"] {
-  --map-accent: #7fffd4;
+  --map-accent: #00ffff;
 }
 .panel-section[data-section="base"] {
-  --map-accent: #ffee58;
+  --map-accent: #c6ff33;
 }
 /* Foldable sections with an on/off switch (src/scripts/map-panels.js). */
 .panel-section {
@@ -1017,9 +1013,9 @@ body.bleed .side-panel-tab {
 /* Rail card labels: bottom left, overlapping the drawing a little, on a
    square translucent tag in the colour of the card's side-panel section
    (growth pink, hydrography aquamarine, base map yellow). */
-.rail-card[data-section="growth"] { --sec: #ff4d94; }
-.rail-card[data-section="hydro"] { --sec: #7fffd4; }
-.rail-card[data-section="base"] { --sec: #ffee58; }
+.rail-card[data-section="growth"] { --sec: #ff0080; }
+.rail-card[data-section="hydro"] { --sec: #00ffff; }
+.rail-card[data-section="base"] { --sec: #c6ff33; }
 .rail-card-main {
   padding-bottom: 10px;
 }
@@ -1270,7 +1266,7 @@ body.bleed:has(ml-scrollytelling) header .site-nav {
 
 /* The current page in the page links (Overview lists itself). */
 .site-nav a[aria-current="page"] {
-  color: var(--map-accent, #ffee58) !important;
+  color: var(--map-accent, #c6ff33) !important;
 }
 
 /* Findings page: side panel on the far left like Explore's layer rail
@@ -1594,4 +1590,507 @@ body:has(.accent-growth) ml-map::before {
   background: var(--rail-glass);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   pointer-events: none;
+}
+
+/* Placeholder layers at the top of the rail (no data yet): Social in a deep
+   neon blue, Puntos críticos in neon green. */
+.rail-card[data-section="social"] { --sec: #9b00e8; }
+.rail-card[data-section="criticos"] { --sec: #ffa31a; }
+.rail-card[data-section="social"] .rail-card-label {
+  color: #c070ff;
+}
+
+/* Comuna dropdown in the rail: slimmer when closed. */
+.rail-comuna {
+  padding: 8px 12px;
+}
+.rail-comuna select {
+  height: 24px;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 22px;
+  border-radius: 5px;
+}
+
+/* Thin scrollbars that take the main colour of each panel's contents:
+   the layer rail, Findings and Overview panels and the Overview page in the
+   site's yellow; the Explore side panel runs pink, aquamarine, yellow like
+   its Growth Periods, Hydrography and Base map sections. */
+:is(.layer-rail-list, .story-progress, .overview-toc, .side-panel, html)::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+:is(.layer-rail-list, .story-progress, .overview-toc, .side-panel, html)::-webkit-scrollbar-track {
+  background: transparent;
+}
+:is(.layer-rail-list, .story-progress, .overview-toc, html)::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, #ffee58 55%, transparent);
+  border-radius: 2px;
+}
+.side-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(#ff4d94, #7fffd4, #ffee58);
+  border-radius: 2px;
+  opacity: 0.8;
+}
+:is(.layer-rail-list, .story-progress, .overview-toc, .side-panel, html)::-webkit-scrollbar-thumb:hover {
+  filter: brightness(1.2);
+}
+/* Browsers without those (Firefox): thin, one colour. */
+@supports not selector(::-webkit-scrollbar) {
+  .layer-rail-list, .story-progress, .overview-toc, html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, #ffee58 55%, transparent) transparent;
+  }
+  .side-panel {
+    scrollbar-width: thin;
+    scrollbar-color: #ff4d94 transparent;
+  }
+}
+
+/* Placeholder sections in the Explore side panel, coloured like their rail
+   cards: Social deep blue (lightened for text), Puntos críticos green. */
+.panel-section[data-section="social"] {
+  --map-accent: #c070ff;
+}
+.panel-section[data-section="criticos"] {
+  --map-accent: #ffa31a;
+}
+.panel-section-note {
+  margin: 0 0 4px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+/* The side panel scroll bar now starts with these two colours. */
+.side-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(#6f95ff, #39ff88, #ff4d94, #7fffd4, #ffee58);
+}
+.rail-pill {
+  white-space: nowrap;
+}
+.rail-pills > .rail-pill:only-child {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* Scroll bars that follow the colour under them as you scroll (set as --sb
+   by map-panels.js and layer-rail.js). */
+.side-panel::-webkit-scrollbar-thumb,
+.layer-rail-list::-webkit-scrollbar-thumb {
+  background: var(--sb, #ffee58);
+  transition: background-color 0.3s ease;
+}
+/* Section titles are buttons now (fold/unfold). */
+.panel-section-title {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+.panel-section-title:focus-visible {
+  outline: 2px solid var(--map-accent);
+  outline-offset: 2px;
+}
+/* Folded but still on: title stays bright; off: title dimmed. */
+.panel-section.is-off .panel-section-title {
+  opacity: 0.6;
+}
+
+/* All scroll bars: thin and a faint light gray (overrides the coloured
+   versions above). */
+:is(.layer-rail-list, .story-progress, .overview-toc, .side-panel, html)::-webkit-scrollbar-thumb {
+  background: rgba(212, 215, 219, 0.3) !important;
+}
+:is(.layer-rail-list, .story-progress, .overview-toc, .side-panel, html)::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 215, 219, 0.5) !important;
+  filter: none;
+}
+@supports not selector(::-webkit-scrollbar) {
+  .layer-rail-list, .story-progress, .overview-toc, .side-panel, html {
+    scrollbar-color: rgba(212, 215, 219, 0.3) transparent !important;
+  }
+}
+
+/* Engineered features' rail tag uses the Hydrography cyan, like Natural
+   features (its drawing keeps the violet water colours). */
+
+/* Rail cards: the active group's cards (picked by clicking) open at full
+   size and brightness; every other card stays collapsed and slightly dim,
+   whether its layer is on or off. A layer switched off is dimmer still. */
+.rail-card .rail-card-main canvas {
+  height: 74px !important;
+}
+.rail-card.is-active .rail-card-main canvas {
+  height: 104px !important;
+}
+.rail-card .rail-card-main,
+.rail-card .rail-card-main[aria-pressed="false"] {
+  opacity: 0.6;
+}
+.rail-card .rail-card-main[aria-pressed="false"] {
+  opacity: 0.35;
+}
+.rail-card.is-active .rail-card-main {
+  opacity: 1;
+}
+.rail-card.is-active .rail-card-main[aria-pressed="false"] {
+  opacity: 0.6;
+}
+.rail-card-main:hover {
+  opacity: 0.9 !important;
+}
+/* Only the active group's section is shown in the side panel. */
+.panel-section[hidden] {
+  display: none !important;
+}
+/* Brightness split between drawing and label: labels of layers that are on
+   (and of the selected group) stay full bright like before; a layer that is
+   off has a dim label. Drawings: selected group full, others dimmed. */
+.rail-card .rail-card-main,
+.rail-card .rail-card-main[aria-pressed="false"],
+.rail-card.is-active .rail-card-main,
+.rail-card.is-active .rail-card-main[aria-pressed="false"] {
+  opacity: 1;
+}
+.rail-card .rail-card-main canvas {
+  opacity: 0.55;
+}
+.rail-card .rail-card-main[aria-pressed="false"] canvas {
+  opacity: 0.25;
+}
+.rail-card.is-active .rail-card-main canvas {
+  opacity: 1;
+}
+.rail-card.is-active .rail-card-main[aria-pressed="false"] canvas {
+  opacity: 0.45;
+}
+.rail-card .rail-card-label {
+  opacity: 1;
+}
+.rail-card .rail-card-main[aria-pressed="false"] .rail-card-label {
+  opacity: 0.4;
+}
+.rail-card-main:hover canvas,
+.rail-card-main:hover .rail-card-label {
+  opacity: 1 !important;
+}
+
+/* Pills (periods, sub-layers, base map) with the same 3 px corners as the
+   rail's layer label boxes. */
+.period-pill,
+ml-map .ml-map-params .period-pill,
+.rail-pill {
+  border-radius: 3px !important;
+}
+/* The side panel's tab takes the colour of the open section (Social blue,
+   Puntos críticos green, Growth pink, Hydrography cyan, Base map lime). */
+.has-layer-rail[data-active-section="social"] { --tab: #c070ff; }
+.has-layer-rail[data-active-section="criticos"] { --tab: #ffa31a; }
+.has-layer-rail[data-active-section="growth"] { --tab: #ff0080; }
+.has-layer-rail[data-active-section="hydro"] { --tab: #00ffff; }
+.has-layer-rail[data-active-section="base"] { --tab: #c6ff33; }
+.has-layer-rail .side-panel-tab {
+  border-color: color-mix(in srgb, var(--tab, var(--map-accent)) 45%, transparent);
+  transition: border-color 0.25s ease;
+}
+.has-layer-rail .side-panel-tab::before {
+  background: var(--tab, var(--map-accent));
+  box-shadow: 0 0 6px var(--tab, var(--map-accent));
+  transition: background-color 0.25s ease;
+}
+/* Tab: neutral outline (only the centre line takes the section colour) and a
+   shorter tab and line. */
+.has-layer-rail .side-panel-tab {
+  border-color: rgba(255, 255, 255, 0.12);
+  height: 60px;
+}
+.has-layer-rail .side-panel-tab::before {
+  height: 28px;
+}
+
+/* Purple group (Puntos críticos invierno) in the hexagons' magenta #ff00ff;
+   Social in their violet #9b00e8, Puntos críticos in their orange #ffa31a. (Was:
+   tint so it reads on the dark panel). */
+.rail-card[data-section="hash"] { --sec: #ff00ff; }
+.rail-card[data-section="hash"] .rail-card-label { color: #ff00ff; }
+.panel-section[data-section="hash"] { --map-accent: #ff00ff; }
+.has-layer-rail[data-active-section="hash"] { --tab: #ff00ff; }
+/* Cards of the same group (Natural + Engineered, Comunas + Satellite +
+   Terrain) stack closer; the gap between groups stays as is. */
+.rail-card[data-section="hydro"] + .rail-card[data-section="hydro"],
+.rail-card[data-section="base"] + .rail-card[data-section="base"] {
+  margin-top: -42px;
+}
+
+/* Findings page: pink accent, like the hexagon layer (Growth Periods). */
+body:has(ml-scrollytelling) {
+  --map-accent: #ff0080;
+}
+/* "Explore" in the page links: a gradient from the Neon Pulse palette —
+   blue (lightened to read on black), pink, yellow-lime. */
+.site-nav a[href$="full_page_map"] {
+  background: linear-gradient(90deg, #4d6bff, #ff0080 55%, #c6ff33);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+}
+/* Placeholder sub-layer pills: one per row (their names are long). */
+.rail-pills.rail-pills-list {
+  grid-template-columns: 1fr;
+}
+.rail-pills.rail-pills-list > .rail-pill {
+  justify-self: start;
+}
+
+/* Placeholder groups' sub-layer cards stack closer, like the other groups. */
+.rail-card[data-section="social"] + .rail-card[data-section="social"],
+.rail-card[data-section="criticos"] + .rail-card[data-section="criticos"],
+.rail-card[data-section="hash"] + .rail-card[data-section="hash"] {
+  margin-top: -42px;
+}
+
+/* Map popups (click a comuna or a line): the layer rail's near-black frosted
+   background, title in the dot-matrix title font, body in the body font,
+   neutral light-gray text. */
+ml-map .maplibregl-popup-content {
+  background: var(--rail-glass) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  color: #d4d7db !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px 14px 12px;
+}
+ml-map .maplibregl-popup-content h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+  color: #e8e8e8 !important;
+}
+ml-map .maplibregl-popup-content p {
+  margin: 0;
+  color: #d4d7db !important;
+}
+ml-map .maplibregl-popup-close-button {
+  color: #9aa0a6;
+  font-size: 16px;
+  padding: 2px 6px;
+}
+ml-map .maplibregl-popup-close-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8e8e8;
+}
+/* The little pointer under the popup in the same near-black. */
+ml-map .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+ml-map .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+ml-map .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip { border-top-color: rgba(10, 10, 10, 0.9); }
+ml-map .maplibregl-popup-anchor-top .maplibregl-popup-tip,
+ml-map .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+ml-map .maplibregl-popup-anchor-top-right .maplibregl-popup-tip { border-bottom-color: rgba(10, 10, 10, 0.9); }
+ml-map .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: rgba(10, 10, 10, 0.9); }
+ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: rgba(10, 10, 10, 0.9); }
+/* A section switched off stays open with its controls dimmed. */
+.panel-section.is-off .panel-section-body {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+.panel-section.is-off .panel-section-body:hover {
+  opacity: 0.7;
+}
+
+/* Comuna info panel (src/scripts/map-panels.js): opens in the side panel's
+   place when a comuna is clicked; the side panel steps aside meanwhile.
+   Page accent (yellow-lime) for its title and figures. */
+.ml-map-chrome-top-left.side-panel.is-covered {
+  opacity: 0;
+  pointer-events: none !important;
+}
+.comuna-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--rail-x, 0px);
+  z-index: 2;
+  width: min(var(--side-w), 85vw);
+  box-sizing: border-box;
+  padding: 12px 14px;
+  overflow-y: auto;
+  background: var(--map-glass);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.35);
+  color: #d4d7db;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 12px;
+  --cp: #c6ff33;
+}
+.comuna-panel[hidden] {
+  display: none;
+}
+.cp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.comuna-panel h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+  color: var(--cp);
+}
+.comuna-panel h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--cp) 75%, #d4d7db);
+}
+.comuna-panel section {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cp-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 0;
+}
+.cp-row b {
+  font-weight: 600;
+  color: #e8e8e8;
+}
+.cp-close {
+  border: 0;
+  background: none;
+  color: var(--cp);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.cp-close:hover {
+  text-shadow: 0 0 6px var(--cp);
+}
+.cp-close:focus-visible {
+  outline: 2px solid var(--cp);
+  outline-offset: 2px;
+}
+/* Comuna panel: twice the side panel's width; info groups fold from their
+   header, coloured like the layer each comes from (Urbanization pink,
+   Puntos críticos magenta); the comuna name keeps the page accent. */
+.comuna-panel {
+  width: min(calc(var(--side-w) * 2), 92vw);
+  padding: 14px 18px;
+}
+.cp-group[data-section="growth"] { --gc: #ff0080; }
+.cp-group[data-section="hash"] { --gc: #ff00ff; }
+.cp-group[data-section="hydro"] { --gc: #00ffff; }
+.cp-group[data-section="base"] { --gc: #c6ff33; }
+.cp-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 2px 0 6px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.82rem;
+  color: var(--gc, var(--cp));
+}
+.cp-group-head:focus-visible {
+  outline: 2px solid var(--gc, var(--cp));
+  outline-offset: 2px;
+}
+/* The sign: a line when open, a plus when closed. */
+.cp-sign {
+  position: relative;
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+.cp-sign::before,
+.cp-sign::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--gc, var(--cp));
+  box-shadow: 0 0 5px color-mix(in srgb, var(--gc, var(--cp)) 60%, transparent);
+  transition: transform 0.2s ease;
+}
+.cp-sign::after {
+  transform: rotate(0deg);
+}
+.cp-group.is-closed .cp-sign::after {
+  transform: rotate(90deg);
+}
+.cp-group.is-closed .cp-group-body {
+  display: none;
+}
+.cp-group.is-closed {
+  padding-bottom: 6px;
+}
+/* Comuna panel groups: an × when open, turning into a + when closed. */
+.cp-group .cp-sign::before {
+  transform: rotate(45deg);
+}
+.cp-group .cp-sign::after {
+  transform: rotate(-45deg);
+}
+.cp-group.is-closed .cp-sign::before {
+  transform: rotate(0deg);
+}
+.cp-group.is-closed .cp-sign::after {
+  transform: rotate(90deg);
+}
+/* The × turns as one piece into the +: the strokes stay crossed (one flat,
+   one upright) and the whole sign rotates 45° when the group folds. */
+.cp-group .cp-sign::before,
+.cp-group.is-closed .cp-sign::before {
+  transform: rotate(0deg);
+}
+.cp-group .cp-sign::after,
+.cp-group.is-closed .cp-sign::after {
+  transform: rotate(90deg);
+}
+.cp-group .cp-sign {
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
+}
+.cp-group.is-closed .cp-sign {
+  transform: rotate(0deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp-group .cp-sign {
+    transition: none;
+  }
 }

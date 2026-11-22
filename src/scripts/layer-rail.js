@@ -6,7 +6,7 @@
 // src/scripts/map-panels.js.
 
 // Common footprint for every card, so the planes line up like one stack.
-const BBOX = [-70.97, -33.66, -70.43, -33.28]; // west, south, east, north
+const BBOX = [-70.97, -33.66, -70.43, -33.28]; // west, south, east, north: the 32 Santiago comunas
 const BEARING = -20; // the maps' bearing, so the drawings face the same way
 const SQUASH = 0.42; // vertical squash of the tilted plane
 const CARD_H = 104; // CSS px per card
@@ -32,9 +32,41 @@ const TERRAIN = { label: "Terrain", swatch: "#8fb0c8", section: "base", layers: 
 // reservoirs). Cards with `parts` get a pill per part (in the side panel).
 // `section` ties a card to a side-panel section (growth, hydro or base):
 // its on/off switch and its colour.
+function placeholderGroup(section, count, swatch, color) {
+  return Array.from({ length: count }, (_, i) => ({
+    label: `Layer ${i + 1}`, swatch, section, placeholder: true, layers: [],
+    draw: { kind: "placeholder", color },
+  }));
+}
 const STACK = [
+  // Placeholders for layers still to come: no data yet, so each card shows
+  // an empty grid plane and its switch changes nothing on the map. Each
+  // placeholder group has its own sub-layer cards ("Layer 1"...),
+  // stacked closer together like Hydrography's two cards. To make one real,
+  // give it a name, `layers` (map layer ids) and a `draw` like the others.
+  ...placeholderGroup("social", 3, "#9b00e8", "#b84dff"),
+  ...placeholderGroup("criticos", 1, "#ffa31a", "#ffa31a"),
+  // Puntos críticos de invierno (SENAPRED 2026), in the purple group: graduated
+  // magenta by nivel de riesgo, a pill per level. Same colours as the map.
   {
-    label: "Hexagons", swatch: ["#9b00e8", "#ffff00"], section: "growth",
+    label: "Puntos críticos", swatch: ["#6e0073", "#ff7aff"], section: "hash",
+    parts: [
+      { label: "Muy Alto", color: "#ff7aff", layers: ["pc-muy-alto", "pc-muy-alto-glow"], drawLayer: "pc-muy-alto", where: (p) => p.nivel === "Muy Alto", width: 1.6 },
+      { label: "Alto", color: "#ff00ff", layers: ["pc-alto"], drawLayer: "pc-alto", where: (p) => p.nivel === "Alto", width: 1.3 },
+      { label: "Medio", color: "#b000b3", layers: ["pc-medio"], drawLayer: "pc-medio", where: (p) => p.nivel === "Medio", width: 1.1 },
+      { label: "Bajo", color: "#6e0073", layers: ["pc-bajo"], drawLayer: "pc-bajo", where: (p) => p.nivel === "Bajo", width: 0.9 },
+    ],
+  },
+  // Kernel density of the puntos críticos (map layer pc-density), its own
+  // card in the same purple group.
+  {
+    label: "Density", swatch: ["#b000b3", "#ff7aff"], section: "hash",
+    parts: [
+      { label: "Kernel density", color: "#ff00ff", layers: ["pc-density"], drawLayer: "pc-density", heat: true },
+    ],
+  },
+  {
+    label: "Urbanization", swatch: ["#9b00e8", "#ffff00"], section: "growth",
     layers: (map) => map.getLayersOrder().filter((id) => id.startsWith("hexa-")),
     draw: { kind: "vector", layer: "hexa-sized-1680-1806", width: 0.6, glow: true, color: (p) => periodColor(p.Year_Mean) },
   },
@@ -56,7 +88,7 @@ const STACK = [
   },
   {
     label: "Comunas", swatch: "#9aa4ac", section: "base",
-    layers: ["comunas-fill", "comunas-outline", "comunas-labels"],
+    layers: ["comunas-fill", "comunas-shadow", "comunas-outline", "comunas-labels"],
     draw: { kind: "vector", layer: "comunas-outline", width: 0.7, color: () => "#b8c0c6" },
   },
   SATELLITE,
@@ -192,6 +224,11 @@ function strokeGeometry(ctx, proj, geom) {
   if (t === "LineString") line(geom.coordinates);
   else if (t === "MultiLineString" || t === "Polygon") geom.coordinates.forEach(line);
   else if (t === "MultiPolygon") geom.coordinates.forEach((poly) => poly.forEach(line));
+  else if (t === "Point") {
+    const [x, y] = proj.lonLat(geom.coordinates[0], geom.coordinates[1]);
+    ctx.moveTo(x + 0.7, y);
+    ctx.arc(x, y, 0.7, 0, Math.PI * 2);
+  }
 }
 
 const groupCache = new WeakMap(); // data -> Map(key -> Map(colour -> geometries))
@@ -240,11 +277,32 @@ async function drawVector(ctx, proj, map, spec) {
   return true;
 }
 
+// Density preview: every point as a soft, faint blob added on top of the
+// others, so clusters build up into a glow like the map's heatmap.
+async function drawHeat(ctx, proj, map, part) {
+  const data = await layerData(map, part.drawLayer);
+  if (!data || !data.features || !data.features.length) return false;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.fillStyle = part.color;
+  ctx.globalAlpha = 0.07;
+  for (const f of data.features) {
+    if (!f.geometry || f.geometry.type !== "Point") continue;
+    const [x, y] = proj.lonLat(f.geometry.coordinates[0], f.geometry.coordinates[1]);
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+  return true;
+}
+
 // A card with parts draws only the parts switched on, each in its colour.
 async function drawParts(ctx, proj, map, parts) {
   let ok = true;
   for (const part of parts) {
     if (!part.on) continue;
+    if (part.heat) { const drew = await drawHeat(ctx, proj, map, part); ok = ok && drew !== false; continue; }
     const color = part.alpha ? hexAlpha(part.color, part.alpha) : part.color;
     const drew = await drawVector(ctx, proj, map, {
       layer: part.drawLayer, where: part.where, width: part.width, glow: true, color: () => color,
@@ -256,6 +314,26 @@ async function drawParts(ctx, proj, map, parts) {
 function hexAlpha(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+// Placeholder card: a faint grid on the plane in the layer's colour.
+function drawPlaceholder(ctx, proj, color) {
+  const N = 8;
+  ctx.lineWidth = 0.6;
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.6;
+  ctx.setLineDash([2, 3]);
+  ctx.beginPath();
+  for (let i = 1; i < N; i++) {
+    const t = i / N;
+    const a = proj.merc(X0 + t * (X1 - X0), Y0), b = proj.merc(X0 + t * (X1 - X0), Y1);
+    const c = proj.merc(X0, Y0 + t * (Y1 - Y0)), d = proj.merc(X1, Y0 + t * (Y1 - Y0));
+    ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+    ctx.moveTo(c[0], c[1]); ctx.lineTo(d[0], d[1]);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
 }
 
 async function drawSatellite(ctx, proj, map) {
@@ -340,6 +418,7 @@ async function drawCard(canvas, map, spec) {
     else if (spec.kind === "parts") ok = await drawParts(ctx, proj, map, spec.parts);
     else if (spec.kind === "satellite") await drawSatellite(ctx, proj, map);
     else if (spec.kind === "terrain") await drawTerrain(ctx, proj, map);
+    else if (spec.kind === "placeholder") drawPlaceholder(ctx, proj, spec.color);
   } catch (err) {
     console.warn("Layer rail: could not draw", spec, err);
     ok = false;
@@ -419,6 +498,7 @@ export function buildLayerRail(root, onLayout) {
     card.className = "rail-card";
     // Colours the label like its side-panel section (global.css).
     if (group.section) card.dataset.section = group.section;
+    if (group.label === "Engineered features") card.dataset.group = "engineered";
     const main = document.createElement("button");
     main.type = "button";
     main.className = "rail-card-main";
@@ -476,7 +556,13 @@ export function buildLayerRail(root, onLayout) {
       const hsw = document.createElement("i");
       hsw.style.background = sw.style.background;
       head.append(hsw, document.createTextNode(group.label));
-      pillSection.append(head, pills);
+      // One block per group, tagged with its section so the side panel can
+      // put it in the right place (map-panels.js).
+      const block = document.createElement("div");
+      block.className = "rail-pill-block";
+      block.dataset.section = group.section;
+      block.append(head, pills);
+      pillSection.append(block);
       const sync = () => {
         for (const [part, pill] of pillFor) pill.setAttribute("aria-pressed", String(part.on));
         main.setAttribute("aria-pressed", String(group.parts.some((p) => p.on)));
@@ -505,8 +591,18 @@ export function buildLayerRail(root, onLayout) {
         changed();
       };
     }
-    // The drawing switches the group: off if (any of) it is on, otherwise on.
-    main.addEventListener("click", () => group.setOn(!group.isOn()));
+    // Clicking a card from another group only selects its group (the side
+    // panel shows that group's controls, its cards open up); layers stay as
+    // they are. Clicking a card of the group already open switches that
+    // layer on or off.
+    main.title = `${group.label}: show controls / switch on or off`;
+    main.addEventListener("click", () => {
+      if (root.dataset.activeSection === group.section) {
+        group.setOn(!group.isOn());
+        return;
+      }
+      selectSection(root, group.section);
+    });
     cards.push([canvas, group]);
   }
   // Draw once the rail is laid out (each canvas needs its width). Redraw when
@@ -540,8 +636,23 @@ export function buildLayerRail(root, onLayout) {
   drawAll(true);
 
   root.classList.add("has-layer-rail");
+  selectSection(root, "growth"); // Urbanization active when the page opens
   onLayout && onLayout();
   return rail;
+}
+
+/** Make one group (section key) the active one: its rail cards open at full
+ *  size and brightness, the others stay collapsed and dimmed; fires
+ *  "rail-select" on the map element so the side panel can follow. */
+export function selectSection(root, key) {
+  if (!key) return;
+  root.dataset.activeSection = key;
+  for (const card of root.querySelectorAll(".rail-card")) {
+    const active = card.dataset.section === key;
+    card.classList.toggle("is-active", active);
+    card.querySelector(".rail-card-main")?.setAttribute("aria-current", active ? "true" : "false");
+  }
+  root.dispatchEvent(new CustomEvent("rail-select", { detail: { key } }));
 }
 
 /** The rail's groups (each with label, section, isOn(), setOn()). */
