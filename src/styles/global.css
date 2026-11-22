@@ -2225,3 +2225,29 @@ ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color:
   width: 100%;
   justify-content: center;
 }
+/* Rail card click area: only the band around the card's own label and the
+   front of its plane, so overlapping cards no longer steal each other's
+   clicks (the empty, overlapped top of a card lets clicks through). */
+.rail-card-main {
+  pointer-events: none;
+}
+.rail-card-main::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 42px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.rail-card.is-active .rail-card-main::after {
+  height: 60px;
+}
+.rail-card-label {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.rail-card {
+  pointer-events: none;
+}
