@@ -252,10 +252,7 @@ function comunaPanel(root) {
       <div class="cp-group-body">${body}</div>
     </section>`;
 
-  map.on("click", "comunas-fill", async (event) => {
-    const f = event.features && event.features[0];
-    if (!f) return;
-    const p = f.properties;
+  const open = async (p) => {
     // Critical points inside this comuna, by risk level.
     let counts = null;
     const src = map.getSource("puntos_criticos");
@@ -295,6 +292,20 @@ function comunaPanel(root) {
     panel.hidden = false;
     left.classList.add("is-covered");
     left.inert = true;
+  };
+  map.on("click", "comunas-fill", (event) => {
+    const f = event.features && event.features[0];
+    if (f) open(f.properties);
+  });
+  // Picking a comuna in the dropdown opens its panel too ("All comunas"
+  // closes it).
+  root.addEventListener("ml-map:parameter-change", async (event) => {
+    const { key, value } = event.detail || {};
+    if (key !== "comuna") return;
+    if (!value || value === "All comunas") { close(); return; }
+    const data = await map.getSource("comunas_lines")?.getData?.();
+    const c = data && data.features.find((x) => x.properties.COMUNA === value);
+    if (c) open(c.properties);
   });
   // Picking a layer in the rail brings the side panel back.
   root.addEventListener("rail-select", close);

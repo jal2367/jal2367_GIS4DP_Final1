@@ -2094,3 +2094,11 @@ ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color:
     transition: none;
   }
 }
+/* Comuna name larger in its panel. */
+.comuna-panel h2 {
+  font-size: 1.7rem;
+  line-height: 1.15;
+}
+.cp-head {
+  padding: 6px 0 14px;
+}
