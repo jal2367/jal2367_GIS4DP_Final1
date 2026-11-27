@@ -11,7 +11,7 @@
 // re-applies whenever a panel appears or is rebuilt.
 
 import { buildCompass } from "./map-compass.js";
-import { buildLayerRail, railGroups, railPills, railWidth } from "./layer-rail.js";
+import { buildLayerRail, railGroups, railPills, railWidth, selectSection } from "./layer-rail.js";
 
 const PERIOD_COLORS = {
   "1576–1751": "#9b00e8",
@@ -53,6 +53,9 @@ const SECTIONS = [
   { key: "hydro", title: "Hydrography" },
   { key: "base", title: "Base map", pills: true },
 ];
+// Methodology page and the anchor of each section's group on it.
+const METHOD_URL = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/methodology`;
+const METHOD_ANCHOR = { growth: "urbanization", hydro: "hydrography", hash: "puntos-criticos", base: "base-map", social: "social", criticos: "criticos-placeholder" };
 function sectionBody(left, key) {
   return left.querySelector(`.panel-section[data-section="${key}"] > .panel-section-body`);
 }
@@ -320,6 +323,63 @@ function comunaPanel(root) {
   root.addEventListener("click", (e) => { if (e.target.closest && e.target.closest(".rail-card-main")) close(); });
 }
 
+// Methodology button pinned to the bottom of the side panel (like the north
+// arrow and scale in the layer rail), linking to the open group's part of
+// the Methodology page.
+function methodButton(root) {
+  const left = leftColumn(root);
+  if (!left || left.querySelector(".side-panel-method")) return;
+  const foot = document.createElement("div");
+  foot.className = "side-panel-method";
+  const a = document.createElement("a");
+  a.textContent = "Methodology →";
+  foot.appendChild(a);
+  left.appendChild(foot);
+  const update = () => {
+    const key = root.dataset.activeSection || "growth";
+    a.href = `${METHOD_URL}#${METHOD_ANCHOR[key] || key}`;
+    foot.dataset.section = key;
+  };
+  root.addEventListener("rail-select", update);
+  update();
+  // Remember the view (camera, open group, comuna) so the Methodology page's
+  // Return button can bring it back exactly.
+  a.addEventListener("click", () => {
+    const map = root.getMap ? root.getMap() : null;
+    if (!map) return;
+    const c = map.getCenter();
+    const select = root.querySelector(".rail-comuna select");
+    const view = {
+      center: [c.lng, c.lat], zoom: map.getZoom(), pitch: map.getPitch(), bearing: map.getBearing(),
+      section: root.dataset.activeSection || "growth",
+      comuna: select ? select.selectedIndex : 0,
+    };
+    try { sessionStorage.setItem(RETURN_KEY, JSON.stringify(view)); } catch { /* ignore */ }
+  });
+}
+
+// Back from the Methodology page: restore the saved view once (camera, open
+// group and comuna), then forget it.
+const RETURN_KEY = "exploreReturnView";
+function restoreView(root) {
+  if (root.dataset.restored) return;
+  const map = root.getMap ? root.getMap() : null;
+  if (!map || !root.querySelector(".layer-rail")) return;
+  root.dataset.restored = "1";
+  let view = null;
+  try { view = JSON.parse(sessionStorage.getItem(RETURN_KEY) || "null"); sessionStorage.removeItem(RETURN_KEY); } catch { /* ignore */ }
+  if (!view || !/[?&]from=methodology/.test(location.search)) return;
+  history.replaceState(null, "", location.pathname); // tidy the address
+  if (view.section) selectSection(root, view.section);
+  const select = root.querySelector(".rail-comuna select");
+  if (select && view.comuna > 0) {
+    select.selectedIndex = view.comuna;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  // After the comuna fly-to (if any) settles, put the camera back exactly.
+  setTimeout(() => map.jumpTo({ center: view.center, zoom: view.zoom, pitch: view.pitch, bearing: view.bearing }), view.comuna > 0 ? 1800 : 0);
+}
+
 // Put each piece in its section.
 function fillSections(root) {
   const left = leftColumn(root);
@@ -344,6 +404,7 @@ function fillSections(root) {
 // The site wraps all its top-left boxes (info box, size legend) in one slot
 // container; `display: contents` lets each box be ordered on its own.
 function orderOf(el) {
+  if (el.classList && el.classList.contains("side-panel-method")) return 99;
   if (el.dataset && (el.dataset.section === "social" || el.dataset.section === "criticos" || el.dataset.section === "hash")) return 1;
   if (el.dataset && el.dataset.section === "growth") return 2;
   if (el.dataset && el.dataset.section === "hydro") return 3;
@@ -508,6 +569,8 @@ function apply(root) {
   buildSections(root);
   fillSections(root);
   showActiveSection(root);
+  methodButton(root);
+  restoreView(root);
   comunaPanel(root);
   mapFooter(root);
   moveParamsLeft(root);

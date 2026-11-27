@@ -1,0 +1,226 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import { SITE } from "@consts";
+import { url } from "@lib/utils";
+
+// Methodology: how each layer group on the Explore map was made. Each
+// side-panel section on Explore links here (#urbanization, #hydrography...).
+// Items marked TO FILL (yellow dashed boxes, .todo) are for the author to
+// complete: data origins, citations and steps done outside this site.
+const groups = [
+  { id: "urbanization", title: "Urbanization", color: "#ff0080" },
+  { id: "hydrography", title: "Hydrography", color: "#00ffff" },
+  { id: "puntos-criticos", title: "Puntos críticos & Risk Hotspots", color: "#ff00ff" },
+  { id: "base-map", title: "Base map", color: "#c6ff33" },
+  { id: "social", title: "Social", color: "#c070ff" },
+  { id: "criticos-placeholder", title: "Puntos críticos (orange)", color: "#ffa31a" },
+];
+const pages = [
+  { href: url(), label: SITE.NAME },
+  { href: url("scrollytelling"), label: "Findings" },
+  { href: url("full_page_map"), label: "Explore" },
+];
+
+// Flowchart of the urbanization method: [x, y, w, h, kind, title, lines].
+// kind: input | step | todo | output. Coordinates in a 720-wide viewBox.
+const W = 720;
+type Box = [number, number, number, number, "input" | "step" | "todo" | "output", string, string[]];
+const boxes: Box[] = [
+  [20, 20, 210, 88, "todo", "Built_Hist_2024", ["Built area by year built", "(crecimiento), 1541–2024", "TO FILL: source"]],
+  [255, 20, 210, 88, "input", "500 m hexagon grid", ["Flat-top hexagons,", "500 m flat to flat"]],
+  [490, 20, 210, 88, "input", "Comuna boundaries", ["32 comunas,", "Province of Santiago"]],
+  [20, 130, 680, 56, "step", "1 · Intersect", ["Built polygons clipped to each hexagon (area per year, UTM 19S); comuna by hexagon centre"]],
+  [20, 210, 680, 56, "step", "2 · Summarize per hexagon", ["Earliest, latest and area-weighted mean year; built area (ha and % of hexagon)"]],
+  [20, 290, 680, 56, "step", "3 · Keep hexagons ≥ 10% built", ["11,307 hexagons"]],
+  [20, 370, 680, 56, "step", "4 · Urbanization rate", ["Built ha ÷ years it took to build (ha/yr)"]],
+  [20, 450, 680, 56, "step", "5 · Classify & size", ["Colour: 5 natural breaks of the mean year · Size: urbanization rate"]],
+  [20, 530, 680, 56, "output", "Urbanization layer · Explore", ["Reprojected to EPSG:4326 for the web map"]],
+];
+const arrows = [
+  "M125,108 V128", "M360,108 V128", "M595,108 V128",
+  "M360,186 V208", "M360,266 V288", "M360,346 V368", "M360,426 V448", "M360,506 V528",
+];
+const H = 606;
+---
+
+<PageLayout title="Methodology" description={SITE.DESCRIPTION}>
+  <aside class="overview-panel" aria-label="Methodology contents">
+    <div class="rail-brand">
+      <nav class="site-nav rail-site-nav" aria-label="Pages">
+        {pages.map((page) => <a href={page.href} data-label={page.label}>{page.label}</a>)}
+      </nav>
+    </div>
+    <nav class="overview-toc" aria-label="Layer groups">
+      <ol>
+        {groups.map((g, i) => (
+          <li>
+            <a href={`#${g.id}`} data-toc={g.id} style={`--gc:${g.color}`}>
+              <span class="toc-num">{String(i + 1).padStart(2, "0")}</span>
+              {g.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+    {/* Return: back to the Explore map exactly as it was (script below),
+        pinned to the bottom like Explore's Methodology button. */}
+    <div class="side-panel-method method-return-foot">
+      <a href={url("full_page_map")} id="method-return">← Return</a>
+    </div>
+  </aside>
+
+  <div class="overview-body methodology">
+    <p class="overview-kicker">Explore · how the layers were made</p>
+    <h1 class="overview-title">Methodology</h1>
+    <p class="todo-legend"><span class="todo-tag">TO FILL</span> marks sources and steps the author still has to complete.</p>
+
+    <section id="urbanization" class="overview-section" style="--gc:#ff0080">
+      <h2><span class="toc-num">01</span> Urbanization</h2>
+      <p>
+        How the city's built footprint grew: a 500 m hexagon grid summarizing the built-area
+        layer <code>Built_Hist_2024</code> by the year each area was built (<code>crecimiento</code>).
+      </p>
+
+      <figure class="method-diagram">
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="urb-diagram-title">
+          <title id="urb-diagram-title">Urbanization layer methodology, from inputs to the web layer</title>
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#9aa0a6"></path>
+            </marker>
+          </defs>
+          {arrows.map((d) => <path d={d} class="m-arrow" marker-end="url(#arrow)"></path>)}
+          {boxes.map(([x, y, w, h, kind, title, lines]) => (
+            <g class={`m-box m-${kind}`}>
+              <rect x={x} y={y} width={w} height={h} rx="4"></rect>
+              <text x={x + 12} y={y + 22} class="m-title">{title}</text>
+              {lines.map((line, i) => (
+                <text x={x + 12} y={y + 42 + i * 17} class="m-line">{line}</text>
+              ))}
+            </g>
+          ))}
+        </svg>
+        <figcaption>
+          Inputs on top (yellow dashed: source to fill in), steps in order, the map layer at the bottom.
+        </figcaption>
+      </figure>
+
+      <h3>Sources</h3>
+      <table class="m-sources">
+        <thead><tr><th>Data</th><th>Source</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr class="todo-row">
+            <td>Built_Hist_2024: Historic_Growth (1541–2000)</td>
+            <td><span class="todo-tag">TO FILL</span> author, year, title, link</td>
+            <td>Supplied by the author (Historic_Growth.shp).</td>
+          </tr>
+          <tr class="todo-row">
+            <td>Built_Hist_2024: built area 2010 (Built_10_clip)</td>
+            <td><span class="todo-tag">TO FILL</span> dataset, year, resolution, link</td>
+            <td>Supplied by the author (Land Use – Cover / Built Poly).</td>
+          </tr>
+          <tr class="todo-row">
+            <td>Built_Hist_2024: built area 2024 (Built_24_clip)</td>
+            <td><span class="todo-tag">TO FILL</span> dataset, year, resolution, link</td>
+            <td>Supplied by the author (Land Use – Cover / Built Poly).</td>
+          </tr>
+          <tr>
+            <td>Comuna boundaries (32 comunas + 11 commuter-belt comunas)</td>
+            <td>caracena, <em>chile-geojson</em>, Región Metropolitana file (13.geojson), GitHub: github.com/caracena/chile-geojson</td>
+            <td>Downloaded for this site. <span class="todo-tag">TO FILL</span> check the original agency and license.</td>
+          </tr>
+          <tr>
+            <td>500 m hexagon grid</td>
+            <td>Generated for this site (flat-top hexagons, 500 m flat to flat, EPSG:8951 / UTM 19S)</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Key figures</h3>
+      <ul class="m-figures">
+        <li>Built area: <b>1,373.5 km²</b> in the region, 658 km² in the 32 comunas (2024).</li>
+        <li>Hexagons: <b>11,307</b> (at least 10% built).</li>
+        <li>Periods (natural breaks of the area-weighted mean year): 1576–1751 · 1752–1934 · 1935–1977 · 1978–2004 · 2005–2024.</li>
+        <li>Urbanization rate per hexagon: 0.02–10.8 ha/yr, median 0.40; full size from 1.15 ha/yr (90th percentile).</li>
+      </ul>
+
+      <h3>Limitations</h3>
+      <ul>
+        <li>The 2000 class mixes a historic growth ring with outlying towns mapped at that date, so 1998→2000 is not a real two-year change.</li>
+        <li>2010 and 2024 come from a different kind of source (land cover) than the historic growth map; part of the 2000–2010 jump may be a change of method.</li>
+        <li>Comuna figures assign each hexagon to the comuna containing its centre.</li>
+        <li><span class="todo-tag">TO FILL</span> other limitations (e.g. accuracy of the source maps).</li>
+      </ul>
+    </section>
+
+    <section id="hydrography" class="overview-section m-pending" style="--gc:#00ffff">
+      <h2><span class="toc-num">02</span> Hydrography</h2>
+      <p class="todo-block"><span class="todo-tag">TO FILL</span> Diagram and steps to come.</p>
+      <h3>Sources</h3>
+      <ul>
+        <li><span class="todo-tag">TO FILL</span> Hydrografia2 (rivers, streams, ravines, canals, reservoirs): origin and date. Simplified to 8 m and grouped by type for the web.</li>
+        <li><span class="todo-tag">TO FILL</span> Sistema Colector: Dirección de Obras Hidráulicas (DOH), dataset name, date, link. Cut to the Región Metropolitana and simplified to 5 m.</li>
+      </ul>
+    </section>
+
+    <section id="puntos-criticos" class="overview-section m-pending" style="--gc:#ff00ff">
+      <h2><span class="toc-num">03</span> Puntos críticos &amp; Risk Hotspots</h2>
+      <p class="todo-block"><span class="todo-tag">TO FILL</span> Diagram and steps to come.</p>
+      <h3>Sources</h3>
+      <ul>
+        <li>SENAPRED, <em>Puntos Críticos Invierno 2026</em> (Programa Invierno), ArcGIS MapServer
+          <code>visor-grd.senapred.gob.cl/arcgis/rest/services/PROG_INVIERNO_2/Puntos_Criticos_INV_2026/MapServer/0</code>.
+          Downloaded for this site: 2,320 points in the Región Metropolitana (of 15,552 nationwide). <span class="todo-tag">TO FILL</span> access date.</li>
+        <li>Risk Hotspots: kernel density (MapLibre heatmap) of those points, each weighted by risk: Bajo 0.5, Medio 1, Alto 3, Muy Alto 8.</li>
+      </ul>
+    </section>
+
+    <section id="base-map" class="overview-section m-pending" style="--gc:#c6ff33">
+      <h2><span class="toc-num">04</span> Base map</h2>
+      <p class="todo-block"><span class="todo-tag">TO FILL</span> Notes to come.</p>
+      <h3>Sources</h3>
+      <ul>
+        <li>Satellite imagery, terrain (elevation) and fonts: MapTiler (satellite-v2, terrain-rgb-v2), © MapTiler © OpenStreetMap contributors.</li>
+        <li>Comuna boundaries: see Urbanization sources.</li>
+      </ul>
+    </section>
+
+    <section id="social" class="overview-section m-pending" style="--gc:#c070ff">
+      <h2><span class="toc-num">05</span> Social</h2>
+      <p class="todo-block"><span class="todo-tag">TO FILL</span> Placeholder layer: data, sources and steps to come.</p>
+    </section>
+
+    <section id="criticos-placeholder" class="overview-section m-pending" style="--gc:#ffa31a">
+      <h2><span class="toc-num">06</span> Puntos críticos (orange placeholder)</h2>
+      <p class="todo-block"><span class="todo-tag">TO FILL</span> Placeholder layer: data, sources and steps to come.</p>
+    </section>
+  </div>
+</PageLayout>
+
+<script>
+  // Highlight the group you are reading in the contents.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-toc]")];
+  const sections = [...document.querySelectorAll<HTMLElement>(".overview-section")];
+  function update() {
+    let current = sections[0];
+    for (const s of sections) if (s.getBoundingClientRect().top <= 80) current = s;
+    for (const a of links) {
+      if (a.dataset.toc === current?.id) a.setAttribute("aria-current", "location");
+      else a.removeAttribute("aria-current");
+    }
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+
+  // Return: if you came from the Explore map (it saved its view), go back to
+  // it with that view restored; otherwise go back to the previous page.
+  const back = document.getElementById("method-return") as HTMLAnchorElement | null;
+  let saved = false;
+  try { saved = !!sessionStorage.getItem("exploreReturnView"); } catch { /* ignore */ }
+  if (back && saved) {
+    back.href = back.href + "?from=methodology";
+  } else if (back && document.referrer && new URL(document.referrer).origin === location.origin) {
+    back.addEventListener("click", (e) => { e.preventDefault(); history.back(); });
+  }
+</script>

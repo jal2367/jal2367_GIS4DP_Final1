@@ -2263,3 +2263,216 @@ ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color:
 .side-hidden .rail-card.is-active .rail-card-main::after {
   height: 42px;
 }
+
+/* Methodology page (src/pages/methodology.astro): flowchart, sources and the
+   TO FILL markers for what the author still has to complete. */
+.methodology .overview-section h2 {
+  color: var(--gc, #e8e8e8);
+}
+.overview-toc a[style*="--gc"]:hover,
+.overview-toc a[style*="--gc"][aria-current="location"] {
+  color: var(--gc) !important;
+}
+.methodology h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+  color: color-mix(in srgb, var(--gc, #e8e8e8) 75%, #d4d7db);
+  margin: 1.6em 0 0.5em;
+}
+.methodology code {
+  font-size: 0.9em;
+  color: #e8e8e8;
+  overflow-wrap: anywhere;
+}
+.todo-tag {
+  display: inline-block;
+  padding: 0 6px;
+  margin-right: 4px;
+  border: 1px dashed #ffee58;
+  border-radius: 3px;
+  color: #ffee58;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  vertical-align: 1px;
+}
+.todo-legend,
+.todo-block {
+  color: #9aa0a6;
+}
+.method-diagram {
+  margin: 1.4rem 0;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(20, 21, 24, 0.6);
+}
+.method-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.method-diagram figcaption {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #9aa0a6;
+}
+.m-box rect {
+  fill: rgba(255, 255, 255, 0.03);
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1;
+}
+.m-input rect {
+  fill: rgba(255, 0, 128, 0.12);
+  stroke: #ff0080;
+}
+.m-output rect {
+  fill: rgba(255, 0, 128, 0.22);
+  stroke: #ff0080;
+  stroke-width: 1.5;
+}
+.m-todo rect {
+  fill: rgba(255, 238, 88, 0.06);
+  stroke: #ffee58;
+  stroke-dasharray: 5 4;
+}
+.m-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  fill: #e8e8e8;
+  text-transform: uppercase;
+}
+.m-input .m-title,
+.m-output .m-title {
+  fill: #ff4d94;
+}
+.m-todo .m-title {
+  fill: #ffee58;
+}
+.m-line {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  fill: #c3c7cb;
+}
+.m-arrow {
+  fill: none;
+  stroke: #9aa0a6;
+  stroke-width: 1.2;
+}
+.m-sources {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.m-sources th {
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9aa0a6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 8px 6px 0;
+}
+.m-sources td {
+  vertical-align: top;
+  padding: 7px 8px 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.m-sources .todo-row td:first-child {
+  border-left: 2px dashed #ffee58;
+  padding-left: 8px;
+}
+.m-figures b {
+  color: #e8e8e8;
+}
+.m-pending h2 {
+  opacity: 0.85;
+}
+/* Methodology link at the bottom of each Explore side-panel section. */
+.panel-method-link {
+  display: inline-block;
+  margin: 6px 0 2px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  color: color-mix(in srgb, var(--map-accent) 75%, transparent) !important;
+  text-decoration: none;
+}
+.panel-method-link:hover {
+  color: var(--map-accent) !important;
+}
+.panel-section-body > .panel-method-link {
+  order: 99;
+  align-self: flex-start;
+}
+
+/* Methodology button pinned to the bottom of the Explore side panel, in the
+   open group's colour (replaces the per-section links). */
+.side-panel-method {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  margin-left: -14px;
+  margin-right: -14px;
+  margin-bottom: -12px;
+  padding: 12px 14px 14px;
+  background: rgba(16, 17, 20, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 2;
+}
+.side-panel-method[data-section="social"] { --mc: #c070ff; }
+.side-panel-method[data-section="criticos"] { --mc: #ffa31a; }
+.side-panel-method[data-section="hash"] { --mc: #ff00ff; }
+.side-panel-method[data-section="growth"] { --mc: #ff0080; }
+.side-panel-method[data-section="hydro"] { --mc: #00ffff; }
+.side-panel-method[data-section="base"] { --mc: #c6ff33; }
+.side-panel-method a {
+  display: block;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--mc, var(--map-accent)) 45%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--mc, var(--map-accent)) 10%, transparent);
+  color: var(--mc, var(--map-accent)) !important;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.side-panel-method a:hover {
+  background: color-mix(in srgb, var(--mc, var(--map-accent)) 22%, transparent);
+}
+.side-panel-method a:focus-visible {
+  outline: 2px solid var(--mc, var(--map-accent));
+  outline-offset: 2px;
+}
+/* The side panel has no bottom padding, so the Methodology button sits on
+   the bottom edge (a sticky footer stops at the padding). */
+.has-layer-rail .ml-map-chrome-top-left.side-panel {
+  padding-bottom: 0 !important;
+}
+.side-panel-method {
+  margin-bottom: 0;
+}
+
+/* Methodology page: Return button pinned to the bottom of its side panel,
+   in the same format as Explore's Methodology button. */
+.method-return-foot {
+  position: static;
+  flex: none;
+  margin: 0;
+  --mc: var(--map-accent);
+}
