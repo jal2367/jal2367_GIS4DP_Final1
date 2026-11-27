@@ -16,8 +16,8 @@ export const map = await loadMapConfig("./src/maps/full-page.yaml");
   >
     {/* Graduated size legend, drawn by src/scripts/size-legend.js */}
     <div slot="top-left" id="size-legend" class="accent-growth map-glass px-3 py-2 text-xs">
-      <strong class="map-title">Size: number of years</strong>
-      <svg class="block mt-1" role="img" aria-label="Hexagon sizes from 0 years (20%) to 54 or more years (100%)"></svg>
+      <strong class="map-title">Size: urbanization rate (ha/yr)</strong>
+      <svg class="block mt-1" role="img" aria-label="Hexagon sizes from 0 hectares per year (20%) to 1.15 or more hectares per year (100%)"></svg>
       <div data-scale-note class="text-[10px] opacity-75"></div>
     </div>
   </FullPageMap>

@@ -23,7 +23,10 @@ pnpm-debug.log*
 /.history
 
 # Original data exports (kept on this computer, not published). The map uses
-# the converted / trimmed copies: Hexa_wgs84, sistema_colector, hidrografia.
+# the converted / trimmed copies: Hexa_wgs84 and Hexa_sized (from Hexagons x
+# Built_Hist_2024), sistema_colector, hidrografia.
 public/data/Hexa.geojson
 public/data/Hydrografia2.geojson
 public/data/Sistema Colector.geojson
+public/data/Hexagons.geojson
+public/data/Built_Hist_2024.geojson

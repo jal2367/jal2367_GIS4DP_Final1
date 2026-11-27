@@ -6,17 +6,17 @@
 // src/scripts/map-panels.js.
 
 // Common footprint for every card, so the planes line up like one stack.
-const BBOX = [-70.97, -33.66, -70.43, -33.28]; // west, south, east, north: the 32 Santiago comunas
+const BBOX = [-70.97, -33.645, -70.16, -33.08]; // west, south, east, north: the Province of Santiago (32 comunas)
 const BEARING = -20; // the maps' bearing, so the drawings face the same way
 const SQUASH = 0.42; // vertical squash of the tilted plane
 const CARD_H = 104; // CSS px per card
 
 // Period colours of the hexagons, as in src/maps/full-page.yaml.
 const PERIODS = [
-  [1840, "#9b00e8"],
-  [1942.5, "#ff00ff"],
-  [1985.666667, "#ff4d94"],
-  [2014.4, "#ffa31a"],
+  [1751.45, "#9b00e8"],
+  [1934.25, "#ff00ff"],
+  [1977.95, "#ff4d94"],
+  [2004.45, "#ffa31a"],
   [Infinity, "#ffff00"],
 ];
 const periodColor = (y) => PERIODS.find(([max]) => y < max)[1];
@@ -68,7 +68,7 @@ const STACK = [
   {
     label: "Urbanization", swatch: ["#9b00e8", "#ffff00"], section: "growth",
     layers: (map) => map.getLayersOrder().filter((id) => id.startsWith("hexa-")),
-    draw: { kind: "vector", layer: "hexa-sized-1680-1806", width: 0.6, glow: true, color: (p) => periodColor(p.Year_Mean) },
+    draw: { kind: "vector", layer: "hexa-sized-1576-1751", width: 0.6, glow: true, color: (p) => periodColor(p.Year_Mean) },
   },
   {
     label: "Natural features", swatch: ["#00d6a8", "#c9fff0"], section: "hydro",
@@ -88,7 +88,7 @@ const STACK = [
   },
   {
     label: "Comunas", swatch: "#9aa4ac", section: "base",
-    layers: ["comunas-fill", "comunas-shadow", "comunas-outline", "comunas-labels"],
+    layers: ["comunas-fill", "comunas-shadow", "comunas-outline", "comunas-labels", "comunas-metro-outline", "comunas-metro-labels"],
     draw: { kind: "vector", layer: "comunas-outline", width: 0.7, color: () => "#b8c0c6" },
   },
   SATELLITE,

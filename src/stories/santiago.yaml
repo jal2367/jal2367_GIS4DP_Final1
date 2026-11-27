@@ -35,7 +35,7 @@ images:
 # The five periods, the same mesh colours, filters and sizes as the Growth
 # Periods map, draped over the terrain.
 # They all start hidden; each chapter reveals one more, so they build up.
-# The hexagons shrunk by number of years, the same file as the Growth Periods
+# The hexagons shrunk by urbanization rate, the same file as the Growth Periods
 # map: 0 years = 20% of full width, 54+ years = 100% (see src/maps/full-page.yaml).
 sources:
   hexa_sized:
@@ -43,50 +43,50 @@ sources:
     url: "/data/Hexa_sized.geojson"
 
 layers:
-  - id: story-1680-1806
+  - id: story-1576-1751
     type: fill
     source: hexa_sized
-    filter: ["<", ["get", "Year_Mean"], 1840]
+    filter: ["<", ["get", "Year_Mean"], 1751.45]
     layout:
       visibility: none
     paint:
       fill-pattern: grid-1   # #9b00e8 grid
       fill-opacity: 0.75
 
-  - id: story-1840-1941
+  - id: story-1752-1934
     type: fill
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1751.45], ["<", ["get", "Year_Mean"], 1934.25]]
     layout:
       visibility: none
     paint:
       fill-pattern: grid-2   # #ff00ff grid
       fill-opacity: 0.75
 
-  - id: story-1943-1985
+  - id: story-1935-1977
     type: fill
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1934.25], ["<", ["get", "Year_Mean"], 1977.95]]
     layout:
       visibility: none
     paint:
       fill-pattern: grid-3   # #ff4d94 grid
       fill-opacity: 0.75
 
-  - id: story-1986-2013
+  - id: story-1978-2004
     type: fill
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1977.95], ["<", ["get", "Year_Mean"], 2004.45]]
     layout:
       visibility: none
     paint:
       fill-pattern: grid-4   # #ffa31a grid
       fill-opacity: 0.75
 
-  - id: story-2014-2024
+  - id: story-2005-2024
     type: fill
     source: hexa_sized
-    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    filter: [">=", ["get", "Year_Mean"], 2004.45]
     layout:
       visibility: none
     paint:
@@ -94,10 +94,10 @@ layers:
       fill-opacity: 0.75
 
   # Comuna boundaries and names, on for the whole story.
-  - id: story-1680-1806-glow
+  - id: story-1576-1751-glow
     type: line
     source: hexa_sized
-    filter: ["<", ["get", "Year_Mean"], 1840]
+    filter: ["<", ["get", "Year_Mean"], 1751.45]
     layout:
       visibility: none
     paint:
@@ -106,10 +106,10 @@ layers:
       line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
       line-opacity: 0.45
 
-  - id: story-1680-1806-line
+  - id: story-1576-1751-line
     type: line
     source: hexa_sized
-    filter: ["<", ["get", "Year_Mean"], 1840]
+    filter: ["<", ["get", "Year_Mean"], 1751.45]
     layout:
       visibility: none
     paint:
@@ -117,10 +117,10 @@ layers:
       line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
       line-opacity: 0.95
 
-  - id: story-1840-1941-glow
+  - id: story-1752-1934-glow
     type: line
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1751.45], ["<", ["get", "Year_Mean"], 1934.25]]
     layout:
       visibility: none
     paint:
@@ -129,10 +129,10 @@ layers:
       line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
       line-opacity: 0.45
 
-  - id: story-1840-1941-line
+  - id: story-1752-1934-line
     type: line
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1840], ["<", ["get", "Year_Mean"], 1942.5]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1751.45], ["<", ["get", "Year_Mean"], 1934.25]]
     layout:
       visibility: none
     paint:
@@ -140,10 +140,10 @@ layers:
       line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
       line-opacity: 0.95
 
-  - id: story-1943-1985-glow
+  - id: story-1935-1977-glow
     type: line
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1934.25], ["<", ["get", "Year_Mean"], 1977.95]]
     layout:
       visibility: none
     paint:
@@ -152,10 +152,10 @@ layers:
       line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
       line-opacity: 0.45
 
-  - id: story-1943-1985-line
+  - id: story-1935-1977-line
     type: line
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1942.5], ["<", ["get", "Year_Mean"], 1985.666667]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1934.25], ["<", ["get", "Year_Mean"], 1977.95]]
     layout:
       visibility: none
     paint:
@@ -163,10 +163,10 @@ layers:
       line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
       line-opacity: 0.95
 
-  - id: story-1986-2013-glow
+  - id: story-1978-2004-glow
     type: line
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1977.95], ["<", ["get", "Year_Mean"], 2004.45]]
     layout:
       visibility: none
     paint:
@@ -175,10 +175,10 @@ layers:
       line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
       line-opacity: 0.45
 
-  - id: story-1986-2013-line
+  - id: story-1978-2004-line
     type: line
     source: hexa_sized
-    filter: ["all", [">=", ["get", "Year_Mean"], 1985.666667], ["<", ["get", "Year_Mean"], 2014.4]]
+    filter: ["all", [">=", ["get", "Year_Mean"], 1977.95], ["<", ["get", "Year_Mean"], 2004.45]]
     layout:
       visibility: none
     paint:
@@ -186,10 +186,10 @@ layers:
       line-width: ["interpolate", ["linear"], ["zoom"], 10, 0.6, 14, 1.6]
       line-opacity: 0.95
 
-  - id: story-2014-2024-glow
+  - id: story-2005-2024-glow
     type: line
     source: hexa_sized
-    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    filter: [">=", ["get", "Year_Mean"], 2004.45]
     layout:
       visibility: none
     paint:
@@ -198,10 +198,10 @@ layers:
       line-blur: ["interpolate", ["linear"], ["zoom"], 10, 2.5, 14, 7]
       line-opacity: 0.45
 
-  - id: story-2014-2024-line
+  - id: story-2005-2024-line
     type: line
     source: hexa_sized
-    filter: [">=", ["get", "Year_Mean"], 2014.4]
+    filter: [">=", ["get", "Year_Mean"], 2004.45]
     layout:
       visibility: none
     paint:
@@ -237,7 +237,7 @@ layers:
       text-halo-width: 1.5
 
   # Santiago and Providencia, where the oldest hexagons are: a thick white
-  # outline shown only in the 1680–1806 chapter.
+  # outline shown only in the 1576–1751 chapter.
   - id: story-highlight
     type: line
     source:
@@ -277,9 +277,9 @@ chapters:
     alignment: left
 
   - id: period-1
-    title: 1680–1806
+    title: 1576–1751
     description: >-
-      <p>[Write about the oldest period: 6 hexagons in the historic centre,
+      <p>[Write about the oldest period: 12 hexagons in the historic centre,
       in the comunas of Santiago and Providencia (outlined in white).]</p>
     center: [-70.640, -33.440]
     zoom: 12.8
@@ -287,12 +287,12 @@ chapters:
     bearing: -20
     alignment: left
     layers:
-      show: [story-1680-1806, story-1680-1806-glow, story-1680-1806-line, story-highlight]
+      show: [story-1576-1751, story-1576-1751-glow, story-1576-1751-line, story-highlight]
 
   - id: period-2
-    title: 1840–1941
+    title: 1752–1934
     description: >-
-      <p>[Write about this period: 69 hexagons spreading around the
+      <p>[Write about this period: 253 hexagons spreading around the
       centre.]</p>
     center: [-70.653, -33.460]
     zoom: 12
@@ -300,13 +300,13 @@ chapters:
     bearing: -10
     alignment: right
     layers:
-      show: [story-1840-1941, story-1840-1941-glow, story-1840-1941-line]
+      show: [story-1752-1934, story-1752-1934-glow, story-1752-1934-line]
       hide: [story-highlight]
 
   - id: period-3
-    title: 1943–1985
+    title: 1935–1977
     description: >-
-      <p>[Write about this period: 347 hexagons, the city growing outward in
+      <p>[Write about this period: 1,265 hexagons, the city growing outward in
       every direction.]</p>
     center: [-70.643, -33.481]
     zoom: 11
@@ -314,12 +314,12 @@ chapters:
     bearing: 0
     alignment: left
     layers:
-      show: [story-1943-1985, story-1943-1985-glow, story-1943-1985-line]
+      show: [story-1935-1977, story-1935-1977-glow, story-1935-1977-line]
 
   - id: period-4
-    title: 1986–2013
+    title: 1978–2004
     description: >-
-      <p>[Write about this period: 377 hexagons filling in the outer
+      <p>[Write about this period: 1,810 hexagons filling in the outer
       comunas.]</p>
     center: [-70.70, -33.47]
     zoom: 10.6
@@ -327,12 +327,12 @@ chapters:
     bearing: 15
     alignment: right
     layers:
-      show: [story-1986-2013, story-1986-2013-glow, story-1986-2013-line]
+      show: [story-1978-2004, story-1978-2004-glow, story-1978-2004-line]
 
   - id: period-5
-    title: 2014–2024
+    title: 2005–2024
     description: >-
-      <p>[Write about the newest period: 250 hexagons, the most recent
+      <p>[Write about the newest period: 7,967 hexagons, the most recent
       additions.]</p>
     center: [-70.70, -33.47]
     zoom: 10.4
@@ -340,7 +340,7 @@ chapters:
     bearing: -15
     alignment: left
     layers:
-      show: [story-2014-2024, story-2014-2024-glow, story-2014-2024-line]
+      show: [story-2005-2024, story-2005-2024-glow, story-2005-2024-line]
 
   - id: outro
     title: Santiago today

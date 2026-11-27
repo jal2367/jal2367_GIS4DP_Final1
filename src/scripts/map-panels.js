@@ -3,7 +3,7 @@
 //      checkboxes) from the top-right corner into the left column, so every
 //      legend feature sits on the left, ordered: info box, controls, colour
 //      legend, size legend;
-//   2. turns the period checkboxes (labels like "1680–1806") into rounded
+//   2. turns the period checkboxes (labels like "1576–1751") into rounded
 //      pill buttons with the period colour (styled in src/styles/global.css);
 //   3. adds the layer rail on the far left (src/scripts/layer-rail.js); the
 //      layer checkboxes it replaces are hidden in global.css.
@@ -14,11 +14,11 @@ import { buildCompass } from "./map-compass.js";
 import { buildLayerRail, railGroups, railPills, railWidth } from "./layer-rail.js";
 
 const PERIOD_COLORS = {
-  "1680–1806": "#9b00e8",
-  "1840–1941": "#ff00ff",
-  "1943–1985": "#ff4d94",
-  "1986–2013": "#ffa31a",
-  "2014–2024": "#ffff00",
+  "1576–1751": "#9b00e8",
+  "1752–1934": "#ff00ff",
+  "1935–1977": "#ff4d94",
+  "1978–2004": "#ffa31a",
+  "2005–2024": "#ffff00",
 };
 
 function leftColumn(root) {
@@ -242,12 +242,14 @@ function comunaPanel(root) {
     left.classList.remove("is-covered");
     left.inert = left.classList.contains("is-collapsed");
   };
+  // Numbers with a thousands separator and fixed decimals.
+  const fmt = (v, d = 1) => (v == null ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }));
   const row = (k, v) => `<div class="cp-row"><span>${k}</span><b>${v ?? "—"}</b></div>`;
   // An info group, its header in the colour of the layer it comes from
   // (data-section matches the rail's section colours).
   const cpOpen = {};
   const group = (section, title, body) => `
-    <section class="cp-group" data-section="${section}">
+    <section class="cp-group" data-section="${section}" data-key="${title}">
       <button type="button" class="cp-group-head" aria-expanded="true">
         <span>${title}</span><i class="cp-sign" aria-hidden="true"></i></button>
       <div class="cp-group-body">${body}</div>
@@ -275,6 +277,11 @@ function comunaPanel(root) {
       ${group("growth", "Urbanization",
         row("Mean year", p.Mean_year) + row("Period", p.Period) +
         row("Years covered", `${p.First_year}–${p.Last_year}`) + row("Hexagons", p.Hexagons))}
+      ${p.Built_km2_2024 != null ? group("growth", "Urbanization rate",
+        row("Built area 2000", `${fmt(p.Built_km2_2000)} km²`) + row("Built area 2024", `${fmt(p.Built_km2_2024)} km²`) +
+        row("Growth 2000–2024", p.Growth_pct_2000_2024 == null ? "—" : `+${fmt(p.Growth_pct_2000_2024, 0)}%`) +
+        row("Rate 2000–2024", `${fmt(p.Rate_ha_yr_2000_2024)} ha/yr`) +
+        row(`Rate since ${p.First_year}`, `${fmt(p.Rate_ha_yr_total)} ha/yr`)) : ""}
       ${counts ? group("hash", "Puntos críticos (invierno 2026)",
         row("Total", total) + RISK.map((r) => row(r, counts[r])).join("")) : ""}`;
     panel.querySelector(".cp-close").addEventListener("click", close);
@@ -285,9 +292,9 @@ function comunaPanel(root) {
       const set = (open) => {
         sec.classList.toggle("is-closed", !open);
         btn.setAttribute("aria-expanded", String(open));
-        cpOpen[sec.dataset.section] = open;
+        cpOpen[sec.dataset.key] = open;
       };
-      set(cpOpen[sec.dataset.section] !== false);
+      set(cpOpen[sec.dataset.key] !== false);
       btn.addEventListener("click", () => set(sec.classList.contains("is-closed")));
     }
     panel.hidden = false;
@@ -386,7 +393,7 @@ function pillifyPeriods(root) {
   }
 }
 
-// Other checkbox controls (e.g. "Average years of development"): checkbox before the label on
+// Other checkbox controls (e.g. "Urbanization rate"): checkbox before the label on
 // one line, like the layer checkboxes, instead of the label above it.
 function inlineToggles(root) {
   const panel = root.querySelector(".ml-map-params");

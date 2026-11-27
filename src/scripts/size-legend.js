@@ -1,20 +1,20 @@
-// Graduated size legend for the Santiago Map and the story (in the
-// page's accent colour): nested hexagons at 20%,
-// 40%, 60%, 80% and 100% of full size, drawn at TRUE SCALE for the current
-// zoom (at the map centre), with a ruler underneath in years.
+// Graduated size legend for the Santiago Map and the story (in the page's
+// accent colour): nested hexagons at 20%, 40%, 60%, 80% and 100% of full
+// size, drawn at TRUE SCALE for the current zoom (at the map centre), with a
+// ruler underneath in urbanization rate (built hectares per year).
 //
-// Sizes match public/data/Hexa_sized.geojson: 0 years = 20% of full width,
-// 54+ years = 100%, linear in between. A full hexagon is 1,154.7 m wide
-// (corner to corner) and 1,000 m tall (flat top to flat bottom).
+// Sizes match public/data/Hexa_sized.geojson: 0 ha/yr = 20% of full width,
+// 1.15 ha/yr or more (the fastest 10%) = 100%, linear in between. A full
+// hexagon is 577.4 m wide (corner to corner) and 500 m tall (flat top to flat bottom).
 
-const HEX_W_M = 1154.7;
-const HEX_H_M = 1000;
+const HEX_W_M = 577.4;
+const HEX_H_M = 500;
 const STEPS = [
   { size: 0.2, label: "0" },
-  { size: 0.4, label: "13.5" },
-  { size: 0.6, label: "27" },
-  { size: 0.8, label: "40.5" },
-  { size: 1.0, label: "54+" },
+  { size: 0.4, label: "0.3" },
+  { size: 0.6, label: "0.6" },
+  { size: 0.8, label: "0.9" },
+  { size: 1.0, label: "1.15+" },
 ];
 const MAX_PX = 180; // wider than this and the legend is shrunk (and says so); fits the side panel
 const PAD = 8;
