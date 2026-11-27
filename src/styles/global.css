@@ -2476,3 +2476,30 @@ ml-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color:
   margin: 0;
   --mc: var(--map-accent);
 }
+
+/* Methodology: steps and decisions lists. */
+.m-steps,
+.m-decisions {
+  padding-left: 1.2rem;
+}
+.m-steps li,
+.m-decisions li {
+  margin: 0.45em 0;
+}
+.m-steps b,
+.m-decisions b {
+  color: #e8e8e8;
+  font-weight: 600;
+}
+.m-steps li::marker,
+.m-decisions li::marker {
+  color: var(--gc, #e8e8e8);
+}
+.methodology .m-steps {
+  list-style: decimal;
+}
+.methodology .m-decisions,
+.methodology .overview-section > ul {
+  list-style: disc;
+  padding-left: 1.2rem;
+}

@@ -137,12 +137,25 @@ const H = 606;
         </tbody>
       </table>
 
+      <h3>Key decisions</h3>
+      <ul class="m-decisions">
+        <li><b>Area-weighted mean year.</b> Each hexagon's mean year weights every <code>crecimiento</code> year by the built area it covers inside the hexagon, not a simple average of the years present. A hexagon 90% built in 2010 and 10% in 1900 reads about 1999, not 1955, so small slivers of old fabric don't drag recent areas back in time.</li>
+        <li><b>500 m hexagons.</b> Fine enough to follow the edge of the built area and its gaps (parks, rivers, industrial land) while keeping the web file light (about 4 MB).</li>
+        <li><b>At least 10% built.</b> Hexagons that only graze scattered built patches are left out, so the layer represents urban surface rather than every cell touched by a building.</li>
+        <li><b>Areas from geometry.</b> All areas are measured from the polygons in UTM zone 19S (true metres), not taken from the source's stored area fields.</li>
+        <li><b>Urbanization rate.</b> Built hectares divided by the years it took to build, counted from the map date before the earliest year present (the source maps are dated 1541, 1600, 1900, 1920, 1940, 1952, 1960, 1970, 1982, 1996, 1998, 2000, 2010 and 2024) to the latest. A hexagon built entirely by 2010 counts as built over 2000–2010.</li>
+        <li><b>Natural breaks (Jenks), 5 classes</b> of the area-weighted mean year for colour, so periods follow the data rather than fixed dates.</li>
+        <li><b>Size cap at the 90th percentile.</b> Hexagon width runs from 20% (0 ha/yr) to 100% at 1.15 ha/yr, so a few extreme values don't shrink everything else.</li>
+        <li><b>Comuna assignment by centre.</b> Each hexagon belongs to the comuna that contains its centre. Comuna figures (built area 2000 and 2024, growth, rates) use all built area inside the comuna, before the 10% filter.</li>
+      </ul>
+
       <h3>Key figures</h3>
       <ul class="m-figures">
         <li>Built area: <b>1,373.5 km²</b> in the region, 658 km² in the 32 comunas (2024).</li>
         <li>Hexagons: <b>11,307</b> (at least 10% built).</li>
         <li>Periods (natural breaks of the area-weighted mean year): 1576–1751 · 1752–1934 · 1935–1977 · 1978–2004 · 2005–2024.</li>
         <li>Urbanization rate per hexagon: 0.02–10.8 ha/yr, median 0.40; full size from 1.15 ha/yr (90th percentile).</li>
+        <li>Built footprint of the region: 35 km² (1900) · 104 (1940) · 314 (1970) · 696 (2000) · 1,179 (2010) · 1,374 (2024).</li>
       </ul>
 
       <h3>Limitations</h3>
@@ -154,36 +167,128 @@ const H = 606;
       </ul>
     </section>
 
-    <section id="hydrography" class="overview-section m-pending" style="--gc:#00ffff">
+    <section id="hydrography" class="overview-section" style="--gc:#00ffff">
       <h2><span class="toc-num">02</span> Hydrography</h2>
-      <p class="todo-block"><span class="todo-tag">TO FILL</span> Diagram and steps to come.</p>
-      <h3>Sources</h3>
-      <ul>
-        <li><span class="todo-tag">TO FILL</span> Hydrografia2 (rivers, streams, ravines, canals, reservoirs): origin and date. Simplified to 8 m and grouped by type for the web.</li>
-        <li><span class="todo-tag">TO FILL</span> Sistema Colector: Dirección de Obras Hidráulicas (DOH), dataset name, date, link. Cut to the Región Metropolitana and simplified to 5 m.</li>
+      <p>Natural and engineered water: rivers, streams and ravines, and the canals, reservoirs and storm collector network built around them.</p>
+
+      <h3>Steps</h3>
+      <ol class="m-steps">
+        <li><b>Group the CAD layers by type.</b> The source's drawing layers become five types:
+          Rivers (RIO) · Streams (ESTERO) · Ravines (QUEBRADA, permanent and intermittent) ·
+          Canals (CANAL, ACUEDUCTO, including tunnels) · Reservoirs and ponds (EMBALSE, TRANQUE).</li>
+        <li><b>Drop what isn't water:</b> CAD audit leftovers, unlabelled lines ("ca") and mining tailings dams (TRANQUE DE RELAVE).</li>
+        <li><b>Lighten for the web:</b> lines simplified to 8 m, coordinates rounded to about 1 m, fragments under 1 m removed, and all lines of a type merged into one feature (9.1 → 4.3 MB).</li>
+        <li><b>Collector network:</b> cut to the Región Metropolitana (1,265 of 2,937 lines), keeping name, length and update date; simplified to 5 m (1.0 → 0.4 MB).</li>
+        <li><b>Style:</b> each type drawn with a glow; width, opacity and glow step down with size.</li>
+      </ol>
+
+      <h3>Key decisions</h3>
+      <ul class="m-decisions">
+        <li><b>Natural vs engineered.</b> Rivers, streams and ravines are natural features (aquamarine, deepest for rivers to palest for ravines). Canals, reservoirs and the collector network are engineered (dark violet, deepest for the collector to palest for reservoirs). Reservoirs and ponds count as engineered because most are man-made (embalses, tranques).</li>
+        <li><b>Visual hierarchy by size.</b> Rivers 3–8 px wide at full opacity with a strong glow, down to ravines 0.4–1 px, dashed, at 45%.</li>
+        <li><b>Whole region, not clipped</b> to the 32 comunas, so rivers and ravines read as continuous systems from the Andes.</li>
+        <li><b>Engineered features start off</b> to keep the opening map readable; natural features start on.</li>
       </ul>
+
+      <h3>Sources</h3>
+      <table class="m-sources">
+        <thead><tr><th>Data</th><th>Source</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr class="todo-row">
+            <td>Hydrography (Hydrografia2)</td>
+            <td><span class="todo-tag">TO FILL</span> agency, dataset, date, link</td>
+            <td>Supplied by the author as a CAD-derived GeoJSON (EPSG:4326), 25,025 lines.</td>
+          </tr>
+          <tr class="todo-row">
+            <td>Collector network (Sistema Colector)</td>
+            <td>Dirección de Obras Hidráulicas (DOH). <span class="todo-tag">TO FILL</span> dataset name, date, link</td>
+            <td>Supplied by the author (EPSG:4326), 2,937 lines nationwide.</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
-    <section id="puntos-criticos" class="overview-section m-pending" style="--gc:#ff00ff">
+    <section id="puntos-criticos" class="overview-section" style="--gc:#ff00ff">
       <h2><span class="toc-num">03</span> Puntos críticos &amp; Risk Hotspots</h2>
-      <p class="todo-block"><span class="todo-tag">TO FILL</span> Diagram and steps to come.</p>
+      <p>Winter critical points (flooding, overflow and drainage problems) identified for the 2026 winter programme, and where serious risk concentrates.</p>
+
+      <h3>Steps</h3>
+      <ol class="m-steps">
+        <li><b>Download</b> from SENAPRED's public ArcGIS service, filtered to the Región Metropolitana: 2,320 of 15,552 points nationwide, already in EPSG:4326.</li>
+        <li><b>Keep the fields used:</b> risk level (<code>nivel_de_riesgo</code>), comuna, sector, cause, main action and solution type.</li>
+        <li><b>Points:</b> one layer per risk level, graduated magenta from dim and small (Bajo) to bright and large with a glow (Muy Alto).</li>
+        <li><b>Risk Hotspots:</b> a kernel density surface of the points (MapLibre heatmap), weighted by risk level, in the same magenta ramp.</li>
+        <li><b>Comuna counts:</b> points inside each comuna's boundary, by risk level, shown in the comuna panel.</li>
+      </ol>
+
+      <h3>Key decisions</h3>
+      <ul class="m-decisions">
+        <li><b>Risk-weighted density.</b> Each point counts by its risk level: Bajo 0.5, Medio 1, Alto 3, Muy Alto 8. One Muy Alto point outweighs 16 Bajo ones, so hotspots show where serious risk concentrates rather than simply where points are numerous.</li>
+        <li><b>Kernel radius grows with zoom</b> (about 22 px at zoom 9 to 90 px at zoom 15), so the surface stays smooth at every scale.</li>
+        <li><b>Point-in-polygon for comunas.</b> Comuna counts and the study-area table test each point against the 32 comuna boundaries, rather than trusting the comuna name in the source.</li>
+        <li><b>Off at start,</b> so the opening map focuses on urbanization and water.</li>
+      </ul>
+
+      <h3>Key figures</h3>
+      <ul class="m-figures">
+        <li>Región Metropolitana: <b>2,320</b> points · Muy Alto 405 · Alto 790 · Medio 797 · Bajo 328.</li>
+        <li>32 comunas (study area): <b>1,179</b> points · Muy Alto 189 · Alto 407 · Medio 405 · Bajo 178.</li>
+      </ul>
+
       <h3>Sources</h3>
+      <table class="m-sources">
+        <thead><tr><th>Data</th><th>Source</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Puntos críticos de invierno 2026</td>
+            <td>SENAPRED, <em>Puntos Críticos Invierno 2026</em> (Programa Invierno), ArcGIS MapServer
+              <code>visor-grd.senapred.gob.cl/arcgis/rest/services/PROG_INVIERNO_2/Puntos_Criticos_INV_2026/MapServer/0</code>, accessed 22 November 2026.</td>
+            <td>A snapshot: later updates to SENAPRED's list are not included.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Limitations</h3>
       <ul>
-        <li>SENAPRED, <em>Puntos Críticos Invierno 2026</em> (Programa Invierno), ArcGIS MapServer
-          <code>visor-grd.senapred.gob.cl/arcgis/rest/services/PROG_INVIERNO_2/Puntos_Criticos_INV_2026/MapServer/0</code>.
-          Downloaded for this site: 2,320 points in the Región Metropolitana (of 15,552 nationwide). <span class="todo-tag">TO FILL</span> access date.</li>
-        <li>Risk Hotspots: kernel density (MapLibre heatmap) of those points, each weighted by risk: Bajo 0.5, Medio 1, Alto 3, Muy Alto 8.</li>
+        <li>Points mark reported problem locations, not measured flood extents.</li>
+        <li><span class="todo-tag">TO FILL</span> how SENAPRED assigns risk levels.</li>
       </ul>
     </section>
 
-    <section id="base-map" class="overview-section m-pending" style="--gc:#c6ff33">
+    <section id="base-map" class="overview-section" style="--gc:#c6ff33">
       <h2><span class="toc-num">04</span> Base map</h2>
-      <p class="todo-block"><span class="todo-tag">TO FILL</span> Notes to come.</p>
-      <h3>Sources</h3>
-      <ul>
-        <li>Satellite imagery, terrain (elevation) and fonts: MapTiler (satellite-v2, terrain-rgb-v2), © MapTiler © OpenStreetMap contributors.</li>
-        <li>Comuna boundaries: see Urbanization sources.</li>
+      <p>Dark, low-contrast context under the data layers: terrain, optional satellite imagery and comuna boundaries.</p>
+
+      <h3>Key decisions</h3>
+      <ul class="m-decisions">
+        <li><b>Dark, desaturated base.</b> Satellite imagery in grayscale at 25% brightness, rising slightly (to 40%) when zoomed in; hill shading darkened; road and ground vector layers hidden and 3D buildings removed, so the data layers carry the map.</li>
+        <li><b>Terrain</b> elevation exaggerated 1.5× to read the Andes and the valley.</li>
+        <li><b>Higher-resolution satellite</b> (MapTiler) chosen over a dated but coarser mosaic; satellite starts off.</li>
+        <li><b>Study area and context.</b> The 32 comunas of the Province of Santiago in solid lines (clickable, filterable); 11 commuter-belt comunas outside the province (Puente Alto, San Bernardo, Padre Hurtado, Pirque, Colina, Lampa, Calera de Tango, Buin, Paine, Talagante, Peñaflor) dashed, for context only. San José de Maipo is left out: its boundary covers a large stretch of the Andes.</li>
+        <li><b>Map limits:</b> zoom-out stops at the Province of Santiago and panning stays around it.</li>
       </ul>
+
+      <h3>Sources</h3>
+      <table class="m-sources">
+        <thead><tr><th>Data</th><th>Source</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Satellite imagery, terrain, base style and fonts</td>
+            <td>MapTiler (satellite-v2, terrain-rgb-v2), © MapTiler © OpenStreetMap contributors</td>
+            <td>Imagery acquisition date not published.</td>
+          </tr>
+          <tr>
+            <td>Comuna boundaries and labels</td>
+            <td>caracena, <em>chile-geojson</em>, Región Metropolitana file, github.com/caracena/chile-geojson</td>
+            <td>Label points made from the boundaries. <span class="todo-tag">TO FILL</span> original agency and license.</td>
+          </tr>
+          <tr>
+            <td>Map label typeface</td>
+            <td>JetBrains Mono (SIL Open Font License), self-hosted</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <section id="social" class="overview-section m-pending" style="--gc:#c070ff">
